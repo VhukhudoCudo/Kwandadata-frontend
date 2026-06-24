@@ -1,0 +1,166 @@
+<!-- ══════════════════════════════════════
+     MY WALLET PAGE
+══════════════════════════════════════ -->
+<div class="wallet-screen">
+
+  <!-- Top header -->
+  <div class="subpage-header">
+    <div class="subpage-left">
+      <button
+        class="icon-btn"
+        onclick="navigateTo('home')"
+      >
+        <i class="ti ti-arrow-left"></i>
+      </button>
+      <h2>My Wallet</h2>
+    </div>
+    <button class="icon-btn">
+      <i class="ti ti-world"></i>
+    </button>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="page-scroll">
+
+    <!-- Wallet card -->
+    <div class="wallet-card">
+      <div>
+        <p class="wallet-label">Available Balance</p>
+        <p class="wallet-amount">250 MB</p>
+        <p class="wallet-sub">Hello Wallet</p>
+      </div>
+      <div class="wallet-icon">
+        <i class="ti ti-wallet"></i>
+      </div>
+    </div>
+
+    <!-- Pending bonus -->
+    <div class="bonus-card bonus-card-green">
+      <div>
+        <p class="bonus-label">Pending Bonus</p>
+        <p class="bonus-amount">50 MB</p>
+      </div>
+      <div class="bonus-icon">
+        <i class="ti ti-gift"></i>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="section">
+      <div class="section-header">
+        <p class="section-title">Transaction History</p>
+        <select class="tx-filter" onchange="filterTransactions(this.value)">
+          <option value="all">All</option>
+          <option value="earned">Earned</option>
+          <option value="redeemed">Redeemed</option>
+        </select>
+      </div>
+
+      <!-- Transaction list -->
+      <div class="tx-list" id="tx-list">
+
+        <!-- Transaction 1 -->
+        <div class="tx-item" data-type="earned">
+          <div class="tx-icon">
+            <i class="ti ti-file-check"></i>
+          </div>
+          <div class="tx-info">
+            <h4>Survey Completed</h4>
+            <p>Today, 10:30 AM</p>
+          </div>
+          <span class="tx-amount positive">+50 MB</span>
+        </div>
+
+        <!-- Transaction 2 -->
+        <div class="tx-item" data-type="earned">
+          <div class="tx-icon">
+            <i class="ti ti-player-play"></i>
+          </div>
+          <div class="tx-info">
+            <h4>Video Watched</h4>
+            <p>Today, 09:15 AM</p>
+          </div>
+          <span class="tx-amount positive">+20 MB</span>
+        </div>
+
+        <!-- Transaction 3 -->
+        <div class="tx-item" data-type="redeemed">
+          <div class="tx-icon">
+            <i class="ti ti-refresh"></i>
+          </div>
+          <div class="tx-info">
+            <h4>Data Redeemed</h4>
+            <p>Yesterday, 08:40 PM</p>
+          </div>
+          <span class="tx-amount negative">-30 MB</span>
+        </div>
+
+        <!-- Transaction 4 -->
+        <div class="tx-item" data-type="earned">
+          <div class="tx-icon">
+            <i class="ti ti-tag"></i>
+          </div>
+          <div class="tx-info">
+            <h4>Partner Offer</h4>
+            <p>Yesterday, 04:20 PM</p>
+          </div>
+          <span class="tx-amount positive">+100 MB</span>
+        </div>
+
+        <!-- Transaction 5 -->
+        <div class="tx-item" data-type="earned">
+          <div class="tx-icon">
+            <i class="ti ti-help-circle"></i>
+          </div>
+          <div class="tx-info">
+            <h4>Daily Quiz</h4>
+            <p>Yesterday, 11:10 AM</p>
+          </div>
+          <span class="tx-amount positive">+10 MB</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <button
+      class="nav-item"
+      onclick="navigateTo('home')"
+    >
+      <i class="ti ti-home"></i>
+      <span>Home</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('earn')"
+    >
+      <i class="ti ti-database"></i>
+      <span>Earn</span>
+    </button>
+    <button
+      class="nav-item active"
+      onclick="navigateTo('wallet')"
+    >
+      <i class="ti ti-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('redeem')"
+    >
+      <i class="ti ti-refresh"></i>
+      <span>Redeem</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('profile')"
+    >
+      <i class="ti ti-user"></i>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+</div>

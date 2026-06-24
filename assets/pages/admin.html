@@ -1,0 +1,152 @@
+<!-- ══════════════════════════════════════
+     ADMIN DASHBOARD PAGE
+══════════════════════════════════════ -->
+<div class="admin-screen">
+
+  <!-- Top header -->
+  <div class="admin-header">
+    <button class="icon-btn">
+      <i class="ti ti-menu-2"></i>
+    </button>
+    <h2>Admin Dashboard</h2>
+    <button class="icon-btn" style="position:relative;">
+      <i class="ti ti-bell"></i>
+      <span class="notif-dot"></span>
+    </button>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="page-scroll">
+
+    <!-- Stats grid -->
+    <div class="stat-grid">
+
+      <!-- Total Users -->
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <i class="ti ti-users"></i>
+        </div>
+        <p class="stat-label">Total Users</p>
+        <p class="stat-value">12,458</p>
+      </div>
+
+      <!-- Active Today -->
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <i class="ti ti-user-check"></i>
+        </div>
+        <p class="stat-label">Active Today</p>
+        <p class="stat-value">1,245</p>
+      </div>
+
+      <!-- Data Distributed -->
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <i class="ti ti-database"></i>
+        </div>
+        <p class="stat-label">Data Distributed</p>
+        <p class="stat-value">245 GB</p>
+      </div>
+
+      <!-- Activities Completed -->
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <i class="ti ti-check"></i>
+        </div>
+        <p class="stat-label">Activities Completed</p>
+        <p class="stat-value">8,742</p>
+      </div>
+
+    </div>
+
+    <!-- Platform Overview Chart -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <p class="chart-title">Platform Overview</p>
+        <select class="chart-period" onchange="updateChart(this.value)">
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+      </div>
+      <canvas id="admin-chart" height="120"></canvas>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="section" style="margin-top:12px;">
+      <div class="section-header">
+        <p class="section-title">Recent Activities</p>
+        <span class="section-link">View all ›</span>
+      </div>
+
+      <div class="admin-activity-list" id="admin-activity-list">
+
+        <!-- Activity 1 -->
+        <div class="admin-activity-item">
+          <div class="admin-activity-icon">
+            <i class="ti ti-wifi"></i>
+          </div>
+          <div class="admin-activity-info">
+            <h4>User Registration</h4>
+            <p>Today, 10:30 AM</p>
+          </div>
+          <span class="admin-activity-delta positive">+34 ›</span>
+        </div>
+
+        <!-- Activity 2 -->
+        <div class="admin-activity-item">
+          <div class="admin-activity-icon">
+            <i class="ti ti-file-check"></i>
+          </div>
+          <div class="admin-activity-info">
+            <h4>Survey Completed</h4>
+            <p>Today, 10:15 AM</p>
+          </div>
+          <span class="admin-activity-delta positive">+120 ›</span>
+        </div>
+
+        <!-- Activity 3 -->
+        <div class="admin-activity-item">
+          <div class="admin-activity-icon">
+            <i class="ti ti-refresh"></i>
+          </div>
+          <div class="admin-activity-info">
+            <h4>Data Redeemed</h4>
+            <p>Today, 09:50 AM</p>
+          </div>
+          <span class="admin-activity-delta negative">-80 ›</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Admin bottom navigation -->
+  <nav class="admin-nav">
+    <button class="admin-nav-item active">
+      <i class="ti ti-layout-dashboard"></i>
+      <span>Overview</span>
+    </button>
+    <button class="admin-nav-item">
+      <i class="ti ti-users"></i>
+      <span>Users</span>
+    </button>
+    <button class="admin-nav-item">
+      <i class="ti ti-list-check"></i>
+      <span>Activities</span>
+    </button>
+    <button class="admin-nav-item">
+      <i class="ti ti-wallet"></i>
+      <span>Wallets</span>
+    </button>
+    <button
+      class="admin-nav-item"
+      onclick="navigateTo('home')"
+    >
+      <i class="ti ti-logout"></i>
+      <span>Exit</span>
+    </button>
+  </nav>
+
+</div>

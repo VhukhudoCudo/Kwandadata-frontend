@@ -1,0 +1,158 @@
+/* ── KwandaData — Home Dashboard Styles ── */
+
+/* ── Home screen wrapper ── */
+.home-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ── Top header ── */
+.home-header {
+  padding: 48px 20px 16px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.home-greeting {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.home-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Notification button ── */
+.notif-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--bg);
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-primary);
+  position: relative;
+}
+.notif-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+/* ── Quick action cards grid ── */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.action-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.action-card:hover {
+  box-shadow: 0 2px 12px rgba(45, 27, 142, 0.1);
+}
+.action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #ffffff;
+}
+.action-icon.green  { background: var(--accent-green); }
+.action-icon.purple { background: var(--primary); }
+.action-icon.violet { background: var(--accent-purple); }
+.action-icon.orange { background: var(--accent-orange); }
+
+.action-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.action-card p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── Key Highlights section ── */
+.highlights {
+  padding: 32px 16px;
+  background: #ffffff;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+.highlights h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 20px;
+}
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.highlight-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.highlight-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #ffffff;
+}
+.highlight-item h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.highlight-item p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── App footer ── */
+.kwanda-footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+  background: #ffffff;
+}

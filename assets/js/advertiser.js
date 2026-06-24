@@ -1,0 +1,747 @@
+/* ══════════════════════════════════════
+   KwandaData - Advertiser JS
+   Full clean version
+══════════════════════════════════════ */
+
+var CAMPAIGN_PRICES = { "survey":15.00, "video":5.00, "quiz":8.00, "download":20.00, "signup":25.00 };
+var ADMIN_EMAIL     = "admin@kwandadata.co.za";
+var ADMIN_REGNR     = "2024/000001/07";
+var ADMIN_PASS      = "KwandaAdmin@2025";
+
+function getAdvertiserSession() {
+  var s = localStorage.getItem("kwanda_advertiser_session");
+  return s ? JSON.parse(s) : null;
+}
+
+function isAdminSession() {
+  var adv = getAdvertiserSession();
+  return adv && adv.isAdmin === true;
+}
+
+function advertiserLogout() {
+  localStorage.removeItem("kwanda_advertiser_session");
+  navigateTo("splash");
+}
+
+function getAdvertiserCampaigns(advId) {
+  var s   = localStorage.getItem("kwanda_campaigns");
+  var all = s ? JSON.parse(s) : [];
+  return all.filter(function(c) { return c.advertiserId === advId; });
+}
+
+function handleAdvertiserLogin() {
+  var email    = document.getElementById("adv-login-email")    ? document.getElementById("adv-login-email").value.trim() : "";
+  var password = document.getElementById("adv-login-password") ? document.getElementById("adv-login-password").value     : "";
+  var errorEl  = document.getElementById("adv-login-error");
+  if (errorEl) errorEl.textContent = "";
+  if (!email)    { if (errorEl) errorEl.textContent = "Please enter your business email."; return; }
+  if (!password) { if (errorEl) errorEl.textContent = "Please enter your password.";       return; }
+
+  if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
+    var adminSession = { id:"kwanda-admin", company:"KwandaData Admin", email:ADMIN_EMAIL, regNum:ADMIN_REGNR, isAdmin:true, budget:0 };
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adminSession));
+    navigateTo("admin-panel");
+    return;
+  }
+
+  var stored      = localStorage.getItem("kwanda_advertisers");
+  var advertisers = stored ? JSON.parse(stored) : [];
+  var advertiser  = advertisers.find(function(a) { return a.email === email && a.password === password; });
+  if (!advertiser) { if (errorEl) errorEl.textContent = "Incorrect email or password."; return; }
+  var session = Object.assign({}, advertiser);
+  delete session.password;
+  localStorage.setItem("kwanda_advertiser_session", JSON.stringify(session));
+  navigateTo("advertiser-dashboard");
+}
+
+function handleAdvertiserRegister() {
+  var company  = document.getElementById("adv-company")    ? document.getElementById("adv-company").value.trim()    : "";
+  var industry = document.getElementById("adv-industry")   ? document.getElementById("adv-industry").value           : "";
+  var contact  = document.getElementById("adv-contact")    ? document.getElementById("adv-contact").value.trim()    : "";
+  var phone    = document.getElementById("adv-phone")      ? document.getElementById("adv-phone").value.trim()      : "";
+  var email    = document.getElementById("adv-email")      ? document.getElementById("adv-email").value.trim()      : "";
+  var regNum   = document.getElementById("adv-reg-number") ? document.getElementById("adv-reg-number").value.trim() : "";
+  var password = document.getElementById("adv-password")   ? document.getElementById("adv-password").value           : "";
+  var confirm  = document.getElementById("adv-confirm")    ? document.getElementById("adv-confirm").value            : "";
+  var terms    = document.getElementById("adv-terms");
+  var errorEl  = document.getElementById("adv-reg-error");
+  if (errorEl) errorEl.textContent = "";
+  if (!company)  { if (errorEl) errorEl.textContent = "Please enter your company name.";                return; }
+  if (!industry) { if (errorEl) errorEl.textContent = "Please select your industry.";                   return; }
+  if (!contact)  { if (errorEl) errorEl.textContent = "Please enter the contact person name.";          return; }
+  if (!phone)    { if (errorEl) errorEl.textContent = "Please enter your phone number.";                return; }
+  if (!email || email.indexOf("@") === -1) { if (errorEl) errorEl.textContent = "Please enter a valid business email."; return; }
+  if (!regNum)   { if (errorEl) errorEl.textContent = "Please enter your company registration number."; return; }
+  if (password.length < 6)  { if (errorEl) errorEl.textContent = "Password must be at least 6 characters."; return; }
+  if (password !== confirm)  { if (errorEl) errorEl.textContent = "Passwords do not match.";            return; }
+  if (!terms || !terms.checked) { if (errorEl) errorEl.textContent = "Please accept the Terms of Service."; return; }
+  var stored      = localStorage.getItem("kwanda_advertisers");
+  var advertisers = stored ? JSON.parse(stored) : [];
+  var exists      = advertisers.find(function(a) { return a.email === email; });
+  if (exists) { if (errorEl) errorEl.textContent = "An account with this email already exists."; return; }
+  var newAdv = { id:Date.now().toString(), company:company, industry:industry, contact:contact, phone:phone, email:email, regNum:regNum, password:password, budget:0, status:"active", createdAt:new Date().toISOString() };
+  advertisers.push(newAdv);
+  localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
+  var session = Object.assign({}, newAdv);
+  delete session.password;
+  localStorage.setItem("kwanda_advertiser_session", JSON.stringify(session));
+  alert("Business account created! Welcome to KwandaData, " + company + "!");
+  navigateTo("advertiser-dashboard");
+}
+
+function initAdvertiserDashboard() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  if (adv.isAdmin) { navigateTo("admin-panel"); return; }
+  var greetingEl = document.getElementById("adv-greeting");
+  var hour = new Date().getHours();
+  if (greetingEl) {
+    if (hour >= 5 && hour < 12)       greetingEl.textContent = "Good morning";
+    else if (hour >= 12 && hour < 17) greetingEl.textContent = "Good afternoon";
+    else if (hour >= 17 && hour < 21) greetingEl.textContent = "Good evening";
+    else                               greetingEl.textContent = "Good night";
+  }
+  var nameEl = document.getElementById("adv-company-name");
+  if (nameEl) nameEl.textContent = adv.company || "Company";
+  var budgetEl = document.getElementById("adv-budget");
+  if (budgetEl) budgetEl.textContent = "R " + (adv.budget || 0).toFixed(2);
+  var campaigns  = getAdvertiserCampaigns(adv.id);
+  var active     = campaigns.filter(function(c) { return c.status === "active"; });
+  var totalComp  = campaigns.reduce(function(sum, c) { return sum + (c.completions || 0); }, 0);
+  var totalSpent = campaigns.reduce(function(sum, c) { return sum + (c.spent || 0); }, 0);
+  var el = function(id) { return document.getElementById(id); };
+  if (el("adv-total-campaigns"))   el("adv-total-campaigns").textContent  = campaigns.length;
+  if (el("adv-active-campaigns"))  el("adv-active-campaigns").textContent = active.length;
+  if (el("adv-total-completions")) el("adv-total-completions").textContent = totalComp;
+  if (el("adv-total-spent"))       el("adv-total-spent").textContent      = "R " + totalSpent.toFixed(2);
+  loadRecentCampaigns(adv.id);
+}
+
+function loadRecentCampaigns(advId) {
+  var container = document.getElementById("adv-recent-campaigns");
+  if (!container) return;
+  var campaigns = getAdvertiserCampaigns(advId).slice(0, 3);
+  if (campaigns.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No campaigns yet</p></div>";
+    return;
+  }
+  var sc = { active:"#22c55e", pending:"#f97316", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
+  var sb = { active:"#dcfce7", pending:"#fff7ed", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
+  container.innerHTML = campaigns.map(function(c) {
+    var color = sc[c.status]||"#9089cc"; var bg = sb[c.status]||"#ede9fe";
+    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:3px 10px;border-radius:20px;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div><div style='display:flex;gap:16px;'><p style='font-size:12px;color:var(--text-muted);'>Completions: <strong>" + (c.completions||0) + "</strong></p><p style='font-size:12px;color:var(--text-muted);'>Spent: <strong>R " + (c.spent||0).toFixed(2) + "</strong></p></div></div>";
+  }).join("");
+}
+
+function updateCampPrice() {
+  var typeEl   = document.getElementById("camp-type");
+  var budgetEl = document.getElementById("camp-budget");
+  if (!typeEl) return;
+  var type   = typeEl.value;
+  var price  = CAMPAIGN_PRICES[type] || 0;
+  var budget = parseFloat(budgetEl ? budgetEl.value : "0") || 0;
+  var comps  = price > 0 && budget > 0 ? Math.floor(budget / price) : 0;
+  var el = function(id) { return document.getElementById(id); };
+  if (el("camp-price-display")) el("camp-price-display").textContent = price > 0 ? "R " + price.toFixed(2) : "Select activity type";
+  if (el("camp-completions"))   el("camp-completions").textContent   = comps > 0 ? comps + " users" : "-";
+  if (el("camp-total-cost"))    el("camp-total-cost").textContent    = budget > 0 ? "R " + budget.toFixed(2) : "-";
+}
+
+function submitCampaign() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  var el      = function(id) { return document.getElementById(id); };
+  var name    = el("camp-name")        ? el("camp-name").value.trim()        : "";
+  var type    = el("camp-type")        ? el("camp-type").value                : "";
+  var desc    = el("camp-description") ? el("camp-description").value.trim() : "";
+  var budget  = parseFloat(el("camp-budget") ? el("camp-budget").value : "0");
+  var start   = el("camp-start")       ? el("camp-start").value               : "";
+  var end     = el("camp-end")         ? el("camp-end").value                 : "";
+  var target  = el("camp-target")      ? el("camp-target").value              : "all";
+  var errorEl = el("camp-error");
+  if (errorEl) errorEl.textContent = "";
+  if (!name)                         { if (errorEl) errorEl.textContent = "Please enter a campaign name.";        return; }
+  if (!type)                         { if (errorEl) errorEl.textContent = "Please select an activity type.";      return; }
+  if (!desc)                         { if (errorEl) errorEl.textContent = "Please enter a campaign description."; return; }
+  if (isNaN(budget) || budget < 500) { if (errorEl) errorEl.textContent = "Minimum budget is R 500.00.";         return; }
+  if (!start)                        { if (errorEl) errorEl.textContent = "Please select a start date.";          return; }
+  if (!end)                          { if (errorEl) errorEl.textContent = "Please select an end date.";           return; }
+  if (start >= end)                  { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
+  if ((adv.budget||0) < budget)      { if (errorEl) errorEl.textContent = "Insufficient budget. Please top up first."; return; }
+  var price    = CAMPAIGN_PRICES[type] || 0;
+  var campaign = { id:Date.now().toString(), advertiserId:adv.id, companyName:adv.company, name:name, type:type, desc:desc, budget:budget, price:price, start:start, end:end, target:target, status:"pending", completions:0, spent:0, createdAt:new Date().toISOString() };
+  var stored    = localStorage.getItem("kwanda_campaigns");
+  var campaigns = stored ? JSON.parse(stored) : [];
+  campaigns.push(campaign);
+  localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
+  var advStored   = localStorage.getItem("kwanda_advertisers");
+  var advertisers = advStored ? JSON.parse(advStored) : [];
+  var advIndex    = advertisers.findIndex(function(a) { return a.id === adv.id; });
+  if (advIndex !== -1) {
+    advertisers[advIndex].budget = (advertisers[advIndex].budget||0) - budget;
+    localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
+    adv.budget = advertisers[advIndex].budget;
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adv));
+  }
+  alert("Campaign submitted! Awaiting KwandaData approval.");
+  navigateTo("advertiser-dashboard");
+}
+
+function initAdvertiserCampaigns() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  renderCampaignsList(adv.id, "all");
+}
+
+function filterCampaigns(status) {
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+  ["all","pending","active","paused","completed"].forEach(function(s) {
+    var btn = document.getElementById("filter-" + s);
+    if (btn) { btn.style.background = s===status?"#f97316":"#fff"; btn.style.color = s===status?"#fff":"var(--text-muted)"; btn.style.border = s===status?"none":"1px solid var(--border)"; }
+  });
+  renderCampaignsList(adv.id, status);
+}
+
+function renderCampaignsList(advId, filter) {
+  var container = document.getElementById("campaigns-list");
+  if (!container) return;
+  var campaigns = getAdvertiserCampaigns(advId);
+  var filtered  = filter === "all" ? campaigns : campaigns.filter(function(c) { return c.status === filter; });
+  if (filtered.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:40px 16px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No campaigns found</p></div>";
+    return;
+  }
+  var sc = { active:"#22c55e", pending:"#f97316", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
+  var sb = { active:"#dcfce7", pending:"#fff7ed", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
+  container.innerHTML = filtered.map(function(c) {
+    var color = sc[c.status]||"#9089cc"; var bg = sb[c.status]||"#ede9fe";
+    var remaining    = (c.budget||0) - (c.spent||0);
+    var canResume    = c.status==="paused";
+    var canStop      = c.status==="active"||c.status==="paused";
+    var canAddBudget = c.status==="completed"||c.status==="active";
+    var statsHtml = c.status!=="pending"
+      ? "<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Completions</p><p style='font-size:16px;font-weight:700;color:var(--primary);'>" + (c.completions||0) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + (c.spent||0).toFixed(2) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + remaining.toFixed(2) + "</p></div></div>"
+      : "<div style='background:#fff7ed;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-clock' style='color:#f97316;margin-right:4px;'></i><span style='font-size:12px;color:#f97316;font-weight:600;'>Awaiting approval from KwandaData</span></div>";
+    var actionsHtml = (canResume||canStop)
+      ? "<div style='display:flex;gap:8px;'>" + (canResume?"<button onclick=\"resumeCampaign('"+c.id+"')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:13px;font-weight:600;cursor:pointer;'>Resume</button>":"") + (canStop?"<button onclick=\"stopCampaign('"+c.id+"')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;'>Stop</button>":"") + "</div>" : "";
+    var addBudgetHtml = canAddBudget ? "<button onclick=\"addCampaignBudget('"+c.id+"')\" style='width:100%;margin-top:8px;padding:10px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>+ Add More Budget</button>" : "";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + c.type.charAt(0).toUpperCase() + c.type.slice(1) + " - R " + c.price.toFixed(2) + " per completion</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>" + statsHtml + actionsHtml + addBudgetHtml + "</div>";
+  }).join("");
+}
+
+function addCampaignBudget(campId) {
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+  var stored    = localStorage.getItem("kwanda_campaigns");
+  var campaigns = stored ? JSON.parse(stored) : [];
+  var camp      = campaigns.find(function(c) { return c.id === campId; });
+  if (!camp) return;
+  var advStored   = localStorage.getItem("kwanda_advertisers");
+  var advertisers = advStored ? JSON.parse(advStored) : [];
+  var adv_        = advertisers.find(function(a) { return a.id === adv.id; });
+  var available   = adv_ ? (adv_.budget || 0) : 0;
+  if (available <= 0) { alert("You have no available budget. Please top up first."); navigateTo("advertiser-billing"); return; }
+  var input = prompt("Add budget to: " + camp.name + "\nAvailable: R " + available.toFixed(2) + "\nHow much to add? (R)");
+  if (!input) return;
+  var amount = parseFloat(input);
+  if (isNaN(amount) || amount <= 0) { alert("Please enter a valid amount."); return; }
+  if (amount > available)           { alert("Not enough budget. Available: R " + available.toFixed(2)); return; }
+  var advIndex = advertisers.findIndex(function(a) { return a.id === adv.id; });
+  if (advIndex !== -1) {
+    advertisers[advIndex].budget = available - amount;
+    localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
+    adv.budget = advertisers[advIndex].budget;
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adv));
+  }
+  var campIndex = campaigns.findIndex(function(c) { return c.id === campId; });
+  if (campIndex !== -1) {
+    campaigns[campIndex].budget = (campaigns[campIndex].budget || 0) + amount;
+    if (campaigns[campIndex].status === "completed") campaigns[campIndex].status = "active";
+    localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
+  }
+  alert("Budget added! R " + amount.toFixed(2) + " added.");
+  initAdvertiserCampaigns();
+}
+
+function pauseCampaign(campId) {
+  if (!confirm("Pause this campaign?")) return;
+  updateCampaignStatus(campId, "paused");
+  alert("Campaign paused.");
+  initAdvertiserCampaigns();
+}
+
+function resumeCampaign(campId) {
+  updateCampaignStatus(campId, "active");
+  alert("Campaign resumed.");
+  initAdvertiserCampaigns();
+}
+
+function stopCampaign(campId) {
+  var stored    = localStorage.getItem("kwanda_campaigns");
+  var campaigns = stored ? JSON.parse(stored) : [];
+  var camp      = campaigns.find(function(c) { return c.id === campId; });
+  if (!camp) return;
+  var remaining = (camp.budget||0) - (camp.spent||0);
+  var penalty   = remaining * 0.20;
+  var refund    = remaining - penalty;
+  if (!confirm("Stop campaign? Fee: R " + penalty.toFixed(2) + " | Refund: R " + refund.toFixed(2))) return;
+  updateCampaignStatus(campId, "completed");
+  var adv         = getAdvertiserSession();
+  var advStored   = localStorage.getItem("kwanda_advertisers");
+  var advertisers = advStored ? JSON.parse(advStored) : [];
+  var advIndex    = advertisers.findIndex(function(a) { return a.id === adv.id; });
+  if (advIndex !== -1) {
+    advertisers[advIndex].budget = (advertisers[advIndex].budget||0) + refund;
+    localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
+    adv.budget = advertisers[advIndex].budget;
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adv));
+  }
+  alert("Campaign stopped. Refund: R " + refund.toFixed(2));
+  initAdvertiserCampaigns();
+}
+
+function updateCampaignStatus(campId, newStatus) {
+  var stored    = localStorage.getItem("kwanda_campaigns");
+  var campaigns = stored ? JSON.parse(stored) : [];
+  var index     = campaigns.findIndex(function(c) { return c.id === campId; });
+  if (index !== -1) { campaigns[index].status = newStatus; localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns)); }
+}
+
+var advChartInstance = null;
+
+function initAdvertiserAnalytics() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  var campaigns  = getAdvertiserCampaigns(adv.id);
+  var totalComp  = campaigns.reduce(function(sum, c) { return sum + (c.completions||0); }, 0);
+  var totalSpent = campaigns.reduce(function(sum, c) { return sum + (c.spent||0); }, 0);
+  var totalImpr  = totalComp * 3;
+  var rate       = totalImpr > 0 ? Math.round((totalComp / totalImpr) * 100) : 0;
+  var el = function(id) { return document.getElementById(id); };
+  if (el("analytics-impressions")) el("analytics-impressions").textContent = totalImpr.toLocaleString();
+  if (el("analytics-completions")) el("analytics-completions").textContent = totalComp.toLocaleString();
+  if (el("analytics-rate"))        el("analytics-rate").textContent        = rate + "%";
+  if (el("analytics-spent"))       el("analytics-spent").textContent       = "R " + totalSpent.toFixed(2);
+  drawAdvChart("week");
+  renderAnalyticsBreakdown(campaigns);
+}
+
+function drawAdvChart(period) {
+  var canvas = document.getElementById("adv-chart");
+  if (!canvas || typeof Chart === "undefined") return;
+  if (advChartInstance) { advChartInstance.destroy(); advChartInstance = null; }
+  var labels = period==="week" ? ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] : ["Week 1","Week 2","Week 3","Week 4"];
+  var data   = period==="week" ? [12,18,15,22,19,25,20] : [85,92,78,105];
+  advChartInstance = new Chart(canvas.getContext("2d"), {
+    type:"bar", data:{ labels:labels, datasets:[{ data:data, backgroundColor:"rgba(249,115,22,0.7)", borderColor:"#f97316", borderWidth:2, borderRadius:6 }] },
+    options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ font:{ size:11 }, color:"#9089cc" } }, y:{ grid:{ color:"#f0f0f8" }, ticks:{ font:{ size:11 }, color:"#9089cc" } } } }
+  });
+}
+
+function updateAdvChart(period) { drawAdvChart(period); }
+
+function renderAnalyticsBreakdown(campaigns) {
+  var container = document.getElementById("analytics-breakdown");
+  if (!container) return;
+  if (!campaigns || campaigns.length === 0) {
+    container.innerHTML = "<div style='background:#fff;border-radius:14px;padding:24px;border:1px solid var(--border);text-align:center;color:var(--text-muted);'><i class='ti ti-chart-bar' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No campaign data yet</p></div>";
+    return;
+  }
+  container.innerHTML = campaigns.map(function(c) {
+    var pct = c.budget > 0 ? Math.round(((c.spent||0)/c.budget)*100) : 0;
+    return "<div style='background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;margin-bottom:8px;'><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:13px;font-weight:700;color:#f97316;'>" + (c.completions||0) + " completions</p></div><div style='background:var(--bg);border-radius:6px;height:8px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div><p style='font-size:11px;color:var(--text-muted);margin-top:4px;'>Budget used: " + pct + "%</p></div>";
+  }).join("");
+}
+
+function initAdvertiserProfile() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  var el = function(id) { return document.getElementById(id); };
+  if (el("adv-profile-avatar"))   el("adv-profile-avatar").textContent   = adv.company ? adv.company.charAt(0).toUpperCase() : "?";
+  if (el("adv-profile-name"))     el("adv-profile-name").textContent     = adv.company || "Company";
+  if (el("adv-profile-email"))    el("adv-profile-email").textContent    = adv.email   || "";
+  var industryMap = { "telecom":"Telecommunications","banking":"Banking & Finance","retail":"Retail","media":"Media & Entertainment","healthcare":"Healthcare","education":"Education","technology":"Technology","fmcg":"FMCG","other":"Other" };
+  if (el("adv-profile-industry")) el("adv-profile-industry").textContent = industryMap[adv.industry] || adv.industry || "-";
+  if (el("adv-profile-contact"))  el("adv-profile-contact").textContent  = adv.contact || "-";
+  if (el("adv-profile-phone"))    el("adv-profile-phone").textContent    = adv.phone   || "-";
+  if (el("adv-profile-reg"))      el("adv-profile-reg").textContent      = adv.regNum  || "-";
+}
+
+function initAdvertiserBilling() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  var balEl = document.getElementById("billing-balance");
+  if (balEl) balEl.textContent = "R " + (adv.budget||0).toFixed(2);
+  loadBillingHistory(adv.id);
+}
+
+function setTopUpAmount(amount) {
+  var input = document.getElementById("topup-amount");
+  if (input) input.value = amount;
+}
+
+function handleTopUp() {
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+  var amountEl = document.getElementById("topup-amount");
+  var amount   = parseFloat(amountEl ? amountEl.value : "0");
+  if (isNaN(amount) || amount < 500) { alert("Minimum top-up amount is R 500.00"); return; }
+  var stored      = localStorage.getItem("kwanda_advertisers");
+  var advertisers = stored ? JSON.parse(stored) : [];
+  var index       = advertisers.findIndex(function(a) { return a.id === adv.id; });
+  if (index !== -1) {
+    advertisers[index].budget = (advertisers[index].budget||0) + amount;
+    localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
+    adv.budget = advertisers[index].budget;
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adv));
+  }
+  var history = JSON.parse(localStorage.getItem("kwanda_billing_" + adv.id) || "[]");
+  history.unshift({ type:"topup", amount:amount, date:new Date().toLocaleString("en-ZA"), status:"success" });
+  localStorage.setItem("kwanda_billing_" + adv.id, JSON.stringify(history));
+  if (amountEl) amountEl.value = "";
+  var balEl = document.getElementById("billing-balance");
+  if (balEl) balEl.textContent = "R " + (adv.budget||0).toFixed(2);
+  loadBillingHistory(adv.id);
+  alert("Budget topped up! Added: R " + amount.toFixed(2) + " | New Balance: R " + (adv.budget||0).toFixed(2));
+}
+
+function loadBillingHistory(advId) {
+  var container = document.getElementById("billing-history");
+  if (!container) return;
+  var history = JSON.parse(localStorage.getItem("kwanda_billing_" + advId) || "[]");
+  if (history.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);'><i class='ti ti-receipt' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No billing history yet</p></div>";
+    return;
+  }
+  container.innerHTML = history.map(function(h) {
+    return "<div style='display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);'><div><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + (h.type==="topup"?"Budget Top Up":"Campaign Charge") + "</p><p style='font-size:11px;color:var(--text-muted);'>" + h.date + "</p></div><div style='text-align:right;'><p style='font-size:14px;font-weight:700;color:" + (h.type==="topup"?"#22c55e":"#ef4444") + ";'>" + (h.type==="topup"?"+":"-") + "R " + h.amount.toFixed(2) + "</p><span style='font-size:11px;color:#166534;background:#dcfce7;padding:2px 8px;border-radius:10px;'>" + h.status + "</span></div></div>";
+  }).join("");
+}
+
+function initAdminPanel() {
+  if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
+  loadAdminPanelStats();
+}
+
+function loadAdminPanelStats() {
+  var stored      = localStorage.getItem("kwanda_campaigns");
+  var campaigns   = stored ? JSON.parse(stored) : [];
+  var advStored   = localStorage.getItem("kwanda_advertisers");
+  var advertisers = advStored ? JSON.parse(advStored) : [];
+  var pending = campaigns.filter(function(c) { return c.status==="pending"; });
+  var active  = campaigns.filter(function(c) { return c.status==="active"; });
+  var el = function(id) { return document.getElementById(id); };
+  if (el("admin-panel-total"))       el("admin-panel-total").textContent       = campaigns.length;
+  if (el("admin-panel-pending"))     el("admin-panel-pending").textContent     = pending.length;
+  if (el("admin-panel-active"))      el("admin-panel-active").textContent      = active.length;
+  if (el("admin-panel-advertisers")) el("admin-panel-advertisers").textContent = advertisers.length;
+}
+
+// ── NEW: Admin Campaigns Management ──
+function initAdminCampaignsMgmt() {
+  if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
+  loadAdminPanelStats();
+  var stored    = localStorage.getItem("kwanda_campaigns");
+  var campaigns = stored ? JSON.parse(stored) : [];
+  var totalEl   = document.getElementById("camp-mgmt-total");
+  var pendingEl = document.getElementById("camp-mgmt-pending");
+  if (totalEl)   totalEl.textContent   = campaigns.length;
+  if (pendingEl) pendingEl.textContent = campaigns.filter(function(c){ return c.status==="pending"; }).length;
+  filterAdminCampaigns("pending");
+}
+
+function filterAdminCampaigns(status) {
+  ["pending","active","all"].forEach(function(f) {
+    var btn = document.getElementById("admin-filter-" + f);
+    if (btn) { btn.style.background = f===status?"#f97316":"#fff"; btn.style.color = f===status?"#fff":"var(--text-muted)"; btn.style.border = f===status?"none":"1px solid var(--border)"; }
+  });
+  renderAdminCampaigns(status);
+}
+
+function renderAdminCampaigns(filter) {
+  var container = document.getElementById("admin-campaigns-list");
+  if (!container) return;
+  var stored    = localStorage.getItem("kwanda_campaigns");
+  var campaigns = stored ? JSON.parse(stored) : [];
+  var filtered  = filter==="all" ? campaigns : campaigns.filter(function(c) { return c.status===filter; });
+  if (filtered.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No campaigns found</p></div>";
+    return;
+  }
+  var sc = { active:"#22c55e", pending:"#f97316", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
+  var sb = { active:"#dcfce7", pending:"#fff7ed", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
+  container.innerHTML = filtered.map(function(c) {
+    var color     = sc[c.status]||"#9089cc";
+    var bg        = sb[c.status]||"#ede9fe";
+    var isPending = c.status==="pending";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);'>"
+      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>By: " + c.companyName + "</p><p style='font-size:12px;color:var(--text-muted);'>" + c.type + " - R " + c.price.toFixed(2) + " per completion | Budget: R " + c.budget.toFixed(2) + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>"
+      + "<p style='font-size:12px;color:var(--text-muted);margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;'>" + c.desc + "</p>"
+      + (isPending ? "<div style='display:flex;gap:8px;'><button onclick=\"adminApproveCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Approve</button><button onclick=\"adminRejectCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Reject</button></div>" : "")
+      + "</div>";
+  }).join("");
+}
+
+function adminApproveCampaign(campId) {
+  if (!confirm("Approve this campaign? It will go live immediately.")) return;
+  updateCampaignStatus(campId, "active");
+  alert("Campaign approved and is now live!");
+  initAdminCampaignsMgmt();
+}
+
+function adminRejectCampaign(campId) {
+  if (!confirm("Reject this campaign?")) return;
+  updateCampaignStatus(campId, "rejected");
+  alert("Campaign rejected.");
+  initAdminCampaignsMgmt();
+}
+
+function initAdminUsersMgmt() {
+  if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
+  var stored   = localStorage.getItem("kwanda_users");
+  var users    = stored ? JSON.parse(stored) : [];
+  var active   = users.filter(function(u) { return u.status !== "suspended"; });
+  var totalEl  = document.getElementById("admin-total-users");
+  var activeEl = document.getElementById("admin-active-users");
+  if (totalEl)  totalEl.textContent  = users.length;
+  if (activeEl) activeEl.textContent = active.length;
+  renderAdminUsersList(users);
+}
+
+function searchAdminUsers(query) {
+  var stored = localStorage.getItem("kwanda_users");
+  var users  = stored ? JSON.parse(stored) : [];
+  var q      = query.toLowerCase();
+  var filtered = q ? users.filter(function(u) {
+    return ((u.firstName||"") + " " + (u.lastName||"")).toLowerCase().includes(q) || (u.email||"").toLowerCase().includes(q);
+  }) : users;
+  renderAdminUsersList(filtered);
+}
+
+function renderAdminUsersList(users) {
+  var container = document.getElementById("admin-users-list");
+  if (!container) return;
+  if (users.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'><i class='ti ti-users-off' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No users found</p></div>";
+    return;
+  }
+  var colors = ["linear-gradient(135deg,#6c63ff,#2d1b8e)","linear-gradient(135deg,#f97316,#ea580c)","linear-gradient(135deg,#22c55e,#16a34a)","linear-gradient(135deg,#3b82f6,#1d4ed8)","linear-gradient(135deg,#ef4444,#b91c1c)"];
+  container.innerHTML = users.map(function(u, i) {
+    var name      = (u.firstName||"") + " " + (u.lastName||"");
+    var letter    = u.firstName ? u.firstName.charAt(0).toUpperCase() : "?";
+    var color     = colors[i % colors.length];
+    var suspended = u.status === "suspended";
+    var statusLabel = suspended
+      ? "<span style='font-size:11px;font-weight:600;color:#ef4444;background:#fee2e2;padding:3px 10px;border-radius:20px;'>Suspended</span>"
+      : "<span style='font-size:11px;font-weight:600;color:#22c55e;background:#dcfce7;padding:3px 10px;border-radius:20px;'>Active</span>";
+    var actionBtn = suspended
+      ? "<button onclick=\"reinstateUser('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:12px;font-weight:600;cursor:pointer;'>Reinstate</button>"
+      : "<button onclick=\"suspendUser('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;'>Suspend</button>";
+    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--border);'>"
+      + "<div style='display:flex;align-items:center;gap:12px;margin-bottom:10px;'>"
+      + "<div style='width:40px;height:40px;border-radius:50%;background:" + color + ";display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;flex-shrink:0;'>" + letter + "</div>"
+      + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + name + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (u.email||"") + "</p></div>"
+      + statusLabel + "</div>"
+      + "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;'>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Wallet Balance</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>R " + (u.balance||0).toFixed(2) + "</p></div>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Data Balance</p><p style='font-size:14px;font-weight:700;color:#3b82f6;'>R " + (u.dataBalance||0).toFixed(2) + "</p></div>"
+      + "</div>"
+      + "<div style='display:flex;gap:8px;'>"
+      + "<button onclick=\"adjustUserBalance('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid var(--primary);color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;'>Adjust Balance</button>"
+      + actionBtn + "</div></div>";
+  }).join("");
+}
+
+function suspendUser(email) {
+  if (!confirm("Suspend user " + email + "?")) return;
+  var stored = localStorage.getItem("kwanda_users");
+  var users  = stored ? JSON.parse(stored) : [];
+  var index  = users.findIndex(function(u) { return u.email === email; });
+  if (index !== -1) { users[index].status = "suspended"; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
+  alert("User suspended.");
+  initAdminUsersMgmt();
+}
+
+function reinstateUser(email) {
+  var stored = localStorage.getItem("kwanda_users");
+  var users  = stored ? JSON.parse(stored) : [];
+  var index  = users.findIndex(function(u) { return u.email === email; });
+  if (index !== -1) { users[index].status = "active"; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
+  alert("User reinstated.");
+  initAdminUsersMgmt();
+}
+
+function adjustUserBalance(email) {
+  var stored = localStorage.getItem("kwanda_users");
+  var users  = stored ? JSON.parse(stored) : [];
+  var user   = users.find(function(u) { return u.email === email; });
+  if (!user) return;
+  var input = prompt("Adjust wallet for " + user.firstName + "\nCurrent: R " + (user.balance||0).toFixed(2) + "\nEnter new balance (R):");
+  if (input === null) return;
+  var newBal = parseFloat(input);
+  if (isNaN(newBal) || newBal < 0) { alert("Please enter a valid amount."); return; }
+  var index = users.findIndex(function(u) { return u.email === email; });
+  if (index !== -1) { users[index].balance = newBal; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
+  alert("Balance updated to R " + newBal.toFixed(2));
+  initAdminUsersMgmt();
+}
+
+function initAdminAdvertisersMgmt() {
+  if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
+  var stored = localStorage.getItem("kwanda_advertisers");
+  var advs   = stored ? JSON.parse(stored) : [];
+  var active = advs.filter(function(a) { return a.status !== "suspended"; });
+  var totalEl  = document.getElementById("admin-total-advs");
+  var activeEl = document.getElementById("admin-active-advs");
+  if (totalEl)  totalEl.textContent  = advs.length;
+  if (activeEl) activeEl.textContent = active.length;
+  renderAdminAdvertisersList(advs);
+}
+
+function searchAdminAdvertisers(query) {
+  var stored = localStorage.getItem("kwanda_advertisers");
+  var advs   = stored ? JSON.parse(stored) : [];
+  var q      = query.toLowerCase();
+  var filtered = q ? advs.filter(function(a) {
+    return (a.company||"").toLowerCase().includes(q) || (a.email||"").toLowerCase().includes(q);
+  }) : advs;
+  renderAdminAdvertisersList(filtered);
+}
+
+function renderAdminAdvertisersList(advs) {
+  var container = document.getElementById("admin-advertisers-list");
+  if (!container) return;
+  if (advs.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'><i class='ti ti-building-off' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No advertisers found</p></div>";
+    return;
+  }
+  var colors = ["linear-gradient(135deg,#f97316,#ea580c)","linear-gradient(135deg,#3b82f6,#1d4ed8)","linear-gradient(135deg,#22c55e,#16a34a)","linear-gradient(135deg,#9089cc,#6c63ff)","linear-gradient(135deg,#ef4444,#b91c1c)"];
+  var industryMap = { "telecom":"Telecommunications","banking":"Banking & Finance","retail":"Retail","media":"Media & Entertainment","healthcare":"Healthcare","education":"Education","technology":"Technology","fmcg":"FMCG","other":"Other" };
+  container.innerHTML = advs.map(function(a, i) {
+    var letter    = a.company ? a.company.charAt(0).toUpperCase() : "?";
+    var color     = colors[i % colors.length];
+    var suspended = a.status === "suspended";
+    var industry  = industryMap[a.industry] || a.industry || "—";
+    var campaigns = JSON.parse(localStorage.getItem("kwanda_campaigns")||"[]").filter(function(c) { return c.advertiserId === a.id; });
+    var statusLabel = suspended
+      ? "<span style='font-size:11px;font-weight:600;color:#ef4444;background:#fee2e2;padding:3px 10px;border-radius:20px;'>Suspended</span>"
+      : "<span style='font-size:11px;font-weight:600;color:#22c55e;background:#dcfce7;padding:3px 10px;border-radius:20px;'>Active</span>";
+    var actionBtn = suspended
+      ? "<button onclick=\"reinstateAdvertiser('" + a.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:12px;font-weight:600;cursor:pointer;'>Reinstate</button>"
+      : "<button onclick=\"suspendAdvertiser('" + a.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;'>Suspend</button>";
+    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--border);'>"
+      + "<div style='display:flex;align-items:center;gap:12px;margin-bottom:10px;'>"
+      + "<div style='width:44px;height:44px;border-radius:12px;background:" + color + ";display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;flex-shrink:0;'>" + letter + "</div>"
+      + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + (a.company||"—") + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (a.email||"") + "</p><p style='font-size:11px;color:var(--text-muted);'>" + industry + "</p></div>"
+      + statusLabel + "</div>"
+      + "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;'>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Budget</p><p style='font-size:14px;font-weight:700;color:#f97316;'>R " + (a.budget||0).toFixed(2) + "</p></div>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Campaigns</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>" + campaigns.length + "</p></div>"
+      + "</div>"
+      + "<div style='display:flex;gap:8px;'>"
+      + "<button onclick=\"adjustAdvertiserBudget('" + a.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #f97316;color:#f97316;font-size:12px;font-weight:600;cursor:pointer;'>Adjust Budget</button>"
+      + actionBtn + "</div></div>";
+  }).join("");
+}
+
+function suspendAdvertiser(advId) {
+  if (!confirm("Suspend this advertiser?")) return;
+  var stored = localStorage.getItem("kwanda_advertisers");
+  var advs   = stored ? JSON.parse(stored) : [];
+  var index  = advs.findIndex(function(a) { return a.id === advId; });
+  if (index !== -1) { advs[index].status = "suspended"; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
+  var campStored = localStorage.getItem("kwanda_campaigns");
+  var campaigns  = campStored ? JSON.parse(campStored) : [];
+  campaigns = campaigns.map(function(c) { if (c.advertiserId === advId && c.status === "active") c.status = "paused"; return c; });
+  localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
+  alert("Advertiser suspended.");
+  initAdminAdvertisersMgmt();
+}
+
+function reinstateAdvertiser(advId) {
+  var stored = localStorage.getItem("kwanda_advertisers");
+  var advs   = stored ? JSON.parse(stored) : [];
+  var index  = advs.findIndex(function(a) { return a.id === advId; });
+  if (index !== -1) { advs[index].status = "active"; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
+  alert("Advertiser reinstated.");
+  initAdminAdvertisersMgmt();
+}
+
+function adjustAdvertiserBudget(advId) {
+  var stored = localStorage.getItem("kwanda_advertisers");
+  var advs   = stored ? JSON.parse(stored) : [];
+  var adv    = advs.find(function(a) { return a.id === advId; });
+  if (!adv) return;
+  var input = prompt("Adjust budget for " + adv.company + "\nCurrent: R " + (adv.budget||0).toFixed(2) + "\nEnter new budget (R):");
+  if (input === null) return;
+  var newBudget = parseFloat(input);
+  if (isNaN(newBudget) || newBudget < 0) { alert("Please enter a valid amount."); return; }
+  var index = advs.findIndex(function(a) { return a.id === advId; });
+  if (index !== -1) { advs[index].budget = newBudget; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
+  alert("Budget updated to R " + newBudget.toFixed(2));
+  initAdminAdvertisersMgmt();
+}
+
+function changeAdvertiserPassword() {
+  var currentPw = document.getElementById("adv-current-pw")  ? document.getElementById("adv-current-pw").value  : "";
+  var newPw     = document.getElementById("adv-new-pw")      ? document.getElementById("adv-new-pw").value      : "";
+  var confirmPw = document.getElementById("adv-confirm-pw")  ? document.getElementById("adv-confirm-pw").value  : "";
+  var errorEl   = document.getElementById("adv-pw-error");
+  var successEl = document.getElementById("adv-pw-success");
+  if (errorEl)   errorEl.textContent   = "";
+  if (successEl) successEl.textContent = "";
+  if (!currentPw) { if (errorEl) errorEl.textContent = "Please enter your current password."; return; }
+  if (!newPw)     { if (errorEl) errorEl.textContent = "Please enter a new password.";         return; }
+  if (newPw.length < 6) { if (errorEl) errorEl.textContent = "New password must be at least 6 characters."; return; }
+  if (newPw !== confirmPw) { if (errorEl) errorEl.textContent = "Passwords do not match."; return; }
+  var adv         = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  var stored      = localStorage.getItem("kwanda_advertisers");
+  var advertisers = stored ? JSON.parse(stored) : [];
+  var index       = advertisers.findIndex(function(a) { return a.email === adv.email && a.password === currentPw; });
+  if (index === -1) { if (errorEl) errorEl.textContent = "Current password is incorrect."; return; }
+  advertisers[index].password = newPw;
+  localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
+  if (successEl) successEl.textContent = "Password updated successfully!";
+  if (document.getElementById("adv-current-pw")) document.getElementById("adv-current-pw").value = "";
+  if (document.getElementById("adv-new-pw"))     document.getElementById("adv-new-pw").value     = "";
+  if (document.getElementById("adv-confirm-pw")) document.getElementById("adv-confirm-pw").value = "";
+}
+
+window.handleAdvertiserLogin    = handleAdvertiserLogin;
+window.handleAdvertiserRegister = handleAdvertiserRegister;
+window.getAdvertiserSession     = getAdvertiserSession;
+window.advertiserLogout         = advertiserLogout;
+window.getAdvertiserCampaigns   = getAdvertiserCampaigns;
+window.initAdvertiserDashboard  = initAdvertiserDashboard;
+window.updateCampPrice          = updateCampPrice;
+window.submitCampaign           = submitCampaign;
+window.initAdvertiserCampaigns  = initAdvertiserCampaigns;
+window.filterCampaigns          = filterCampaigns;
+window.pauseCampaign            = pauseCampaign;
+window.resumeCampaign           = resumeCampaign;
+window.stopCampaign             = stopCampaign;
+window.addCampaignBudget        = addCampaignBudget;
+window.initAdvertiserAnalytics  = initAdvertiserAnalytics;
+window.updateAdvChart           = updateAdvChart;
+window.initAdvertiserProfile    = initAdvertiserProfile;
+window.initAdvertiserBilling    = initAdvertiserBilling;
+window.setTopUpAmount           = setTopUpAmount;
+window.handleTopUp              = handleTopUp;
+window.initAdminPanel           = initAdminPanel;
+window.initAdminCampaignsMgmt   = initAdminCampaignsMgmt;
+window.filterAdminCampaigns     = filterAdminCampaigns;
+window.adminApproveCampaign     = adminApproveCampaign;
+window.adminRejectCampaign      = adminRejectCampaign;
+window.initAdminUsersMgmt       = initAdminUsersMgmt;
+window.searchAdminUsers         = searchAdminUsers;
+window.suspendUser              = suspendUser;
+window.reinstateUser            = reinstateUser;
+window.adjustUserBalance        = adjustUserBalance;
+window.initAdminAdvertisersMgmt = initAdminAdvertisersMgmt;
+window.searchAdminAdvertisers   = searchAdminAdvertisers;
+window.suspendAdvertiser        = suspendAdvertiser;
+window.reinstateAdvertiser      = reinstateAdvertiser;
+window.adjustAdvertiserBudget   = adjustAdvertiserBudget;
+window.changeAdvertiserPassword = changeAdvertiserPassword;

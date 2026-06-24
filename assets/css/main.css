@@ -1,0 +1,178 @@
+/* ── KwandaData — Global Variables & Reset ── */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary:        #2d1b8e;
+  --primary-dark:   #1a1060;
+  --primary-light:  #534AB7;
+  --accent-green:   #22c55e;
+  --accent-orange:  #f97316;
+  --accent-purple:  #6c63ff;
+  --accent-teal:    #4fd4c4;
+  --accent-blue:    #3b82f6;
+  --danger:         #ef4444;
+  --bg:             #f5f6fa;
+  --card-bg:        #ffffff;
+  --border:         #e0e0f0;
+  --text-primary:   #1a1060;
+  --text-muted:     #9089cc;
+  --text-gray:      #555577;
+  --nav-height:     64px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont,
+               'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* ── Shared Buttons ── */
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  border-radius: 30px;
+  background: #ffffff;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-outline {
+  width: 100%;
+  padding: 15px;
+  border-radius: 30px;
+  background: transparent;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid rgba(255,255,255,0.35);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-outline:hover { background: rgba(255,255,255,0.08); }
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #b8aff5;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  text-align: center;
+}
+
+.btn-purple {
+  width: 100%;
+  padding: 15px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #2d1b8e, #534AB7);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-purple:hover { opacity: 0.9; }
+
+.btn-small {
+  padding: 7px 16px;
+  border-radius: 20px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── Page scroll area ── */
+.page-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: calc(var(--nav-height) + 16px);
+}
+
+/* ── Mobile Friendly Fixes ── */
+
+/* Center app on desktop, full width on mobile */
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  background: var(--bg);
+  box-shadow: 0 0 40px rgba(0,0,0,0.1);
+}
+
+/* Fix iOS input zoom issue */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select,
+.form-select {
+  font-size: 16px !important;
+}
+
+/* Fix scrolling on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  overflow-x: hidden;
+  height: 100%;
+}
+
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix bottom nav on iPhone (safe area) */
+.bottom-nav,
+.admin-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+}
+
+/* Minimum touch target size */
+button {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* Fix page scroll not reaching bottom */
+.page-scroll {
+  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 16px);
+}
+
+/* Smooth scrolling */
+.page-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Fix auth body scrolling */
+.auth-body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent text size adjustment on rotation */
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}

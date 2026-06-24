@@ -1,0 +1,138 @@
+/* ── KwandaData — Redeem / Use Styles ── */
+
+/* ── Redeem screen wrapper ── */
+.redeem-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ── Redeem option card ── */
+.redeem-option {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 0 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.redeem-option:hover {
+  box-shadow: 0 2px 12px rgba(45, 27, 142, 0.08);
+}
+
+/* ── Redeem icon ── */
+.redeem-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.redeem-icon.violet { background: var(--accent-purple); }
+.redeem-icon.blue   { background: var(--accent-blue); }
+.redeem-icon.green  { background: var(--accent-green); }
+.redeem-icon.red    { background: var(--danger); }
+
+/* ── Redeem info ── */
+.redeem-info {
+  flex: 1;
+}
+.redeem-info h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.redeem-info p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Redeem arrow ── */
+.redeem-arrow {
+  font-size: 18px;
+  color: #cccccc;
+}
+
+/* ── Recent redemptions list ── */
+.redemption-list {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 4px 16px;
+  border: 1px solid var(--border);
+}
+
+/* ── Single redemption item ── */
+.redemption-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+.redemption-item:last-child {
+  border-bottom: none;
+}
+
+/* ── Redemption info ── */
+.redemption-info h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.redemption-info p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Redemption right side ── */
+.redemption-right {
+  text-align: right;
+}
+.redemption-right .amount {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Status badge ── */
+.badge-success {
+  display: inline-block;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
+}
+.badge-pending {
+  display: inline-block;
+  background: #fef9c3;
+  color: #854d0e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
+}
+.badge-failed {
+  display: inline-block;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
+}

@@ -1,0 +1,191 @@
+<!-- ══════════════════════════════════════
+     REDEEM / USE PAGE
+══════════════════════════════════════ -->
+<div class="redeem-screen">
+
+  <!-- Top header -->
+  <div class="subpage-header">
+    <div class="subpage-left">
+      <button
+        class="icon-btn"
+        onclick="navigateTo('home')"
+      >
+        <i class="ti ti-arrow-left"></i>
+      </button>
+      <h2>Redeem / Use</h2>
+    </div>
+    <button class="icon-btn">
+      <i class="ti ti-info-circle"></i>
+    </button>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="page-scroll">
+
+    <!-- Wallet balance card -->
+    <div class="wallet-card">
+      <div>
+        <p class="wallet-label">Your Balance</p>
+        <p class="wallet-amount">250 MB</p>
+      </div>
+      <div class="wallet-icon">
+        <i class="ti ti-cloud-upload"></i>
+      </div>
+    </div>
+
+    <!-- Redeem options heading -->
+    <div class="section">
+      <div class="section-header">
+        <p class="section-title">Redeem Data</p>
+      </div>
+    </div>
+
+    <!-- Redeem option 1 — Airtime -->
+    <div
+      class="redeem-option"
+      onclick="handleRedeem('airtime')"
+    >
+      <div class="redeem-icon violet">
+        <i class="ti ti-device-mobile"></i>
+      </div>
+      <div class="redeem-info">
+        <h4>Airtime</h4>
+        <p>Use data to get airtime</p>
+      </div>
+      <i class="ti ti-chevron-right redeem-arrow"></i>
+    </div>
+
+    <!-- Redeem option 2 — Data Bundle -->
+    <div
+      class="redeem-option"
+      onclick="handleRedeem('data-bundle')"
+    >
+      <div class="redeem-icon blue">
+        <i class="ti ti-wifi"></i>
+      </div>
+      <div class="redeem-info">
+        <h4>Data Bundle</h4>
+        <p>Convert to data bundle</p>
+      </div>
+      <i class="ti ti-chevron-right redeem-arrow"></i>
+    </div>
+
+    <!-- Redeem option 3 — Partner Apps -->
+    <div
+      class="redeem-option"
+      onclick="handleRedeem('partner-apps')"
+    >
+      <div class="redeem-icon green">
+        <i class="ti ti-apps"></i>
+      </div>
+      <div class="redeem-info">
+        <h4>Partner Apps</h4>
+        <p>Use on partner platforms</p>
+      </div>
+      <i class="ti ti-chevron-right redeem-arrow"></i>
+    </div>
+
+    <!-- Redeem option 4 — Donate Data -->
+    <div
+      class="redeem-option"
+      onclick="handleRedeem('donate')"
+    >
+      <div class="redeem-icon red">
+        <i class="ti ti-heart"></i>
+      </div>
+      <div class="redeem-info">
+        <h4>Donate Data</h4>
+        <p>Donate to others</p>
+      </div>
+      <i class="ti ti-chevron-right redeem-arrow"></i>
+    </div>
+
+    <!-- Recent Redemptions -->
+    <div class="section">
+      <div class="section-header">
+        <p class="section-title">Recent Redemptions</p>
+      </div>
+
+      <div class="redemption-list" id="redemption-list">
+
+        <!-- Redemption 1 -->
+        <div class="redemption-item">
+          <div class="redemption-info">
+            <h4>Data Bundle</h4>
+            <p>May 15, 2025 &bull; 19:20 AM</p>
+          </div>
+          <div class="redemption-right">
+            <p class="amount">100 MB</p>
+            <span class="badge-success">Success</span>
+          </div>
+        </div>
+
+        <!-- Redemption 2 -->
+        <div class="redemption-item">
+          <div class="redemption-info">
+            <h4>Airtime</h4>
+            <p>May 12, 2025 &bull; 11:05 AM</p>
+          </div>
+          <div class="redemption-right">
+            <p class="amount">50 MB</p>
+            <span class="badge-success">Success</span>
+          </div>
+        </div>
+
+        <!-- Redemption 3 -->
+        <div class="redemption-item">
+          <div class="redemption-info">
+            <h4>Partner Apps</h4>
+            <p>May 10, 2025 &bull; 08:30 AM</p>
+          </div>
+          <div class="redemption-right">
+            <p class="amount">30 MB</p>
+            <span class="badge-pending">Pending</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <button
+      class="nav-item"
+      onclick="navigateTo('home')"
+    >
+      <i class="ti ti-home"></i>
+      <span>Home</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('earn')"
+    >
+      <i class="ti ti-database"></i>
+      <span>Earn</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('wallet')"
+    >
+      <i class="ti ti-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button
+      class="nav-item active"
+      onclick="navigateTo('redeem')"
+    >
+      <i class="ti ti-refresh"></i>
+      <span>Redeem</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('profile')"
+    >
+      <i class="ti ti-user"></i>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+</div>

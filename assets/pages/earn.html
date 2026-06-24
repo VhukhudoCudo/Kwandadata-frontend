@@ -1,0 +1,175 @@
+<!-- ══════════════════════════════════════
+     EARN DATA PAGE
+══════════════════════════════════════ -->
+<div class="earn-screen">
+
+  <!-- Top header -->
+  <div class="subpage-header">
+    <div class="subpage-left">
+      <button
+        class="icon-btn"
+        onclick="navigateTo('home')"
+      >
+        <i class="ti ti-arrow-left"></i>
+      </button>
+      <h2>Earn Data</h2>
+    </div>
+    <button class="icon-btn">
+      <i class="ti ti-info-circle"></i>
+    </button>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="page-scroll">
+
+    <!-- Banner -->
+    <div class="earn-banner">
+      <p>Complete activities and<br/>earn data into your wallet</p>
+      <span class="earn-banner-icon">🎁</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="earn-tabs">
+      <button
+        class="earn-tab active"
+        onclick="switchTab(this)"
+      >
+        All
+      </button>
+      <button
+        class="earn-tab"
+        onclick="switchTab(this)"
+      >
+        Tasks
+      </button>
+      <button
+        class="earn-tab"
+        onclick="switchTab(this)"
+      >
+        Surveys
+      </button>
+      <button
+        class="earn-tab"
+        onclick="switchTab(this)"
+      >
+        Offers
+      </button>
+      <button
+        class="earn-tab"
+        onclick="switchTab(this)"
+      >
+        Videos
+      </button>
+    </div>
+
+    <!-- Task list -->
+    <div id="task-list">
+
+      <!-- Task 1 — Watch a video -->
+      <div class="task-item">
+        <div class="task-icon blue">
+          <i class="ti ti-player-play"></i>
+        </div>
+        <div class="task-info">
+          <h4>Watch a short video</h4>
+          <p>Watch and earn data</p>
+          <span class="task-duration">~ 1 min</span>
+        </div>
+        <div class="task-right">
+          <span class="task-reward">50 MB</span>
+          <button class="btn-small">Start</button>
+        </div>
+      </div>
+
+      <!-- Task 2 — Complete a survey -->
+      <div class="task-item">
+        <div class="task-icon green">
+          <i class="ti ti-file-text"></i>
+        </div>
+        <div class="task-info">
+          <h4>Complete a Survey</h4>
+          <p>Share your opinion</p>
+          <span class="task-duration">~ 5 min</span>
+        </div>
+        <div class="task-right">
+          <span class="task-reward">100 MB</span>
+          <button class="btn-small">Start</button>
+        </div>
+      </div>
+
+      <!-- Task 3 — Daily quiz -->
+      <div class="task-item">
+        <div class="task-icon purple">
+          <i class="ti ti-help-circle"></i>
+        </div>
+        <div class="task-info">
+          <h4>Daily Quiz</h4>
+          <p>Answer quiz questions</p>
+          <span class="task-duration">~ 2 min</span>
+        </div>
+        <div class="task-right">
+          <span class="task-reward">30 MB</span>
+          <button class="btn-small">Start</button>
+        </div>
+      </div>
+
+      <!-- Task 4 — Partner offer -->
+      <div class="task-item">
+        <div class="task-icon orange">
+          <i class="ti ti-tag"></i>
+        </div>
+        <div class="task-info">
+          <h4>Partner Offer</h4>
+          <p>Check out this offer</p>
+          <span class="task-duration">~ varies</span>
+        </div>
+        <div class="task-right">
+          <span class="task-reward">Up to 150 MB</span>
+          <button class="btn-small">Start</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <button
+      class="nav-item"
+      onclick="navigateTo('home')"
+    >
+      <i class="ti ti-home"></i>
+      <span>Home</span>
+    </button>
+    <button
+      class="nav-item active"
+      onclick="navigateTo('earn')"
+    >
+      <i class="ti ti-database"></i>
+      <span>Earn</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('wallet')"
+    >
+      <i class="ti ti-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('redeem')"
+    >
+      <i class="ti ti-refresh"></i>
+      <span>Redeem</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('profile')"
+    >
+      <i class="ti ti-user"></i>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+</div>

@@ -1,0 +1,222 @@
+<!-- ══════════════════════════════════════
+     HOME DASHBOARD PAGE
+══════════════════════════════════════ -->
+<div class="home-screen">
+
+  <!-- Top header -->
+  <div class="home-header">
+    <div>
+      <p class="home-greeting">Good morning</p>
+      <h2 class="home-name">Hello, Thabo 👋</h2>
+    </div>
+    <button class="notif-btn">
+      <i class="ti ti-bell"></i>
+      <span class="notif-dot"></span>
+    </button>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="page-scroll">
+
+    <!-- Wallet card -->
+    <div class="wallet-card">
+      <div>
+        <p class="wallet-label">Hello Wallet</p>
+        <p class="wallet-amount">250 MB</p>
+        <p class="wallet-sub">Available Balance</p>
+      </div>
+      <div class="wallet-icon">
+        <i class="ti ti-wallet"></i>
+      </div>
+    </div>
+
+    <!-- Pending bonus -->
+    <div class="bonus-card">
+      <div>
+        <p class="bonus-label">Pending Bonus</p>
+        <p class="bonus-amount">50 MB</p>
+      </div>
+      <div class="bonus-icon">
+        <i class="ti ti-clock"></i>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section">
+      <p class="section-title">Quick Actions</p>
+      <div class="quick-actions">
+
+        <div
+          class="action-card"
+          onclick="navigateTo('earn')"
+        >
+          <div class="action-icon green">
+            <i class="ti ti-database"></i>
+          </div>
+          <h3>Earn Data</h3>
+          <p>Complete activities to earn data</p>
+        </div>
+
+        <div
+          class="action-card"
+          onclick="navigateTo('wallet')"
+        >
+          <div class="action-icon purple">
+            <i class="ti ti-wallet"></i>
+          </div>
+          <h3>My Wallet</h3>
+          <p>View balance and history</p>
+        </div>
+
+        <div
+          class="action-card"
+          onclick="navigateTo('redeem')"
+        >
+          <div class="action-icon violet">
+            <i class="ti ti-refresh"></i>
+          </div>
+          <h3>Redeem / Use</h3>
+          <p>Redeem data or use on partners</p>
+        </div>
+
+        <div class="action-card">
+          <div class="action-icon orange">
+            <i class="ti ti-users"></i>
+          </div>
+          <h3>Refer &amp; Earn</h3>
+          <p>Invite friends and earn more</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="section">
+      <div class="section-header">
+        <p class="section-title">Recent Activity</p>
+        <span class="section-link">+20 MB</span>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="ti ti-file-check"></i>
+        </div>
+        <div class="activity-info">
+          <h4>Survey Completed</h4>
+          <p>Today, 10:30 AM</p>
+        </div>
+        <i class="ti ti-chevron-right activity-arrow"></i>
+      </div>
+
+    </div>
+
+    <!-- Key Highlights -->
+    <div class="highlights">
+      <h2>Key Highlights</h2>
+      <div class="highlights-grid">
+
+        <div class="highlight-item">
+          <div
+            class="highlight-icon"
+            style="background: var(--primary);"
+          >
+            <i class="ti ti-shield-check"></i>
+          </div>
+          <h4>Participate</h4>
+          <p>Engage in activities that matter.</p>
+        </div>
+
+        <div class="highlight-item">
+          <div
+            class="highlight-icon"
+            style="background: var(--accent-green);"
+          >
+            <i class="ti ti-gift"></i>
+          </div>
+          <h4>Earn</h4>
+          <p>Earn data for your participation.</p>
+        </div>
+
+        <div class="highlight-item">
+          <div
+            class="highlight-icon"
+            style="background: var(--accent-blue);"
+          >
+            <i class="ti ti-wallet"></i>
+          </div>
+          <h4>Store</h4>
+          <p>Your earnings safely in wallet.</p>
+        </div>
+
+        <div class="highlight-item">
+          <div
+            class="highlight-icon"
+            style="background: var(--accent-orange);"
+          >
+            <i class="ti ti-transfer"></i>
+          </div>
+          <h4>Redeem</h4>
+          <p>Use or convert your data easily.</p>
+        </div>
+
+        <div class="highlight-item">
+          <div
+            class="highlight-icon"
+            style="background: var(--accent-purple);"
+          >
+            <i class="ti ti-users"></i>
+          </div>
+          <h4>Grow</h4>
+          <p>Invite others and unlock more.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- App footer -->
+    <div class="kwanda-footer">
+      KwandaData – Connecting participation to possibilities.
+    </div>
+
+  </div>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <button
+      class="nav-item active"
+      onclick="navigateTo('home')"
+    >
+      <i class="ti ti-home"></i>
+      <span>Home</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('earn')"
+    >
+      <i class="ti ti-database"></i>
+      <span>Earn</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('wallet')"
+    >
+      <i class="ti ti-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('redeem')"
+    >
+      <i class="ti ti-refresh"></i>
+      <span>Redeem</span>
+    </button>
+    <button
+      class="nav-item"
+      onclick="navigateTo('profile')"
+    >
+      <i class="ti ti-user"></i>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+</div>

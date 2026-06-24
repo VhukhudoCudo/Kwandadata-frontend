@@ -1,0 +1,103 @@
+/* ── KwandaData — Splash Screen Styles ── */
+
+.splash-screen {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #1a1060 0%, #2d1b8e 40%, #1a1060 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 32px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Background bubbles ── */
+.splash-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(99, 80, 220, 0.15);
+  pointer-events: none;
+}
+.splash-bubble-1 {
+  top: -60px;
+  left: -60px;
+  width: 260px;
+  height: 260px;
+}
+.splash-bubble-2 {
+  bottom: 80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+}
+.splash-bubble-3 {
+  bottom: 160px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+}
+
+/* ── Logo ── */
+.splash-logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4fd4c4, #6c63ff);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.splash-logo svg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ── Center content ── */
+.splash-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+.splash-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.splash-tagline {
+  font-size: 15px;
+  font-weight: 500;
+  color: #b8aff5;
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.splash-sub {
+  font-size: 13.5px;
+  color: #9089cc;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Action buttons ── */
+.splash-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* ── Bottom bar ── */
+.splash-bar {
+  width: 40px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  align-self: center;
+}
