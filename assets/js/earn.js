@@ -5,8 +5,8 @@
    - 55% to wallet
 ══════════════════════════════════════ */
 
-const ADMIN_FEE_PERCENT  = 15;
-const DATA_SPLIT_PERCENT = 30;
+let ADMIN_FEE_PERCENT  = 15;
+let DATA_SPLIT_PERCENT = 30;
 const MB_PER_RAND        = 50;  // R 1.00 = 50MB
 
 const TASKS = [
