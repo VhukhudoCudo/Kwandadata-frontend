@@ -13,11 +13,11 @@ const PAGES = {};
 
 PAGES['splash'] = `<div class="splash-screen"><div class="splash-bubble splash-bubble-1"></div><div class="splash-bubble splash-bubble-2"></div><div class="splash-bubble splash-bubble-3"></div><div class="splash-center"><div class="splash-logo"><svg viewBox="0 0 48 48" fill="none"><path d="M10 36 L20 12 L28 28 L34 18 L42 36" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1 class="splash-title">KwandaData</h1><p class="splash-tagline">Participate. Earn. Connect.</p><p class="splash-sub">Your participation powers<br/>your connectivity.</p></div><div class="splash-actions"><p style="font-family:sans-serif;font-size:12px;color:#9089cc;text-align:center;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">I am a</p><div style="display:flex;gap:12px;margin-bottom:12px;"><button onclick="navigateTo('create-account')" style="flex:1;padding:15px;border-radius:20px;background:#fff;color:#2d1b8e;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:22px;">👤</span><span>User</span><span style="font-size:10px;font-weight:500;color:#9089cc;">Earn money</span></button><button onclick="navigateTo('advertiser-login')" style="flex:1;padding:15px;border-radius:20px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:22px;">🏢</span><span>Advertiser</span><span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.8);">Run campaigns</span></button></div><button onclick="navigateTo('sign-in')" style="width:100%;padding:14px;border-radius:30px;background:transparent;color:#fff;font-size:14px;font-weight:600;border:1.5px solid rgba(255,255,255,0.3);cursor:pointer;font-family:sans-serif;">Already have an account? Sign In</button><button class="btn-link">Learn More</button></div><div class="splash-bar"></div></div>`;
 
-PAGES['create-account'] = `<div class="auth-screen"><div class="auth-header"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('splash')"><i class="ti ti-arrow-left"></i></button><h1>Create Account</h1><p>Join KwandaData and start earning</p></div><div class="auth-body"><div class="name-row"><div class="form-group"><label for="first-name">First Name</label><input type="text" id="first-name" placeholder="John"/></div><div class="form-group"><label for="last-name">Last Name</label><input type="text" id="last-name" placeholder="Doe"/></div></div><div class="form-group"><label for="reg-email">Email Address</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="reg-email" placeholder="john@example.com"/></div></div><div class="form-group"><label for="reg-phone">Phone Number</label><div class="input-wrap has-icon-left"><i class="ti ti-phone"></i><input type="tel" id="reg-phone" placeholder="+27 000 000 0000"/></div></div><div class="form-group"><label for="reg-dob">Date of Birth</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="reg-dob" onchange="calcAge(this.value)"/></div></div><div class="form-group"><label for="reg-age">Age</label><div class="input-wrap has-icon-left"><i class="ti ti-user"></i><input type="number" id="reg-age" placeholder="Auto-calculated" min="1" max="120" readonly style="background:#f5f6fa;cursor:not-allowed;"/></div></div><div class="form-group"><label for="reg-gender">Gender</label><select id="reg-gender" class="form-select"><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="non-binary">Non-binary</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-race">Race</label><select id="reg-race" class="form-select"><option value="">Select race</option><option value="black-african">Black African</option><option value="coloured">Coloured</option><option value="indian-asian">Indian/Asian</option><option value="white">White</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-language">Home Language</label><select id="reg-language" class="form-select"><option value="">Select language</option><option value="zulu">isiZulu</option><option value="xhosa">isiXhosa</option><option value="afrikaans">Afrikaans</option><option value="english">English</option><option value="northern-sotho">Sepedi</option><option value="tswana">Setswana</option><option value="sotho">Sesotho</option><option value="tsonga">Xitsonga</option><option value="swati">siSwati</option><option value="venda">Tshivenda</option><option value="ndebele">isiNdebele</option></select></div><div class="form-group"><label for="reg-province">Province</label><select id="reg-province" class="form-select"><option value="">Select province</option><option value="eastern-cape">Eastern Cape</option><option value="free-state">Free State</option><option value="gauteng">Gauteng</option><option value="kwazulu-natal">KwaZulu-Natal</option><option value="limpopo">Limpopo</option><option value="mpumalanga">Mpumalanga</option><option value="north-west">North West</option><option value="northern-cape">Northern Cape</option><option value="western-cape">Western Cape</option></select></div><div class="form-group"><label for="reg-region">Region / City</label><div class="input-wrap has-icon-left"><i class="ti ti-map-pin"></i><input type="text" id="reg-region" placeholder="e.g. Soweto, Sandton"/></div></div><div class="form-group"><label for="reg-employment">Employment Status</label><select id="reg-employment" class="form-select"><option value="">Select status</option><option value="employed-full-time">Employed Full-time</option><option value="employed-part-time">Employed Part-time</option><option value="self-employed">Self-employed</option><option value="unemployed">Unemployed</option><option value="student">Student</option><option value="retired">Retired</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="reg-password" placeholder="Create a password"/><i class="ti ti-eye icon-right" onclick="togglePassword('reg-password', this)"></i></div></div><div class="form-group"><label for="reg-confirm">Confirm Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="reg-confirm" placeholder="Repeat your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('reg-confirm', this)"></i></div></div><div class="form-group"><label for="reg-referral">Referral Code (Optional)</label><div class="input-wrap has-icon-left"><i class="ti ti-gift"></i><input type="text" id="reg-referral" placeholder="Enter referral code if you have one"/></div></div><div class="terms-row"><input type="checkbox" id="terms"/><label for="terms">I agree to the <a href="#" onclick="navigateTo('terms')">Terms of Service</a> and <a href="#" onclick="navigateTo('privacy')">Privacy Policy</a></label></div><p class="auth-error" id="reg-error"></p><button class="btn-purple" onclick="handleRegister()">Create Account</button><p class="auth-footer">Already have an account? <span onclick="navigateTo('sign-in')">Sign In</span></p></div></div>`;
+PAGES['create-account'] = `<div class="auth-screen"><div class="auth-header"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('splash')"><i class="ti ti-arrow-left"></i></button><h1>Create Account</h1><p>Join KwandaData and start earning</p></div><div class="auth-body"><div class="name-row"><div class="form-group"><label for="first-name">First Name</label><input type="text" id="first-name" placeholder="John"/></div><div class="form-group"><label for="last-name">Last Name</label><input type="text" id="last-name" placeholder="Doe"/></div></div><div class="form-group"><label for="reg-email">Email Address</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="reg-email" placeholder="john@example.com"/></div></div><div class="form-group"><label for="reg-phone">Phone Number</label><div class="input-wrap has-icon-left"><i class="ti ti-phone"></i><input type="tel" id="reg-phone" placeholder="+27 000 000 0000"/></div></div><div class="form-group"><label for="reg-dob">Date of Birth</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="reg-dob" onchange="calcAge(this.value)"/></div></div><div class="form-group"><label for="reg-age">Age</label><div class="input-wrap has-icon-left"><i class="ti ti-user"></i><input type="number" id="reg-age" placeholder="Auto-calculated" min="1" max="120" readonly style="background:#f5f6fa;cursor:not-allowed;"/></div></div><div class="form-group"><label for="reg-gender">Gender</label><select id="reg-gender" class="form-select"><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="non-binary">Non-binary</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-race">Race</label><select id="reg-race" class="form-select"><option value="">Select race</option><option value="black-african"> African</option><option value="coloured">Coloured</option><option value="indian-asian">Indian/Asian</option><option value="white">White</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-language">Home Language</label><select id="reg-language" class="form-select"><option value="">Select language</option><option value="zulu">isiZulu</option><option value="xhosa">isiXhosa</option><option value="afrikaans">Afrikaans</option><option value="english">English</option><option value="northern-sotho">Sepedi</option><option value="tswana">Setswana</option><option value="sotho">Sesotho</option><option value="tsonga">Xitsonga</option><option value="swati">siSwati</option><option value="venda">Tshivenda</option><option value="ndebele">isiNdebele</option></select></div><div class="form-group"><label for="reg-province">Province</label><select id="reg-province" class="form-select"><option value="">Select province</option><option value="eastern-cape">Eastern Cape</option><option value="free-state">Free State</option><option value="gauteng">Gauteng</option><option value="kwazulu-natal">KwaZulu-Natal</option><option value="limpopo">Limpopo</option><option value="mpumalanga">Mpumalanga</option><option value="north-west">North West</option><option value="northern-cape">Northern Cape</option><option value="western-cape">Western Cape</option></select></div><div class="form-group"><label for="reg-region">Region / City</label><div class="input-wrap has-icon-left"><i class="ti ti-map-pin"></i><input type="text" id="reg-region" placeholder="e.g. Soweto, Sandton"/></div></div><div class="form-group"><label for="reg-employment">Employment Status</label><select id="reg-employment" class="form-select"><option value="">Select status</option><option value="employed-full-time">Employed Full-time</option><option value="employed-part-time">Employed Part-time</option><option value="self-employed">Self-employed</option><option value="unemployed">Unemployed</option><option value="student">Student</option><option value="retired">Retired</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="reg-password" placeholder="Create a password"/><i class="ti ti-eye icon-right" onclick="togglePassword('reg-password', this)"></i></div></div><div class="form-group"><label for="reg-confirm">Confirm Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="reg-confirm" placeholder="Repeat your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('reg-confirm', this)"></i></div></div><div class="form-group"><label for="reg-referral">Referral Code (Optional)</label><div class="input-wrap has-icon-left"><i class="ti ti-gift"></i><input type="text" id="reg-referral" placeholder="Enter referral code if you have one"/></div></div><div class="terms-row"><input type="checkbox" id="terms"/><label for="terms">I agree to the <a href="#" onclick="navigateTo('terms')">Terms of Service</a> and <a href="#" onclick="navigateTo('privacy')">Privacy Policy</a></label></div><p class="auth-error" id="reg-error"></p><button class="btn-purple" onclick="handleRegister()">Create Account</button><p class="auth-footer">Already have an account? <span onclick="navigateTo('sign-in')">Sign In</span></p></div></div>`;
 
 PAGES['sign-in'] = `<div class="auth-screen"><div class="auth-header"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('splash')"><i class="ti ti-arrow-left"></i></button><h1>Welcome Back</h1><p>Sign in to your KwandaData account</p></div><div class="auth-body"><div class="form-group"><label for="login-email">Email Address</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="login-email" placeholder="john@example.com"/></div></div><div class="form-group"><label for="login-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="login-password" placeholder="Enter your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('login-password', this)"></i></div></div><p class="forgot-link" onclick="navigateTo('forgot-password')">Forgot Password?</p><p class="auth-error" id="login-error"></p><button class="btn-purple" onclick="handleLogin()">Sign In</button><div class="auth-divider"><span></span><p>or continue with</p><span></span></div><div class="social-row"><button class="social-btn" onclick="handleGoogleLogin()"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button><button class="social-btn" onclick="handleFacebookLogin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>Facebook</button></div><p class="auth-footer">Don't have an account? <span onclick="navigateTo('create-account')">Create Account</span></p></div></div>`;
 
-PAGES['home'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting">Good morning</p><h2 class="home-name">Hello</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('notifications')" style="cursor:pointer;"><i class="ti ti-bell"></i><span class="notif-dot"></span></button><button onclick="logout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:16px;"></i><span style="color:#ef4444;font-size:13px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Hello Wallet</p><p class="wallet-amount">R 0.00</p><p class="wallet-sub">Available Balance</p></div><div class="wallet-icon"><i class="ti ti-wallet"></i></div></div><div class="bonus-card"><div><p class="bonus-label">Pending Bonus</p><p class="bonus-amount">R 0.00</p></div><div class="bonus-icon"><i class="ti ti-clock"></i></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:14px 18px;margin:10px 16px 0;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">📶 Ready-to-Use Data Balance</p><p class="data-balance" style="font-size:22px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready to redeem as data</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-wifi"></i></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('earn')"><div class="action-icon green"><i class="ti ti-database"></i></div><h3>Earn Data</h3><p>Complete activities to earn data</p></div><div class="action-card" onclick="navigateTo('wallet')"><div class="action-icon purple"><i class="ti ti-wallet"></i></div><h3>My Wallet</h3><p>View balance and history</p></div><div class="action-card" onclick="navigateTo('redeem')"><div class="action-icon violet"><i class="ti ti-refresh"></i></div><h3>Redeem / Use</h3><p>Redeem data or use on partners</p></div><div class="action-card" onclick="navigateTo('refer')"><div class="action-icon orange"><i class="ti ti-users"></i></div><h3>Refer &amp; Earn</h3><p>Invite friends and earn more</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Activity</p></div><div id="home-recent-activity"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">No activity yet</div></div></div><div class="highlights"><h2>Key Highlights</h2><div class="highlights-grid"><div class="highlight-item"><div class="highlight-icon" style="background:var(--primary);"><i class="ti ti-shield-check"></i></div><h4>Participate</h4><p>Engage in activities that matter.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-green);"><i class="ti ti-gift"></i></div><h4>Earn</h4><p>Earn data for your participation.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-blue);"><i class="ti ti-wallet"></i></div><h4>Store</h4><p>Your earnings safely in wallet.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-orange);"><i class="ti ti-transfer"></i></div><h4>Redeem</h4><p>Use or convert your data easily.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-purple);"><i class="ti ti-users"></i></div><h4>Grow</h4><p>Invite others and unlock more.</p></div></div></div><div class="kwanda-footer">KwandaData - Connecting participation to possibilities.</div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button></nav></div>`;
+PAGES['home'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting">Good morning</p><h2 class="home-name">Hello</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('notifications')" style="cursor:pointer;"><i class="ti ti-bell"></i><span class="notif-dot"></span></button><button onclick="logout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:16px;"></i><span style="color:#ef4444;font-size:13px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Hello Wallet</p><p class="wallet-amount">R 0.00</p><p class="wallet-sub">Available Balance</p></div><div class="wallet-icon"><i class="ti ti-wallet"></i></div></div><div class="bonus-card"><div><p class="bonus-label">Pending Bonus</p><p class="bonus-amount">R 0.00</p></div><div class="bonus-icon"><i class="ti ti-clock"></i></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:14px 18px;margin:10px 16px 0;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">📶 Ready-to-Use Data Balance</p><p class="data-balance" style="font-size:22px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready to redeem as data</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-wifi"></i></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('earn')"><div class="action-icon green"><i class="ti ti-database"></i></div><h3>Earn</h3><p>Complete activities to earn data</p></div><div class="action-card" onclick="navigateTo('wallet')"><div class="action-icon purple"><i class="ti ti-wallet"></i></div><h3>My Wallet</h3><p>View balance and history</p></div><div class="action-card" onclick="navigateTo('redeem')"><div class="action-icon violet"><i class="ti ti-refresh"></i></div><h3>Redeem / Use</h3><p>Redeem data or use on partners</p></div><div class="action-card" onclick="navigateTo('refer')"><div class="action-icon orange"><i class="ti ti-users"></i></div><h3>Refer &amp; Earn</h3><p>Invite friends and earn more</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Activity</p></div><div id="home-recent-activity"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">No activity yet</div></div></div><div class="highlights"><h2>Key Highlights</h2><div class="highlights-grid"><div class="highlight-item"><div class="highlight-icon" style="background:var(--primary);"><i class="ti ti-shield-check"></i></div><h4>Participate</h4><p>Engage in activities that matter.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-green);"><i class="ti ti-gift"></i></div><h4>Earn</h4><p>Earn data for your participation.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-blue);"><i class="ti ti-wallet"></i></div><h4>Store</h4><p>Your earnings safely in wallet.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-orange);"><i class="ti ti-transfer"></i></div><h4>Redeem</h4><p>Use or convert your data easily.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-purple);"><i class="ti ti-users"></i></div><h4>Grow</h4><p>Invite others and unlock more.</p></div></div></div><div class="kwanda-footer">KwandaData - Connecting participation to possibilities.</div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button></nav></div>`;
 
 PAGES['earn'] = `<div class="earn-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>Earn Data</h2></div><button class="icon-btn"><i class="ti ti-info-circle"></i></button></div><div class="page-scroll"><div class="earn-banner"><p>Complete activities and earn data into your wallet</p><span class="earn-banner-icon">🎁</span></div><div class="earn-tabs"><button class="earn-tab active" id="tab-all" onclick="switchTab(this)">All</button><button class="earn-tab" id="tab-tasks" onclick="switchTab(this)">Tasks</button><button class="earn-tab" id="tab-surveys" onclick="switchTab(this)">Surveys</button><button class="earn-tab" id="tab-offers" onclick="switchTab(this)">Offers</button><button class="earn-tab" id="tab-videos" onclick="switchTab(this)">Videos</button></div><div id="task-list"></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item active"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button></nav></div>`;
 
@@ -61,12 +61,16 @@ PAGES['advertiser-login'] = `<div class="auth-screen"><div class="auth-header" s
 PAGES['advertiser-register'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-login')"><i class="ti ti-arrow-left"></i></button><h1>Create Business Account</h1><p>Register your company on KwandaData</p></div><div class="auth-body"><div class="form-group"><label for="adv-company">Company Name</label><div class="input-wrap has-icon-left"><i class="ti ti-building"></i><input type="text" id="adv-company" placeholder="Enter your company name"/></div></div><div class="form-group"><label for="adv-industry">Industry</label><select id="adv-industry" class="form-select"><option value="">Select industry</option><option value="telecom">Telecommunications</option><option value="banking">Banking & Finance</option><option value="retail">Retail</option><option value="media">Media & Entertainment</option><option value="healthcare">Healthcare</option><option value="education">Education</option><option value="technology">Technology</option><option value="fmcg">FMCG</option><option value="other">Other</option></select></div><div class="form-group"><label for="adv-contact">Contact Person</label><div class="input-wrap has-icon-left"><i class="ti ti-user"></i><input type="text" id="adv-contact" placeholder="Full name"/></div></div><div class="form-group"><label for="adv-phone">Phone Number</label><div class="input-wrap has-icon-left"><i class="ti ti-phone"></i><input type="tel" id="adv-phone" placeholder="+27 000 000 0000"/></div></div><div class="form-group"><label for="adv-email">Business Email</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="adv-email" placeholder="company@example.com"/></div></div><div class="form-group"><label for="adv-reg-number">Company Registration Number</label><div class="input-wrap has-icon-left"><i class="ti ti-id-badge"></i><input type="text" id="adv-reg-number" placeholder="e.g. 2021/123456/07"/></div></div><div class="form-group"><label for="adv-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="adv-password" placeholder="Create a password"/><i class="ti ti-eye icon-right" onclick="togglePassword('adv-password', this)"></i></div></div><div class="form-group"><label for="adv-confirm">Confirm Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="adv-confirm" placeholder="Repeat your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('adv-confirm', this)"></i></div></div><div class="terms-row"><input type="checkbox" id="adv-terms" style="accent-color:#f97316;"/><label for="adv-terms">I agree to the <a href="#" onclick="navigateTo('terms')" style="color:#f97316;">Terms of Service</a> and <a href="#" onclick="navigateTo('privacy')" style="color:#f97316;">Privacy Policy</a></label></div><p class="auth-error" id="adv-reg-error"></p><button onclick="handleAdvertiserRegister()" style="width:100%;padding:15px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;">Create Business Account</button><p class="auth-footer">Already registered? <span onclick="navigateTo('advertiser-login')" style="color:#f97316;">Sign In</span></p></div></div>`;
 
 // ── CONTINUE TO PART 4 ──
-PAGES['advertiser-register'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-login')"><i class="ti ti-arrow-left"></i></button><h1>Create Business Account</h1><p>Register your company on KwandaData</p></div><div class="auth-body"><div class="form-group"><label for="adv-company">Company Name</label><div class="input-wrap has-icon-left"><i class="ti ti-building"></i><input type="text" id="adv-company" placeholder="Enter your company name"/></div></div><div class="form-group"><label for="adv-industry">Industry</label><select id="adv-industry" class="form-select"><option value="">Select industry</option><option value="telecom">Telecommunications</option><option value="banking">Banking & Finance</option><option value="retail">Retail</option><option value="media">Media & Entertainment</option><option value="healthcare">Healthcare</option><option value="education">Education</option><option value="technology">Technology</option><option value="fmcg">FMCG</option><option value="other">Other</option></select></div><div class="form-group"><label for="adv-contact">Contact Person</label><div class="input-wrap has-icon-left"><i class="ti ti-user"></i><input type="text" id="adv-contact" placeholder="Full name"/></div></div><div class="form-group"><label for="adv-phone">Phone Number</label><div class="input-wrap has-icon-left"><i class="ti ti-phone"></i><input type="tel" id="adv-phone" placeholder="+27 000 000 0000"/></div></div><div class="form-group"><label for="adv-email">Business Email</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="adv-email" placeholder="company@example.com"/></div></div><div class="form-group"><label for="adv-reg-number">Company Registration Number</label><div class="input-wrap has-icon-left"><i class="ti ti-id-badge"></i><input type="text" id="adv-reg-number" placeholder="e.g. 2021/123456/07"/></div></div><div class="form-group"><label for="adv-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="adv-password" placeholder="Create a password"/><i class="ti ti-eye icon-right" onclick="togglePassword('adv-password', this)"></i></div></div><div class="form-group"><label for="adv-confirm">Confirm Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="adv-confirm" placeholder="Repeat your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('adv-confirm', this)"></i></div></div><div class="terms-row"><input type="checkbox" id="adv-terms" style="accent-color:#f97316;"/><label for="adv-terms">I agree to the <a href="#" onclick="navigateTo('terms')" style="color:#f97316;">Terms of Service</a> and <a href="#" onclick="navigateTo('privacy')" style="color:#f97316;">Privacy Policy</a></label></div><p class="auth-error" id="adv-reg-error"></p><button onclick="handleAdvertiserRegister()" style="width:100%;padding:15px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;">Create Business Account</button><p class="auth-footer">Already registered? <span onclick="navigateTo('advertiser-login')" style="color:#f97316;">Sign In</span></p></div></div>`;
-///////
+PAGES['advertiser-register'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-login')"><i class="ti ti-arrow-left"></i></button><h1>Create Business Account</h1><p>Register your company on KwandaData</p></div><div class="auth-body"><div class="form-group"><label for="adv-company">Company Name</label><div class="input-wrap has-icon-left"><i class="ti ti-building"></i><input type="text" id="adv-company" placeholder="Enter your company name"/></div></div><div class="form-group"><label for="adv-industry">Industry</label><select id="adv-industry" class="form-select" onchange="toggleOtherIndustry(this.value)"><option value="">Select industry</option><option value="telecom">Telecommunications</option><option value="banking">Banking & Finance</option><option value="retail">Retail</option><option value="media">Media & Entertainment</option><option value="healthcare">Healthcare</option><option value="education">Education</option><option value="technology">Technology</option><option value="fmcg">FMCG</option><option value="other">Other</option></select><div id="other-industry-wrap" style="display:none;margin-top:8px;"><div class="input-wrap has-icon-left"><i class="ti ti-pencil"></i><input type="text" id="adv-industry-other" placeholder="Type your industry..."/></div></div></div><div class="form-group"><label for="adv-contact">Contact Person</label><div class="input-wrap has-icon-left"><i class="ti ti-user"></i><input type="text" id="adv-contact" placeholder="Full name"/></div></div><div class="form-group"><label for="adv-phone">Phone Number</label><div class="input-wrap has-icon-left"><i class="ti ti-phone"></i><input type="tel" id="adv-phone" placeholder="+27 000 000 0000"/></div></div><div class="form-group"><label for="adv-email">Business Email</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="adv-email" placeholder="company@example.com"/></div></div><div class="form-group"><label for="adv-reg-number">Company Registration Number</label><div class="input-wrap has-icon-left"><i class="ti ti-id-badge"></i><input type="text" id="adv-reg-number" placeholder="e.g. 2021/123456/07"/></div></div><div class="form-group"><label for="adv-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="adv-password" placeholder="Create a password"/><i class="ti ti-eye icon-right" onclick="togglePassword('adv-password', this)"></i></div></div><div class="form-group"><label for="adv-confirm">Confirm Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="adv-confirm" placeholder="Repeat your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('adv-confirm', this)"></i></div></div><div class="terms-row"><input type="checkbox" id="adv-terms" style="accent-color:#f97316;"/><label for="adv-terms">I agree to the <a href="#" onclick="navigateTo('terms')" style="color:#f97316;">Terms of Service</a> and <a href="#" onclick="navigateTo('privacy')" style="color:#f97316;">Privacy Policy</a></label></div><p class="auth-error" id="adv-reg-error"></p><button onclick="handleAdvertiserRegister()" style="width:100%;padding:15px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;">Create Business Account</button><p class="auth-footer">Already registered? <span onclick="navigateTo('advertiser-login')" style="color:#f97316;">Sign In</span></p></div></div>`;
+
+function toggleOtherIndustry(val) {
+  var wrap = document.getElementById('other-industry-wrap');
+  if (wrap) wrap.style.display = val === 'other' ? 'block' : 'none';
+}
+window.toggleOtherIndustry = toggleOtherIndustry;
 PAGES['advertiser-dashboard'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting" id="adv-greeting">Good morning</p><h2 class="home-name" id="adv-company-name">Loading...</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('advertiser-notifications')"><i class="ti ti-bell"></i></button><button onclick="advertiserLogout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 12px;display:flex;align-items:center;gap:5px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:15px;"></i><span style="color:#ef4444;font-size:12px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:20px 22px;margin:16px;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;">Campaign Budget</p><p id="adv-budget" style="font-size:30px;font-weight:700;color:#fff;">R 0.00</p><p style="font-size:12px;color:rgba(255,255,255,0.7);">Available Balance</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-speakerphone"></i></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 16px 16px;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-campaigns" style="font-size:24px;font-weight:700;color:#f97316;">0</p><p style="font-size:12px;color:var(--text-muted);">Total Campaigns</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-active-campaigns" style="font-size:24px;font-weight:700;color:var(--accent-green);">0</p><p style="font-size:12px;color:var(--text-muted);">Active Campaigns</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-completions" style="font-size:24px;font-weight:700;color:var(--primary);">0</p><p style="font-size:12px;color:var(--text-muted);">Total Completions</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-spent" style="font-size:24px;font-weight:700;color:#ef4444;">R 0.00</p><p style="font-size:12px;color:var(--text-muted);">Total Spent</p></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('advertiser-create-campaign')"><div class="action-icon orange"><i class="ti ti-plus"></i></div><h3>New Campaign</h3><p>Create a new campaign</p></div><div class="action-card" onclick="navigateTo('advertiser-campaigns')"><div class="action-icon purple"><i class="ti ti-speakerphone"></i></div><h3>My Campaigns</h3><p>View all campaigns</p></div><div class="action-card" onclick="navigateTo('advertiser-analytics')"><div class="action-icon blue"><i class="ti ti-chart-bar"></i></div><h3>Analytics</h3><p>View performance</p></div><div class="action-card" onclick="navigateTo('advertiser-billing')"><div class="action-icon green"><i class="ti ti-credit-card"></i></div><h3>Billing</h3><p>Manage your budget</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Campaigns</p><span class="section-link" onclick="navigateTo('advertiser-campaigns')" style="color:#f97316;">View all ›</span></div><div id="adv-recent-campaigns"><div style="text-align:center;padding:24px;color:var(--text-muted);"><i class="ti ti-speakerphone" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;"></i><p style="font-size:13px;">No campaigns yet</p></div></div></div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
-PAGES['advertiser-create-campaign'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h1>Create Campaign</h1><p>Set up your new campaign</p></div><div class="auth-body"><div class="form-group"><label for="camp-name">Campaign Name</label><div class="input-wrap has-icon-left"><i class="ti ti-speakerphone"></i><input type="text" id="camp-name" placeholder="Enter your campaign name"/></div></div><div class="form-group"><label for="camp-type">Activity Type</label><select id="camp-type" class="form-select" onchange="updateCampPrice()"><option value="">Select activity type</option><option value="survey">Survey — R 15.00 per completion</option><option value="video">Watch Video — R 5.00 per completion</option><option value="quiz">Quiz — R 8.00 per completion</option><option value="download">Download App — R 20.00 per completion</option><option value="signup">Sign Up / Register — R 25.00 per completion</option></select></div><div class="form-group"><label for="camp-description">Campaign Description</label><textarea id="camp-description" placeholder="Describe what users need to do..." style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;outline:none;box-sizing:border-box;resize:none;height:80px;font-family:sans-serif;"></textarea></div><div class="form-group"><label for="camp-budget">Total Budget (R)</label><div class="input-wrap has-icon-left"><i class="ti ti-currency-rand"></i><input type="number" id="camp-budget" placeholder="Minimum R 500" min="500" oninput="updateCampPrice()"/></div></div><div style="background:#fff7ed;border-radius:12px;padding:14px;border:1.5px solid #fed7aa;margin-bottom:4px;"><p style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Pricing Summary</p><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><p style="font-size:13px;color:var(--text-muted);">Price per completion</p><p id="camp-price-display" style="font-size:13px;font-weight:700;color:var(--primary);">Select activity type</p></div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><p style="font-size:13px;color:var(--text-muted);">Estimated completions</p><p id="camp-completions" style="font-size:13px;font-weight:700;color:var(--primary);">—</p></div><div style="border-top:1px solid #fed7aa;padding-top:8px;display:flex;justify-content:space-between;"><p style="font-size:13px;font-weight:700;color:var(--text-primary);">Total Cost</p><p id="camp-total-cost" style="font-size:13px;font-weight:700;color:#f97316;">—</p></div></div><div class="name-row"><div class="form-group"><label for="camp-start">Start Date</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="camp-start"/></div></div><div class="form-group"><label for="camp-end">End Date</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="camp-end"/></div></div></div><div class="form-group"><label for="camp-target">Target Users</label><select id="camp-target" class="form-select"><option value="all">All Users</option><option value="gauteng">Gauteng Only</option><option value="kwazulu-natal">KwaZulu-Natal Only</option><option value="western-cape">Western Cape Only</option><option value="employed">Employed Users</option><option value="students">Students Only</option></select></div><p class="auth-error" id="camp-error"></p><button onclick="submitCampaign()" style="width:100%;padding:15px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;">Submit for Approval</button><p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;">Your campaign will be reviewed before going live</p></div></div>`;
-
+PAGES['advertiser-create-campaign'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h1>Create Campaign</h1><p>Set up your new campaign</p></div><div class="auth-body"><div class="form-group"><label for="camp-name">Campaign Name</label><div class="input-wrap has-icon-left"><i class="ti ti-speakerphone"></i><input type="text" id="camp-name" placeholder="Enter your campaign name"/></div></div><div class="form-group"><label for="camp-type">Activity Type</label><select id="camp-type" class="form-select" onchange="updateCampPrice()"><option value="">Select activity type</option><option value="survey">Survey — R 15.00 per completion</option><option value="video">Watch Video — R 5.00 per completion</option><option value="quiz">Quiz — R 8.00 per completion</option><option value="download">Download App — R 20.00 per completion</option><option value="signup">Sign Up / Register — R 25.00 per completion</option></select></div><div class="form-group"><label for="camp-description">Campaign Description</label><textarea id="camp-description" placeholder="Describe what users need to do..." style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;outline:none;box-sizing:border-box;resize:none;height:80px;font-family:sans-serif;"></textarea></div><div class="form-group"><label for="camp-budget">Total Budget (R)</label><div class="input-wrap has-icon-left"><i class="ti ti-currency-rand"></i><input type="number" id="camp-budget" placeholder="Minimum R 500" min="500" oninput="updateCampPrice()"/></div></div><div style="background:#fff7ed;border-radius:12px;padding:14px;border:1.5px solid #fed7aa;margin-bottom:4px;"><p style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Pricing Summary</p><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><p style="font-size:13px;color:var(--text-muted);">Price per completion</p><p id="camp-price-display" style="font-size:13px;font-weight:700;color:var(--primary);">Select activity type</p></div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><p style="font-size:13px;color:var(--text-muted);">Estimated completions</p><p id="camp-completions" style="font-size:13px;font-weight:700;color:var(--primary);">—</p></div><div style="border-top:1px solid #fed7aa;padding-top:8px;display:flex;justify-content:space-between;"><p style="font-size:13px;font-weight:700;color:var(--text-primary);">Total Cost</p><p id="camp-total-cost" style="font-size:13px;font-weight:700;color:#f97316;">—</p></div></div><div class="name-row"><div class="form-group"><label for="camp-start">Start Date</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="camp-start"/></div></div><div class="form-group"><label for="camp-end">End Date</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="camp-end"/></div></div></div><div class="form-group"><label for="camp-target">Target Users</label><select id="camp-target" class="form-select"><option value="all">National</option><option value="gauteng">Gauteng</option><option value="western-cape">Western Cape</option><option value="kwazulu-natal">KwaZulu-Natal</option><option value="eastern-cape">Eastern Cape</option><option value="limpopo">Limpopo</option><option value="mpumalanga">Mpumalanga</option><option value="north-west">North West</option><option value="northern-cape">Northern Cape</option><option value="free-state">Free State</option></select></div><p class="auth-error" id="camp-error"></p><button onclick="submitCampaign()" style="width:100%;padding:15px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;">Submit for Approval</button><p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;">Your campaign will be reviewed before going live</p></div></div>`;
 PAGES['advertiser-campaigns'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>My Campaigns</h2></div><button class="icon-btn" onclick="initAdvertiserCampaigns()"><i class="ti ti-refresh"></i></button></div><div style="display:flex;gap:8px;padding:12px 16px;background:#fff;overflow-x:auto;border-bottom:1px solid var(--border);"><button onclick="filterCampaigns('all')" id="filter-all" style="padding:7px 16px;border-radius:20px;background:#f97316;color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All</button><button onclick="filterCampaigns('pending')" id="filter-pending" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Pending</button><button onclick="filterCampaigns('active')" id="filter-active" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Active</button><button onclick="filterCampaigns('paused')" id="filter-paused" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Paused</button><button onclick="filterCampaigns('completed')" id="filter-completed" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Completed</button></div><div class="page-scroll"><div id="campaigns-list" style="padding:16px;display:flex;flex-direction:column;gap:12px;"></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item active"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
 PAGES['advertiser-analytics'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>Analytics</h2></div><button class="icon-btn" onclick="initAdvertiserAnalytics()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#f97316;margin-bottom:8px;"><i class="ti ti-eye"></i></div><p style="font-size:11px;color:var(--text-muted);">Total Impressions</p><p id="analytics-impressions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;margin-bottom:8px;"><i class="ti ti-check"></i></div><p style="font-size:11px;color:var(--text-muted);">Completions</p><p id="analytics-completions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);margin-bottom:8px;"><i class="ti ti-percentage"></i></div><p style="font-size:11px;color:var(--text-muted);">Completion Rate</p><p id="analytics-rate" style="font-size:22px;font-weight:700;color:var(--text-primary);">0%</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ef4444;margin-bottom:8px;"><i class="ti ti-currency-rand"></i></div><p style="font-size:11px;color:var(--text-muted);">Budget Spent</p><p id="analytics-spent" style="font-size:22px;font-weight:700;color:var(--text-primary);">R 0.00</p></div></div><div style="background:#fff;border-radius:14px;margin:16px;padding:16px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);">Performance Overview</p><select onchange="updateAdvChart(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:12px;color:var(--text-muted);background:#fff;outline:none;"><option value="week">This Week</option><option value="month">This Month</option></select></div><canvas id="adv-chart" height="120"></canvas></div><div style="padding:0 16px 16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Campaign Breakdown</p><div id="analytics-breakdown"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item active"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
@@ -93,16 +97,316 @@ PAGES['admin-users-mgmt'] = `<div class="home-screen"><div class="subpage-header
 
 PAGES['admin-advertisers-mgmt'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Advertiser Management</h2></div><button class="icon-btn" onclick="initAdminAdvertisersMgmt()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="padding:16px 16px 0;"><div class="input-wrap has-icon-left" style="margin-bottom:14px;"><i class="ti ti-search"></i><input type="text" id="adv-search-admin" placeholder="Search by company or email..." oninput="searchAdminAdvertisers(this.value)"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="admin-total-advs" style="font-size:22px;font-weight:700;color:var(--primary);">0</p><p style="font-size:11px;color:var(--text-muted);">Total Advertisers</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="admin-active-advs" style="font-size:22px;font-weight:700;color:#22c55e;">0</p><p style="font-size:11px;color:var(--text-muted);">Active</p></div></div></div><div id="admin-advertisers-list" style="padding:0 16px 16px;"></div></div></div>`;
 
-PAGES['admin-announcements'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Announcements</h2></div></div><div class="page-scroll"><div style="padding:16px;"><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:16px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Send New Announcement</p><div style="margin-bottom:10px;"><p style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Send To</p><div style="display:flex;gap:8px;"><button onclick="selectAudience('users')" id="aud-users" style="flex:1;padding:8px;border-radius:10px;background:var(--primary);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;">All Users</button><button onclick="selectAudience('advertisers')" id="aud-advertisers" style="flex:1;padding:8px;border-radius:10px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;">Advertisers</button><button onclick="selectAudience('everyone')" id="aud-everyone" style="flex:1;padding:8px;border-radius:10px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;">Everyone</button></div></div><div class="form-group"><label for="ann-title">Title</label><div class="input-wrap has-icon-left"><i class="ti ti-speakerphone"></i><input type="text" id="ann-title" placeholder="Announcement title..."/></div></div><div class="form-group"><label for="ann-message">Message</label><textarea id="ann-message" placeholder="Write your announcement..." style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;outline:none;box-sizing:border-box;resize:none;height:90px;font-family:sans-serif;"></textarea></div><p class="auth-error" id="ann-error"></p><button onclick="sendAnnouncement()" style="width:100%;padding:13px;border-radius:30px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Send Announcement</button></div><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Past Announcements</p><div id="announcements-list"></div></div></div></div>`;
+PAGES['admin-announcements'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Announcements</h2></div></div><div class="page-scroll"><div style="padding:16px;"><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:16px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Send New Announcement</p><div style="margin-bottom:10px;"><p style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Send To</p><div style="display:flex;gap:8px;"><button onclick="selectAudience('users')" id="aud-users" style="flex:1;padding:8px;border-radius:10px;background:var(--primary);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;">Users</button><button onclick="selectAudience('advertisers')" id="aud-advertisers" style="flex:1;padding:8px;border-radius:10px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;">Advertisers</button><button onclick="selectAudience('all')" id="aud-all" style="flex:1;padding:8px;border-radius:10px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;">All</button></div></div><div class="form-group"><label for="ann-title">Title</label><div class="input-wrap has-icon-left"><i class="ti ti-speakerphone"></i><input type="text" id="ann-title" placeholder="Announcement title..."/></div></div><div class="form-group"><label for="ann-message">Message</label><textarea id="ann-message" placeholder="Write your announcement..." style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;outline:none;box-sizing:border-box;resize:none;height:90px;font-family:sans-serif;"></textarea></div><p class="auth-error" id="ann-error"></p><button onclick="sendAnnouncement()" style="width:100%;padding:13px;border-radius:30px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Send Announcement</button></div><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Past Announcements</p><div id="announcements-list"></div></div></div></div>`;
 
+var selectedAudience = 'users';
+
+function selectAudience(type) {
+  selectedAudience = type;
+  var ids = ['users', 'advertisers', 'all'];
+  ids.forEach(function(id) {
+    var btn = document.getElementById('aud-' + id);
+    if (!btn) return;
+    if (id === type) {
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#fff';
+      btn.style.border = 'none';
+    } else {
+      btn.style.background = '#fff';
+      btn.style.color = 'var(--text-muted)';
+      btn.style.border = '1px solid var(--border)';
+    }
+  });
+}
+
+function sendAnnouncement() {
+  var title   = document.getElementById('ann-title')   ? document.getElementById('ann-title').value.trim()   : '';
+  var message = document.getElementById('ann-message') ? document.getElementById('ann-message').value.trim() : '';
+  var errorEl = document.getElementById('ann-error');
+  if (errorEl) errorEl.textContent = '';
+  if (!title)   { if (errorEl) errorEl.textContent = 'Please enter a title.';   return; }
+  if (!message) { if (errorEl) errorEl.textContent = 'Please enter a message.'; return; }
+
+  var announcement = {
+    id: Date.now().toString(),
+    title: title,
+    message: message,
+    audience: selectedAudience,
+    date: new Date().toLocaleString('en-ZA'),
+    sentBy: 'Admin'
+  };
+
+  var stored = JSON.parse(localStorage.getItem('kwanda_announcements') || '[]');
+  stored.unshift(announcement);
+  localStorage.setItem('kwanda_announcements', JSON.stringify(stored));
+
+  document.getElementById('ann-title').value   = '';
+  document.getElementById('ann-message').value = '';
+  selectAudience('users');
+
+  loadAnnouncements();
+  alert('✅ Announcement sent to: ' + (selectedAudience === 'all' ? 'Everyone' : selectedAudience));
+}
+
+function loadAnnouncements() {
+  var container = document.getElementById('announcements-list');
+  if (!container) return;
+  var stored = JSON.parse(localStorage.getItem('kwanda_announcements') || '[]');
+  if (stored.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);'><i class='ti ti-bell-off' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No announcements yet</p></div>";
+    return;
+  }
+  container.innerHTML = stored.map(function(a) {
+    var audienceLabel = a.audience === 'all' ? 'Everyone' : a.audience === 'users' ? 'Users' : 'Advertisers';
+    return "<div style='background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:10px;'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + a.title + "</p><span style='font-size:11px;background:#ede9fe;color:#2d1b8e;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;'>" + audienceLabel + "</span></div><p style='font-size:13px;color:var(--text-muted);margin-bottom:6px;'>" + a.message + "</p><p style='font-size:11px;color:var(--text-muted);'>" + a.date + "</p></div>";
+  }).join('');
+}
+
+function initAdminAnnouncements() {
+  selectedAudience = 'users';
+  loadAnnouncements();
+}
+
+window.selectAudience        = selectAudience;
+window.sendAnnouncement      = sendAnnouncement;
+window.loadAnnouncements     = loadAnnouncements;
+window.initAdminAnnouncements = initAdminAnnouncements;
 PAGES['admin-settings'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>App Settings</h2></div><button class="icon-btn" onclick="initAdminSettings()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="padding:16px;display:flex;flex-direction:column;gap:14px;"><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Campaign Pricing (R per completion)</p><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Survey</label><input type="number" id="price-survey" value="15" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Watch Video</label><input type="number" id="price-video" value="5" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Quiz</label><input type="number" id="price-quiz" value="8" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Download App</label><input type="number" id="price-download" value="20" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Sign Up</label><input type="number" id="price-signup" value="25" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div></div><button onclick="savePricing()" style="width:100%;margin-top:12px;padding:11px;border-radius:30px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;">Save Pricing</button></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Earnings Split</p><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Admin Fee %</label><input type="number" id="split-admin" value="15" min="0" max="50" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><label style="font-size:13px;color:var(--text-muted);flex:1;">Auto Data Split %</label><input type="number" id="split-data" value="30" min="0" max="80" style="width:90px;text-align:right;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div style="background:var(--bg);border-radius:8px;padding:10px;"><p style="font-size:12px;color:var(--text-muted);margin:0;">Wallet receives the remaining % after admin fee and data split.</p></div></div><button onclick="saveSplitSettings()" style="width:100%;margin-top:12px;padding:11px;border-radius:30px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;">Save Split Settings</button></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin:0;">Maintenance Mode</p><p style="font-size:12px;color:var(--text-muted);margin:0;">Show a message to all users</p></div><label class="toggle-switch"><input type="checkbox" id="maintenance-toggle" onchange="toggleMaintenance(this.checked)"/><span class="toggle-slider"></span></label></div><div class="form-group"><label for="maintenance-msg">Maintenance Message</label><textarea id="maintenance-msg" placeholder="e.g. We are currently performing scheduled maintenance." style="width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:13px;outline:none;box-sizing:border-box;resize:none;height:80px;font-family:sans-serif;"></textarea></div><button onclick="saveMaintenanceSettings()" style="width:100%;padding:11px;border-radius:30px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;">Save Maintenance Settings</button></div></div></div></div>`;
 
 PAGES['maintenance'] = `<div class="splash-screen"><div class="splash-bubble splash-bubble-1"></div><div class="splash-bubble splash-bubble-2"></div><div class="splash-bubble splash-bubble-3"></div><div class="splash-center"><div class="splash-logo"><i class="ti ti-tools" style="font-size:48px;color:#fff;"></i></div><h1 class="splash-title">Under Maintenance</h1><p class="splash-tagline">We will be back shortly</p><p id="maintenance-message" class="splash-sub" style="margin-top:12px;padding:0 24px;text-align:center;"></p></div></div>`;
 
-PAGES['admin-financial'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Financial Control</h2></div><button class="icon-btn" onclick="initAdminFinancial()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="padding:16px;display:flex;flex-direction:column;gap:14px;"><div style="background:linear-gradient(135deg,#2d1b8e,#534AB7);border-radius:18px;padding:18px;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.75);margin:0 0 4px;">Total Admin Fees Collected</p><p id="fin-total-fees" style="font-size:28px;font-weight:700;color:#fff;margin:0;">R 0.00</p><p style="font-size:11px;color:rgba(255,255,255,0.6);margin:0;">15% from all user earnings</p></div><i class="ti ti-coin" style="font-size:36px;color:rgba(255,255,255,0.4);"></i></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Total Paid to Users</p><p id="fin-paid-users" style="font-size:18px;font-weight:700;color:#22c55e;margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Advertiser Spend</p><p id="fin-adv-spend" style="font-size:18px;font-weight:700;color:#f97316;margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Total User Wallets</p><p id="fin-user-wallets" style="font-size:18px;font-weight:700;color:var(--primary);margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Total Data Balances</p><p id="fin-data-balances" style="font-size:18px;font-weight:700;color:#3b82f6;margin:0;">R 0.00</p></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Recent Fee Collections</p><div id="fin-transactions"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">No transactions yet</div></div></div><button onclick="exportFinancialSummary()" style="width:100%;padding:13px;border-radius:30px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Export Financial Summary</button></div></div></div>`;
-
 PAGES['admin-analytics'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Platform Analytics</h2></div><button class="icon-btn" onclick="initAdminAnalytics()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:flex;gap:8px;padding:12px 16px;overflow-x:auto;"><button onclick="filterAnalytics('today')" id="analytics-today" style="padding:6px 14px;border-radius:20px;background:var(--primary);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Today</button><button onclick="filterAnalytics('week')" id="analytics-week" style="padding:6px 14px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;">This Week</button><button onclick="filterAnalytics('month')" id="analytics-month" style="padding:6px 14px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;">This Month</button><button onclick="filterAnalytics('all')" id="analytics-all" style="padding:6px 14px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;">All Time</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:14px;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-users" style="font-size:16px;color:#3b82f6;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Total Users</p><p id="pa-users" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-list-check" style="font-size:16px;color:#22c55e;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Tasks Completed</p><p id="pa-tasks" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-wallet" style="font-size:16px;color:#f97316;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Total User Wallets</p><p id="pa-wallets" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-building-store" style="font-size:16px;color:#ef4444;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Advertiser Budgets</p><p id="pa-adv-budgets" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#ede9fe;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-building-store" style="font-size:16px;color:#6c63ff;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Total Advertisers</p><p id="pa-advertisers" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-speakerphone" style="font-size:16px;color:#22c55e;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Active Campaigns</p><p id="pa-campaigns" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div></div><div style="background:#fff;border-radius:14px;margin:0 16px 16px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">User Registrations</p><canvas id="pa-chart" height="120"></canvas></div></div></div>`;
 
+PAGES['admin-financial'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Financial Control</h2></div><button class="icon-btn" onclick="initAdminFinancial()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="padding:16px;display:flex;flex-direction:column;gap:14px;"><div style="background:linear-gradient(135deg,#2d1b8e,#534AB7);border-radius:18px;padding:18px;"><p style="font-size:12px;color:rgba(255,255,255,0.75);margin:0 0 4px;">Total Admin Fees Collected</p><p id="fin-total-fees" style="font-size:28px;font-weight:700;color:#fff;margin:0;">R 0.00</p><p style="font-size:11px;color:rgba(255,255,255,0.6);margin:0;">15% from all user earnings</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Total Paid to Users</p><p id="fin-paid-users" style="font-size:18px;font-weight:700;color:#22c55e;margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Advertiser Spend</p><p id="fin-adv-spend" style="font-size:18px;font-weight:700;color:#f97316;margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Total User Wallets</p><p id="fin-user-wallets" style="font-size:18px;font-weight:700;color:var(--primary);margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><p style="font-size:11px;color:var(--text-muted);margin:0 0 4px;">Total Data Balances</p><p id="fin-data-balances" style="font-size:18px;font-weight:700;color:#3b82f6;margin:0;">R 0.00</p></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Advertiser Statements</p><div id="fin-transactions"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">No transactions yet</div></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin:0;">Users By Region</p><button onclick="exportUsersByRegion()" style="padding:7px 14px;border-radius:20px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;"><i class="ti ti-download" style="margin-right:4px;"></i>Download</button></div><div id="fin-users-region"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">Loading...</div></div></div><button onclick="exportFinancialSummary()" style="width:100%;padding:13px;border-radius:30px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Export Financial Summary</button></div></div></div>`;
+function initAdminFinancial() {
+  var allUsers      = JSON.parse(localStorage.getItem('kwanda_users')       || '[]');
+  var allAdvs       = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
+  var allCampaigns  = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
+  var adminFees     = JSON.parse(localStorage.getItem('_k_fees')            || '{"t":0,"count":0}');
+
+  var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
+  set('fin-total-fees',    'R ' + (adminFees.t || 0).toFixed(2));
+
+  var totalUserWallets = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
+  var totalDataBal     = allUsers.reduce(function(sum, u) { return sum + (u.dataBalance || 0); }, 0);
+  set('fin-paid-users',    'R ' + totalUserWallets.toFixed(2));
+  set('fin-user-wallets',  'R ' + totalUserWallets.toFixed(2));
+  set('fin-data-balances', totalDataBal.toFixed(0) + ' MB');
+
+  var totalAdvSpend = allCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+  set('fin-adv-spend', 'R ' + totalAdvSpend.toFixed(2));
+
+  // Advertiser statements
+  var container = document.getElementById('fin-transactions');
+  if (container) {
+    if (allAdvs.length === 0) {
+      container.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No advertisers yet</div>";
+    } else {
+      container.innerHTML = allAdvs.map(function(adv) {
+        var advCampaigns = allCampaigns.filter(function(c) { return c.advertiserId === adv.id; });
+        var totalSpent   = advCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+        var totalAdmin   = advCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
+        var totalVAT     = advCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
+        return "<div style='background:#f9fafb;border-radius:12px;padding:14px;border:1px solid var(--border);margin-bottom:10px;'>" +
+          "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>" +
+          "<div><p style='font-size:14px;font-weight:700;color:var(--text-primary);margin:0;'>" + (adv.company || adv.email) + "</p>" +
+          "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + adv.email + "</p></div>" +
+          "<span style='font-size:12px;font-weight:700;color:#ef4444;'>R " + totalSpent.toFixed(2) + "</span></div>" +
+          "<div style='display:flex;gap:8px;font-size:11px;color:var(--text-muted);margin-bottom:10px;'>" +
+          "<span>Campaigns: " + advCampaigns.length + "</span><span>|</span>" +
+          "<span>Admin Fee: R " + totalAdmin.toFixed(2) + "</span><span>|</span>" +
+          "<span>VAT: R " + totalVAT.toFixed(2) + "</span></div>" +
+          "<button onclick=\"downloadAdvStatement('" + adv.id + "')\" style='width:100%;padding:9px;border-radius:20px;background:linear-gradient(135deg,#2d1b8e,#534AB7);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;'>" +
+          "<i class=\"ti ti-download\" style=\"margin-right:5px;\"></i>Download Monthly Statement</button></div>";
+      }).join('');
+    }
+  }
+
+  // Users by region
+  var regionContainer = document.getElementById('fin-users-region');
+  if (regionContainer) {
+    var provinces = {
+      'gauteng':'Gauteng','western-cape':'Western Cape','kwazulu-natal':'KwaZulu-Natal',
+      'eastern-cape':'Eastern Cape','limpopo':'Limpopo','mpumalanga':'Mpumalanga',
+      'north-west':'North West','northern-cape':'Northern Cape','free-state':'Free State','':'Not Specified'
+    };
+    var grouped = {};
+    allUsers.forEach(function(u) {
+      var prov = u.province || '';
+      if (!grouped[prov]) grouped[prov] = [];
+      grouped[prov].push(u);
+    });
+    if (allUsers.length === 0) {
+      regionContainer.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No users yet</div>";
+    } else {
+      var html = '';
+      Object.keys(provinces).forEach(function(provKey) {
+        var users = grouped[provKey] || [];
+        if (users.length === 0) return;
+        var provName = provinces[provKey];
+        html += "<div style='margin-bottom:12px;'>";
+        html += "<div style='display:flex;justify-content:space-between;align-items:center;background:#f3f4f6;border-radius:8px;padding:8px 12px;margin-bottom:6px;'>";
+        html += "<p style='font-size:13px;font-weight:700;color:var(--text-primary);margin:0;'>" + provName + "</p>";
+        html += "<span style='font-size:12px;font-weight:600;color:var(--primary);background:#ede9fe;padding:2px 10px;border-radius:10px;'>" + users.length + " users</span></div>";
+        users.forEach(function(u) {
+          html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);'>";
+          html += "<div><p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + (u.firstName || '') + " " + (u.lastName || '') + "</p>";
+          html += "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + (u.region || 'N/A') + " · " + (u.email || '') + "</p></div>";
+          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + (u.balance || 0).toFixed(2) + "</p></div>";
+        });
+        html += "</div>";
+      });
+      regionContainer.innerHTML = html;
+    }
+  }
+}
+
+window.initAdminFinancial  = initAdminFinancial;
+function initAdminAnalytics() {
+  filterAnalytics('today');
+}
+
+function filterAnalytics(period) {
+  // Update tab buttons
+  var periods = ['today', 'week', 'month', 'all'];
+  periods.forEach(function(p) {
+    var btn = document.getElementById('analytics-' + p);
+    if (!btn) return;
+    if (p === period) {
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#fff';
+      btn.style.border = 'none';
+    } else {
+      btn.style.background = '#fff';
+      btn.style.color = 'var(--text-muted)';
+      btn.style.border = '1px solid var(--border)';
+    }
+  });
+
+  // Load data from localStorage
+  var allUsers      = JSON.parse(localStorage.getItem('kwanda_users')       || '[]');
+  var allAdvs       = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
+  var allCampaigns  = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
+
+  // Filter by period
+  var now   = new Date();
+  var users = allUsers;
+
+  if (period !== 'all') {
+    var cutoff = new Date();
+    if (period === 'today') {
+      cutoff.setHours(0, 0, 0, 0);
+    } else if (period === 'week') {
+      cutoff.setDate(now.getDate() - 7);
+    } else if (period === 'month') {
+      cutoff.setDate(now.getDate() - 30);
+    }
+    users = allUsers.filter(function(u) {
+      if (!u.createdAt) return false;
+      return new Date(u.createdAt) >= cutoff;
+    });
+  }
+
+  // Calculate stats
+  var totalWallets  = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
+  var totalAdvBudgets = allAdvs.reduce(function(sum, a) { return sum + (a.budget || 0); }, 0);
+  var activeCampaigns = allCampaigns.filter(function(c) { return c.status === 'active'; }).length;
+  var totalTasks    = allUsers.reduce(function(sum, u) { return sum + (u.tasksCompleted || 0); }, 0);
+
+  // Update UI
+  var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
+  set('pa-users',       users.length);
+  set('pa-tasks',       totalTasks);
+  set('pa-wallets',     'R ' + totalWallets.toFixed(2));
+  set('pa-adv-budgets', 'R ' + totalAdvBudgets.toFixed(2));
+  set('pa-advertisers', allAdvs.length);
+  set('pa-campaigns',   activeCampaigns);
+
+  // Draw chart
+  drawAnalyticsChart(period, allUsers);
+}
+
+function drawAnalyticsChart(period, allUsers) {
+  var canvas = document.getElementById('pa-chart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  // Build labels and data
+  var labels = [];
+  var data   = [];
+
+  if (period === 'today') {
+    for (var h = 0; h < 24; h += 4) {
+      labels.push(h + ':00');
+      data.push(allUsers.filter(function(u) {
+        if (!u.createdAt) return false;
+        var d = new Date(u.createdAt);
+        var now = new Date();
+        return d.toDateString() === now.toDateString() && d.getHours() >= h && d.getHours() < h + 4;
+      }).length);
+    }
+  } else if (period === 'week') {
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    for (var i = 6; i >= 0; i--) {
+      var day = new Date();
+      day.setDate(day.getDate() - i);
+      labels.push(days[day.getDay()]);
+      data.push(allUsers.filter(function(u) {
+        if (!u.createdAt) return false;
+        return new Date(u.createdAt).toDateString() === day.toDateString();
+      }).length);
+    }
+  } else if (period === 'month') {
+    for (var w = 4; w >= 1; w--) {
+      labels.push('Week ' + (5 - w));
+      var wStart = new Date(); wStart.setDate(wStart.getDate() - w * 7);
+      var wEnd   = new Date(); wEnd.setDate(wEnd.getDate() - (w - 1) * 7);
+      data.push(allUsers.filter(function(u) {
+        if (!u.createdAt) return false;
+        var d = new Date(u.createdAt);
+        return d >= wStart && d < wEnd;
+      }).length);
+    }
+  } else {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    for (var m = 0; m < 12; m++) {
+      labels.push(months[m]);
+      data.push(allUsers.filter(function(u) {
+        if (!u.createdAt) return false;
+        return new Date(u.createdAt).getMonth() === m;
+      }).length);
+    }
+  }
+
+  // Clear and draw
+  if (window._paChart) { window._paChart.destroy(); }
+  window._paChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'New Users',
+        data: data,
+        borderColor: '#6c63ff',
+        backgroundColor: 'rgba(108,99,255,0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+window.initAdminAnalytics = initAdminAnalytics;
+window.filterAnalytics    = filterAnalytics;
 PAGES['onboarding'] = `<div style="width:100%;min-height:100vh;display:flex;flex-direction:column;overflow:hidden;"><div id="onboarding-slides" style="display:flex;transition:transform 0.4s ease;width:300%;"><div class="onboarding-slide" style="width:33.333%;min-height:100vh;background:linear-gradient(160deg,#1a1060,#2d1b8e);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px;box-sizing:border-box;"><div style="width:120px;height:120px;background:rgba(255,255,255,0.15);border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:32px;">📋</div><h1 style="font-family:sans-serif;font-size:28px;font-weight:700;color:#fff;margin:0 0 16px;text-align:center;">Participate</h1><p style="font-family:sans-serif;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;text-align:center;margin:0;">Complete surveys, watch videos and answer quizzes from top brands and companies.</p></div><div class="onboarding-slide" style="width:33.333%;min-height:100vh;background:linear-gradient(160deg,#065f46,#059669);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px;box-sizing:border-box;"><div style="width:120px;height:120px;background:rgba(255,255,255,0.15);border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:32px;">💰</div><h1 style="font-family:sans-serif;font-size:28px;font-weight:700;color:#fff;margin:0 0 16px;text-align:center;">Earn</h1><p style="font-family:sans-serif;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;text-align:center;margin:0;">Get paid in Rands directly to your wallet. 30% automatically goes to your data balance.</p></div><div class="onboarding-slide" style="width:33.333%;min-height:100vh;background:linear-gradient(160deg,#7c2d12,#ea580c);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px;box-sizing:border-box;"><div style="width:120px;height:120px;background:rgba(255,255,255,0.15);border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:32px;">🎁</div><h1 style="font-family:sans-serif;font-size:28px;font-weight:700;color:#fff;margin:0 0 16px;text-align:center;">Redeem</h1><p style="font-family:sans-serif;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;text-align:center;margin:0;">Buy airtime, data bundles, spend on partner apps or cash out to your bank account.</p></div></div><div style="position:fixed;bottom:0;left:0;right:0;padding:32px 32px 48px;display:flex;flex-direction:column;align-items:center;gap:20px;"><div style="display:flex;gap:8px;" id="onboarding-dots"><div style="width:24px;height:6px;border-radius:3px;background:#fff;" id="dot-0"></div><div style="width:8px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);" id="dot-1"></div><div style="width:8px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);" id="dot-2"></div></div><button id="onboarding-btn" onclick="nextOnboardingSlide()" style="width:100%;max-width:320px;padding:16px;border-radius:30px;background:#fff;color:#1a1060;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:sans-serif;">Next</button><button onclick="skipOnboarding()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:14px;cursor:pointer;font-family:sans-serif;">Skip</button></div></div>`;
 
 PAGES['loading'] = `<div style="width:100%;min-height:100vh;background:linear-gradient(160deg,#1a1060 0%,#2d1b8e 50%,#1a1060 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;"><div style="width:80px;height:80px;background:linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.1));border-radius:22px;display:flex;align-items:center;justify-content:center;"><svg width="44" height="44" viewBox="0 0 48 48" fill="none"><path d="M10 36 L20 12 L28 28 L34 18 L42 36" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div style="text-align:center;"><h1 style="font-family:sans-serif;font-size:26px;font-weight:700;color:#fff;margin:0 0 6px;">KwandaData</h1><p style="font-family:sans-serif;font-size:13px;color:rgba(255,255,255,0.7);margin:0;">Participate. Earn. Connect.</p></div><div style="width:140px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden;"><div id="loading-bar" style="width:0%;height:100%;background:#fff;border-radius:2px;transition:width 1.2s ease;"></div></div></div>`;
@@ -411,3 +715,232 @@ document.addEventListener('DOMContentLoaded', function() {
   var hash = window.location.hash.replace('#', '');
   navigateTo(PAGES[hash] ? hash : 'splash');
 });
+
+
+
+ 
+
+// Add this code at the END of your initAdminFinancial function, before the closing }
+
+  // Display users by region
+  var regionContainer = document.getElementById('fin-users-region');
+  if (regionContainer) {
+    var allUsersForRegion = JSON.parse(localStorage.getItem('kwanda_users') || '[]');
+    var provinces = {
+      'gauteng':       'Gauteng',
+      'western-cape':  'Western Cape',
+      'kwazulu-natal': 'KwaZulu-Natal',
+      'eastern-cape':  'Eastern Cape',
+      'limpopo':       'Limpopo',
+      'mpumalanga':    'Mpumalanga',
+      'north-west':    'North West',
+      'northern-cape': 'Northern Cape',
+      'free-state':    'Free State',
+      '':              'Not Specified'
+    };
+
+    var grouped = {};
+    allUsersForRegion.forEach(function(u) {
+      var prov = u.province || '';
+      if (!grouped[prov]) grouped[prov] = [];
+      grouped[prov].push(u);
+    });
+
+    if (allUsersForRegion.length === 0) {
+      regionContainer.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No users yet</div>";
+    } else {
+      var html = '';
+      Object.keys(provinces).forEach(function(provKey) {
+        var users = grouped[provKey] || [];
+        if (users.length === 0) return;
+        var provName = provinces[provKey];
+        html += "<div style='margin-bottom:12px;'>";
+        html += "<div style='display:flex;justify-content:space-between;align-items:center;background:#f3f4f6;border-radius:8px;padding:8px 12px;margin-bottom:6px;'>";
+        html += "<p style='font-size:13px;font-weight:700;color:var(--text-primary);margin:0;'>" + provName + "</p>";
+        html += "<span style='font-size:12px;font-weight:600;color:var(--primary);background:#ede9fe;padding:2px 10px;border-radius:10px;'>" + users.length + " users</span></div>";
+        users.forEach(function(u) {
+          html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);'>";
+          html += "<div><p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + (u.firstName || '') + " " + (u.lastName || '') + "</p>";
+          html += "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + (u.region || 'N/A') + " · " + (u.email || '') + "</p></div>";
+          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + (u.balance || 0).toFixed(2) + "</p></div>";
+        });
+        html += "</div>";
+      });
+      regionContainer.innerHTML = html;
+    }
+  }
+
+function exportFinancialSummary() {
+  var allAdvs      = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
+  var allCampaigns = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
+  var allUsers     = JSON.parse(localStorage.getItem('kwanda_users')       || '[]');
+  var adminFees    = JSON.parse(localStorage.getItem('_k_fees')            || '{"t":0,"count":0}');
+  var now          = new Date();
+
+  var lines = [];
+  lines.push("========================================");
+  lines.push("   KWANDADATA FULL FINANCIAL SUMMARY    ");
+  lines.push("========================================");
+  lines.push("Generated:      " + now.toLocaleString("en-ZA"));
+  lines.push("Period:         All Time");
+  lines.push("========================================");
+  lines.push("");
+  lines.push("PLATFORM OVERVIEW");
+  lines.push("----------------------------------------");
+  lines.push("Total Users:          " + allUsers.length);
+  lines.push("Total Advertisers:    " + allAdvs.length);
+  lines.push("Total Campaigns:      " + allCampaigns.length);
+  lines.push("Active Campaigns:     " + allCampaigns.filter(function(c) { return c.status === 'active'; }).length);
+  lines.push("Total Admin Fees:     R " + (adminFees.t || 0).toFixed(2));
+  lines.push("");
+
+  // User wallets
+  var totalWallets  = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
+  var totalData     = allUsers.reduce(function(sum, u) { return sum + (u.dataBalance || 0); }, 0);
+  lines.push("Total User Wallets:   R " + totalWallets.toFixed(2));
+  lines.push("Total Data Balances:  " + totalData.toFixed(0) + " MB");
+  lines.push("");
+
+  // Per advertiser breakdown
+  lines.push("========================================");
+  lines.push("ADVERTISER BREAKDOWN");
+  lines.push("========================================");
+
+  if (allAdvs.length === 0) {
+    lines.push("No advertisers yet.");
+  } else {
+    allAdvs.forEach(function(adv, i) {
+      var advCampaigns  = allCampaigns.filter(function(c) { return c.advertiserId === adv.id; });
+      var totalBudget   = advCampaigns.reduce(function(sum, c) { return sum + (c.budget || 0); }, 0);
+      var totalAdmin    = advCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
+      var totalVAT      = advCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
+      var totalCharged  = advCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+
+      lines.push("");
+      lines.push((i + 1) + ". " + (adv.company || adv.email));
+      lines.push("   Email:            " + adv.email);
+      lines.push("   Campaigns:        " + advCampaigns.length);
+      lines.push("   Campaign Budgets: R " + totalBudget.toFixed(2));
+      lines.push("   Admin Fees (15%): R " + totalAdmin.toFixed(2));
+      lines.push("   VAT (15%):        R " + totalVAT.toFixed(2));
+      lines.push("   Total Charged:    R " + totalCharged.toFixed(2));
+      lines.push("   Current Balance:  R " + (adv.budget || 0).toFixed(2));
+      lines.push("   ----------------------------------------");
+    });
+  }
+
+  // Totals
+  var grandBudget  = allCampaigns.reduce(function(sum, c) { return sum + (c.budget || 0); }, 0);
+  var grandAdmin   = allCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
+  var grandVAT     = allCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
+  var grandCharged = allCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+
+  lines.push("");
+  lines.push("========================================");
+  lines.push("GRAND TOTALS");
+  lines.push("========================================");
+  lines.push("Total Campaign Budgets: R " + grandBudget.toFixed(2));
+  lines.push("Total Admin Fees:       R " + grandAdmin.toFixed(2));
+  lines.push("Total VAT Collected:    R " + grandVAT.toFixed(2));
+  lines.push("Total Charged:          R " + grandCharged.toFixed(2));
+  lines.push("========================================");
+  lines.push("KwandaData - Participate. Earn. Connect.");
+  lines.push("support@kwandadata.co.za");
+  lines.push("========================================");
+
+  var content = lines.join("\n");
+  var blob = new Blob([content], { type: "text/plain" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href     = url;
+  a.download = "KwandaData_Financial_Summary_" + now.toISOString().slice(0, 10) + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.exportFinancialSummary = exportFinancialSummary;
+
+function exportUsersByRegion() {
+  var allUsers = JSON.parse(localStorage.getItem('kwanda_users') || '[]');
+  var now      = new Date();
+
+  // Group users by province
+  var provinces = {
+    'gauteng':       'Gauteng',
+    'western-cape':  'Western Cape',
+    'kwazulu-natal': 'KwaZulu-Natal',
+    'eastern-cape':  'Eastern Cape',
+    'limpopo':       'Limpopo',
+    'mpumalanga':    'Mpumalanga',
+    'north-west':    'North West',
+    'northern-cape': 'Northern Cape',
+    'free-state':    'Free State',
+    '':              'Not Specified'
+  };
+
+  var grouped = {};
+  allUsers.forEach(function(u) {
+    var prov = u.province || '';
+    if (!grouped[prov]) grouped[prov] = [];
+    grouped[prov].push(u);
+  });
+
+  var lines = [];
+  lines.push("========================================");
+  lines.push("   KWANDADATA USERS BY REGION REPORT    ");
+  lines.push("========================================");
+  lines.push("Generated:    " + now.toLocaleString("en-ZA"));
+  lines.push("Total Users:  " + allUsers.length);
+  lines.push("========================================");
+  lines.push("");
+
+  Object.keys(provinces).forEach(function(provKey) {
+    var users = grouped[provKey] || [];
+    if (users.length === 0) return;
+    var provName = provinces[provKey];
+
+    lines.push("----------------------------------------");
+    lines.push(provName.toUpperCase() + " (" + users.length + " users)");
+    lines.push("----------------------------------------");
+
+    users.forEach(function(u, i) {
+      lines.push((i + 1) + ". " + (u.firstName || '') + " " + (u.lastName || ''));
+      lines.push("   Email:       " + (u.email || 'N/A'));
+      lines.push("   Region/City: " + (u.region || 'N/A'));
+      lines.push("   Province:    " + (provName));
+      lines.push("   Gender:      " + (u.gender || 'N/A'));
+      lines.push("   Employment:  " + (u.employment || 'N/A'));
+      lines.push("   Balance:     R " + (u.balance || 0).toFixed(2));
+      lines.push("   Data:        " + (u.dataBalance || 0).toFixed(0) + " MB");
+      lines.push("");
+    });
+  });
+
+  lines.push("========================================");
+  lines.push("PROVINCE SUMMARY");
+  lines.push("========================================");
+  Object.keys(provinces).forEach(function(provKey) {
+    var users = grouped[provKey] || [];
+    if (users.length === 0) return;
+    lines.push(provinces[provKey] + ": " + users.length + " users");
+  });
+  lines.push("========================================");
+  lines.push("KwandaData - Participate. Earn. Connect.");
+  lines.push("support@kwandadata.co.za");
+  lines.push("========================================");
+
+  var content = lines.join("\n");
+  var blob = new Blob([content], { type: "text/plain" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href     = url;
+  a.download = "KwandaData_Users_By_Region_" + now.toISOString().slice(0, 10) + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.exportUsersByRegion = exportUsersByRegion;

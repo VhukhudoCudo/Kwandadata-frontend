@@ -7,7 +7,7 @@
 
 let ADMIN_FEE_PERCENT  = 15;
 let DATA_SPLIT_PERCENT = 30;
-const MB_PER_RAND        = 50;  // R 1.00 = 50MB
+const MB_PER_RAND        = 5;  // R 1.00 = 5MB
 
 const TASKS = [
   {
@@ -197,7 +197,7 @@ function startTask(taskId) {
     `Admin Fee (15%):  -R ${split.adminFee.toFixed(2)}\n` +
     `─────────────────────\n` +
     "📶 Auto Data (30%):  " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Your Wallet (70%): R ${split.wallet.toFixed(2)}`
+    `💰 Your Wallet (55%): R ${split.wallet.toFixed(2)}`
   );
   if (!confirmed) return;
 
@@ -315,7 +315,7 @@ function releasePendingBonus(user) {
   const REFERRAL_BONUS = user.pendingBonus;
   const adminFee       = REFERRAL_BONUS * 0.15;
   const afterFee       = REFERRAL_BONUS - adminFee;
-  const dataMB         = afterFee * 0.30 * 50;
+  const dataMB         = afterFee * 0.30 * MB_PER_RAND;
   const walletAmt      = afterFee * 0.55;
 
   // Credit new user
@@ -340,7 +340,7 @@ function releasePendingBonus(user) {
         var rBonus     = allUsers[referrerIdx].pendingBonus;
         var rAdminFee  = rBonus * 0.15;
         var rAfterFee  = rBonus - rAdminFee;
-        var rDataMB    = rAfterFee * 0.30 * 50;
+        var rDataMB    = rAfterFee * 0.30 * MB_PER_RAND;
         var rWallet    = rAfterFee * 0.55;
         allUsers[referrerIdx].balance     = (allUsers[referrerIdx].balance     || 0) + rWallet;
         allUsers[referrerIdx].dataBalance = (allUsers[referrerIdx].dataBalance || 0) + rDataMB;

@@ -167,23 +167,88 @@ function submitCampaign() {
   if (!start)                        { if (errorEl) errorEl.textContent = "Please select a start date.";          return; }
   if (!end)                          { if (errorEl) errorEl.textContent = "Please select an end date.";           return; }
   if (start >= end)                  { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
-  if ((adv.budget||0) < budget)      { if (errorEl) errorEl.textContent = "Insufficient budget. Please top up first."; return; }
+
+  // Calculate fees
+  var adminFee    = budget * 0.15;
+  var vat         = budget * 0.15;
+  var totalCharge = budget + adminFee + vat;
+
+  if ((adv.budget||0) < totalCharge) {
+    if (errorEl) errorEl.textContent = "Insufficient budget. You need R " + totalCharge.toFixed(2) + " (includes fees). Please top up first.";
+    return;
+  }
+
+  var confirmed = confirm(
+    "Campaign Cost Breakdown\n\n" +
+    "Campaign Budget:    R " + budget.toFixed(2) + "\n" +
+    "Admin Fee (15%):    R " + adminFee.toFixed(2) + "\n" +
+    "VAT (15%):          R " + vat.toFixed(2) + "\n" +
+    "─────────────────────────\n" +
+    "Total Charged:      R " + totalCharge.toFixed(2) + "\n\n" +
+    "Do you want to proceed?"
+  );
+  if (!confirmed) return;
+
   var price    = CAMPAIGN_PRICES[type] || 0;
-  var campaign = { id:Date.now().toString(), advertiserId:adv.id, companyName:adv.company, name:name, type:type, desc:desc, budget:budget, price:price, start:start, end:end, target:target, status:"pending", completions:0, spent:0, createdAt:new Date().toISOString() };
+  var campaign = {
+    id: Date.now().toString(),
+    advertiserId: adv.id,
+    companyName: adv.company,
+    name: name,
+    type: type,
+    desc: desc,
+    budget: budget,
+    price: price,
+    start: start,
+    end: end,
+    target: target,
+    status: "pending",
+    completions: 0,
+    spent: 0,
+    adminFee: adminFee,
+    vat: vat,
+    totalCharged: totalCharge,
+    createdAt: new Date().toISOString()
+  };
+
   var stored    = localStorage.getItem("kwanda_campaigns");
   var campaigns = stored ? JSON.parse(stored) : [];
   campaigns.push(campaign);
   localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
+
   var advStored   = localStorage.getItem("kwanda_advertisers");
   var advertisers = advStored ? JSON.parse(advStored) : [];
   var advIndex    = advertisers.findIndex(function(a) { return a.id === adv.id; });
   if (advIndex !== -1) {
-    advertisers[advIndex].budget = (advertisers[advIndex].budget||0) - budget;
+    advertisers[advIndex].budget = (advertisers[advIndex].budget || 0) - totalCharge;
     localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
     adv.budget = advertisers[advIndex].budget;
     localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adv));
   }
-  alert("Campaign submitted! Awaiting KwandaData approval.");
+
+  // Save to billing history
+  var billingHistory = JSON.parse(localStorage.getItem("kwanda_billing_" + adv.id) || "[]");
+  billingHistory.unshift({
+    type: "campaign",
+    campaignName: name,
+    budget: budget,
+    adminFee: adminFee,
+    vat: vat,
+    amount: totalCharge,
+    date: new Date().toLocaleString("en-ZA"),
+    status: "charged"
+  });
+  localStorage.setItem("kwanda_billing_" + adv.id, JSON.stringify(billingHistory));
+
+  alert(
+    "✅ Campaign submitted!\n\n" +
+    "Campaign Budget:    R " + budget.toFixed(2) + "\n" +
+    "Admin Fee (15%):    R " + adminFee.toFixed(2) + "\n" +
+    "VAT (15%):          R " + vat.toFixed(2) + "\n" +
+    "─────────────────────────\n" +
+    "Total Charged:      R " + totalCharge.toFixed(2) + "\n\n" +
+    "Your campaign is awaiting KwandaData approval."
+  );
   navigateTo("advertiser-dashboard");
 }
 
@@ -414,10 +479,123 @@ function loadBillingHistory(advId) {
     container.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);'><i class='ti ti-receipt' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No billing history yet</p></div>";
     return;
   }
-  container.innerHTML = history.map(function(h) {
-    return "<div style='display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);'><div><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + (h.type==="topup"?"Budget Top Up":"Campaign Charge") + "</p><p style='font-size:11px;color:var(--text-muted);'>" + h.date + "</p></div><div style='text-align:right;'><p style='font-size:14px;font-weight:700;color:" + (h.type==="topup"?"#22c55e":"#ef4444") + ";'>" + (h.type==="topup"?"+":"-") + "R " + h.amount.toFixed(2) + "</p><span style='font-size:11px;color:#166534;background:#dcfce7;padding:2px 8px;border-radius:10px;'>" + h.status + "</span></div></div>";
+  container.innerHTML = history.map(function(h, index) {
+    var isTopup = h.type === "topup";
+    var detail = "";
+    if (!isTopup && h.adminFee) {
+      detail = "<p style='font-size:10px;color:var(--text-muted);'>Admin Fee: R " + (h.adminFee||0).toFixed(2) + " | VAT: R " + (h.vat||0).toFixed(2) + "</p>";
+    }
+    var downloadBtn = !isTopup ? "<button onclick='downloadCampaignStatement(" + index + ")' style='margin-top:6px;padding:5px 12px;border-radius:20px;background:#ede9fe;color:#2d1b8e;border:none;font-size:11px;font-weight:600;cursor:pointer;'><i class=\"ti ti-download\" style=\"margin-right:4px;\"></i>Download</button>" : "";
+    return "<div style='padding:12px 0;border-bottom:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;'><div><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + (isTopup ? "Budget Top Up" : (h.campaignName || "Campaign Charge")) + "</p><p style='font-size:11px;color:var(--text-muted);'>" + h.date + "</p>" + detail + downloadBtn + "</div><div style='text-align:right;'><p style='font-size:14px;font-weight:700;color:" + (isTopup ? "#22c55e" : "#ef4444") + ";'>" + (isTopup ? "+" : "-") + "R " + h.amount.toFixed(2) + "</p><span style='font-size:11px;color:#166634;background:#dcfce7;padding:2px 8px;border-radius:10px;'>" + h.status + "</span></div></div></div>";
   }).join("");
 }
+
+function downloadCampaignStatement(index) {
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+  var history = JSON.parse(localStorage.getItem("kwanda_billing_" + adv.id) || "[]");
+  var h = history[index];
+  if (!h) return;
+
+  var lines = [];
+  lines.push("========================================");
+  lines.push("      KWANDADATA CAMPAIGN STATEMENT     ");
+  lines.push("========================================");
+  lines.push("Company:        " + (adv.company || "N/A"));
+  lines.push("Email:          " + (adv.email || "N/A"));
+  lines.push("Date Issued:    " + new Date().toLocaleDateString("en-ZA"));
+  lines.push("========================================");
+  lines.push("");
+  lines.push("Campaign:       " + (h.campaignName || "N/A"));
+  lines.push("Date Charged:   " + h.date);
+  lines.push("Status:         " + h.status);
+  lines.push("");
+  lines.push("----------------------------------------");
+  lines.push("Campaign Budget:    R " + (h.budget || 0).toFixed(2));
+  lines.push("Admin Fee (15%):    R " + (h.adminFee || 0).toFixed(2));
+  lines.push("VAT (15%):          R " + (h.vat || 0).toFixed(2));
+  lines.push("----------------------------------------");
+  lines.push("Total Charged:      R " + h.amount.toFixed(2));
+  lines.push("========================================");
+  lines.push("Thank you for advertising with KwandaData");
+  lines.push("support@kwandadata.co.za");
+  lines.push("========================================");
+
+  var content = lines.join("\n");
+  var blob = new Blob([content], { type: "text/plain" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href     = url;
+  a.download = "KwandaData_" + (h.campaignName || "Campaign").replace(/\s+/g, "_") + "_Statement.txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.downloadCampaignStatement = downloadCampaignStatement;
+function downloadBillingStatement() {
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+  var history = JSON.parse(localStorage.getItem("kwanda_billing_" + adv.id) || "[]");
+
+  var lines = [];
+  lines.push("========================================");
+  lines.push("        KWANDADATA BILLING STATEMENT    ");
+  lines.push("========================================");
+  lines.push("Company:   " + (adv.company || "N/A"));
+  lines.push("Email:     " + (adv.email || "N/A"));
+  lines.push("Date:      " + new Date().toLocaleDateString("en-ZA"));
+  lines.push("========================================");
+  lines.push("");
+
+  var totalCharged = 0;
+  var totalTopUp = 0;
+
+  history.forEach(function(h) {
+    var isTopup = h.type === "topup";
+    lines.push("Date:      " + h.date);
+    lines.push("Type:      " + (isTopup ? "Budget Top Up" : "Campaign Charge"));
+    if (!isTopup) {
+      lines.push("Campaign:  " + (h.campaignName || "N/A"));
+      lines.push("Budget:    R " + (h.budget || h.amount).toFixed(2));
+      lines.push("Admin Fee (15%): R " + (h.adminFee || 0).toFixed(2));
+      lines.push("VAT (15%): R " + (h.vat || 0).toFixed(2));
+      lines.push("Total Charged: R " + h.amount.toFixed(2));
+      totalCharged += h.amount;
+    } else {
+      lines.push("Amount:    R " + h.amount.toFixed(2));
+      totalTopUp += h.amount;
+    }
+    lines.push("Status:    " + h.status);
+    lines.push("----------------------------------------");
+  });
+
+  lines.push("");
+  lines.push("========================================");
+  lines.push("SUMMARY");
+  lines.push("========================================");
+  lines.push("Total Top Ups:     R " + totalTopUp.toFixed(2));
+  lines.push("Total Charged:     R " + totalCharged.toFixed(2));
+  lines.push("Current Balance:   R " + (adv.budget || 0).toFixed(2));
+  lines.push("========================================");
+  lines.push("Thank you for advertising with KwandaData");
+  lines.push("support@kwandadata.co.za");
+  lines.push("========================================");
+
+  var content = lines.join("\n");
+  var blob = new Blob([content], { type: "text/plain" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href     = url;
+  a.download = "KwandaData_Statement_" + new Date().toISOString().slice(0,10) + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.downloadBillingStatement = downloadBillingStatement;
 
 function initAdminPanel() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
