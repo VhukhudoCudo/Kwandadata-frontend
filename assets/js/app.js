@@ -946,3 +946,70 @@ function exportUsersByRegion() {
 }
 
 window.exportUsersByRegion = exportUsersByRegion;
+
+function downloadAdvStatement(advId) {
+  var allAdvs      = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
+  var allCampaigns = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
+  var adv          = allAdvs.find(function(a) { return a.id === advId; });
+  if (!adv) { alert('Advertiser not found.'); return; }
+
+  var advCampaigns = allCampaigns.filter(function(c) { return c.advertiserId === advId; });
+  var now          = new Date();
+
+  var lines = [];
+  lines.push("========================================");
+  lines.push("   KWANDADATA MONTHLY BILLING STATEMENT ");
+  lines.push("========================================");
+  lines.push("Advertiser:   " + (adv.company || adv.email));
+  lines.push("Email:        " + adv.email);
+  lines.push("Generated:    " + now.toLocaleString("en-ZA"));
+  lines.push("Period:       " + now.toLocaleString("en-ZA", { month: "long", year: "numeric" }));
+  lines.push("========================================");
+  lines.push("");
+
+  if (advCampaigns.length === 0) {
+    lines.push("No campaigns this period.");
+  } else {
+    advCampaigns.forEach(function(c, i) {
+      lines.push((i + 1) + ". " + (c.name || 'Campaign'));
+      lines.push("   Type:          " + (c.type || 'N/A'));
+      lines.push("   Status:        " + (c.status || 'N/A'));
+      lines.push("   Budget:        R " + (c.budget || 0).toFixed(2));
+      lines.push("   Admin Fee:     R " + (c.adminFee || 0).toFixed(2));
+      lines.push("   VAT (15%):     R " + (c.vat || 0).toFixed(2));
+      lines.push("   Total Charged: R " + (c.totalCharged || c.budget || 0).toFixed(2));
+      lines.push("");
+    });
+  }
+
+  var totalBudget  = advCampaigns.reduce(function(sum, c) { return sum + (c.budget || 0); }, 0);
+  var totalAdmin   = advCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
+  var totalVAT     = advCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
+  var totalCharged = advCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+
+  lines.push("========================================");
+  lines.push("TOTALS");
+  lines.push("========================================");
+  lines.push("Campaign Budgets: R " + totalBudget.toFixed(2));
+  lines.push("Admin Fees:       R " + totalAdmin.toFixed(2));
+  lines.push("VAT Collected:    R " + totalVAT.toFixed(2));
+  lines.push("Total Charged:    R " + totalCharged.toFixed(2));
+  lines.push("Current Balance:  R " + (adv.budget || 0).toFixed(2));
+  lines.push("========================================");
+  lines.push("KwandaData - Participate. Earn. Connect.");
+  lines.push("support@kwandadata.co.za");
+  lines.push("========================================");
+
+  var content = lines.join("\n");
+  var blob    = new Blob([content], { type: "text/plain" });
+  var url     = URL.createObjectURL(blob);
+  var a       = document.createElement("a");
+  a.href      = url;
+  a.download  = "Statement_" + (adv.company || advId) + "_" + now.toISOString().slice(0, 7) + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.downloadAdvStatement = downloadAdvStatement;
