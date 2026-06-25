@@ -923,3 +923,23 @@ window.suspendAdvertiser        = suspendAdvertiser;
 window.reinstateAdvertiser      = reinstateAdvertiser;
 window.adjustAdvertiserBudget   = adjustAdvertiserBudget;
 window.changeAdvertiserPassword = changeAdvertiserPassword;
+
+function handleAdvertiserForgotPassword() {
+  var email     = document.getElementById("adv-reset-email")    ? document.getElementById("adv-reset-email").value.trim()    : "";
+  var errorEl   = document.getElementById("adv-reset-error");
+  var successEl = document.getElementById("adv-reset-success");
+  if (errorEl)   errorEl.textContent   = "";
+  if (successEl) successEl.textContent = "";
+  if (!email) { if (errorEl) errorEl.textContent = "Please enter your business email."; return; }
+  var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regex.test(email)) { if (errorEl) errorEl.textContent = "Please enter a valid email address."; return; }
+  var stored      = localStorage.getItem("kwanda_advertisers");
+  var advertisers = stored ? JSON.parse(stored) : [];
+  var exists      = advertisers.find(function(a) { return a.email === email; });
+  if (!exists) { if (errorEl) errorEl.textContent = "No advertiser account found with this email."; return; }
+  if (successEl) successEl.textContent = "✅ Password reset link sent to " + email + ". Please check your inbox.";
+  var btn = document.querySelector("button[onclick='handleAdvertiserForgotPassword()']");
+  if (btn) { btn.textContent = "Link Sent!"; btn.disabled = true; btn.style.background = "#22c55e"; }
+}
+
+window.handleAdvertiserForgotPassword = handleAdvertiserForgotPassword;
