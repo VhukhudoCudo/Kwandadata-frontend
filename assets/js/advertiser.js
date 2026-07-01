@@ -5,7 +5,6 @@
 
 var CAMPAIGN_PRICES = { "survey":15.00, "video":5.00, "quiz":8.00, "download":20.00, "signup":25.00 };
 var ADMIN_EMAIL     = "admin@kwandadata.co.za";
-var ADMIN_REGNR     = "2024/000001/07";
 var ADMIN_PASS      = "KwandaAdmin@2025";
 
 function getAdvertiserSession() {
@@ -38,7 +37,7 @@ function handleAdvertiserLogin() {
   if (!password) { if (errorEl) errorEl.textContent = "Please enter your password.";       return; }
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
-    var adminSession = { id:"kwanda-admin", company:"KwandaData Admin", email:ADMIN_EMAIL, regNum:ADMIN_REGNR, isAdmin:true, budget:0 };
+    var adminSession = { id:"kwanda-admin", company:"KwandaData Admin", email:ADMIN_EMAIL, isAdmin:true, budget:0 };
     localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adminSession));
     navigateTo("admin-panel");
     return;
@@ -60,7 +59,6 @@ function handleAdvertiserRegister() {
   var contact  = document.getElementById("adv-contact")    ? document.getElementById("adv-contact").value.trim()    : "";
   var phone    = document.getElementById("adv-phone")      ? document.getElementById("adv-phone").value.trim()      : "";
   var email    = document.getElementById("adv-email")      ? document.getElementById("adv-email").value.trim()      : "";
-  var regNum   = document.getElementById("adv-reg-number") ? document.getElementById("adv-reg-number").value.trim() : "";
   var password = document.getElementById("adv-password")   ? document.getElementById("adv-password").value           : "";
   var confirm  = document.getElementById("adv-confirm")    ? document.getElementById("adv-confirm").value            : "";
   var terms    = document.getElementById("adv-terms");
@@ -78,7 +76,7 @@ function handleAdvertiserRegister() {
   var advertisers = stored ? JSON.parse(stored) : [];
   var exists      = advertisers.find(function(a) { return a.email === email; });
   if (exists) { if (errorEl) errorEl.textContent = "An account with this email already exists."; return; }
-  var newAdv = { id:Date.now().toString(), company:company, industry:industry, contact:contact, phone:phone, email:email, regNum:regNum, password:password, budget:0, status:"active", createdAt:new Date().toISOString() };
+  var newAdv = { id:Date.now().toString(), company:company, industry:industry, contact:contact, phone:phone, email:email, password:password, budget:0, status:"active", createdAt:new Date().toISOString() };
   advertisers.push(newAdv);
   localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
   var session = Object.assign({}, newAdv);
@@ -608,7 +606,6 @@ function initAdvertiserProfile() {
   if (el("adv-profile-industry")) el("adv-profile-industry").textContent = industryMap[adv.industry] || adv.industry || "-";
   if (el("adv-profile-contact"))  el("adv-profile-contact").textContent  = adv.contact || "-";
   if (el("adv-profile-phone"))    el("adv-profile-phone").textContent    = adv.phone   || "-";
-  if (el("adv-profile-reg"))      el("adv-profile-reg").textContent      = adv.regNum  || "-";
 }
 
 function initAdvertiserBilling() {

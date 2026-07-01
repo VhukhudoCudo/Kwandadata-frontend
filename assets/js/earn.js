@@ -136,7 +136,6 @@ function renderTasks(tab) {
 
   // Build campaign task cards from already loaded campaigns
   const campCards = activeCamps.map(camp => {
-    const split = calculateSplit(camp.price);
     return `
       <div class="task-item" id="camp-${camp.id}" style="border-left:3px solid #f97316;">
         <div class="task-icon orange">
@@ -146,14 +145,6 @@ function renderTasks(tab) {
           <h4>${camp.name}</h4>
           <p>${camp.desc}</p>
           <span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${camp.companyName}</span>
-          <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;">
-            <span style="font-size:10px;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:10px;font-weight:600;">
-              💰 Wallet: R ${window.formatAmt(split.wallet)}
-            </span>
-            <span style="font-size:10px;background:#dbeafe;color:#1e40af;padding:2px 7px;border-radius:10px;font-weight:600;">
-              📶 Data: ${split.dataMB.toFixed(0)}MB
-            </span>
-          </div>
         </div>
         <div class="task-right">
           <span class="task-reward">R ${window.formatAmt(camp.price)}</span>
@@ -169,7 +160,6 @@ function renderTasks(tab) {
     : '';
 
   container.innerHTML = filtered.map(task => {
-    const split = calculateSplit(task.reward);
     return `
       <div class="task-item" id="task-${task.id}">
         <div class="task-icon ${task.color}">
@@ -179,14 +169,6 @@ function renderTasks(tab) {
           <h4>${task.title}</h4>
           <p>${task.desc}</p>
           <span class="task-duration">${task.duration}</span>
-          <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;">
-            <span style="font-size:10px;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:10px;font-weight:600;">
-              💰 Wallet: R ${window.formatAmt(split.wallet)}
-            </span>
-            <span style="font-size:10px;background:#dbeafe;color:#1e40af;padding:2px 7px;border-radius:10px;font-weight:600;">
-              📶 Data: ${split.dataMB.toFixed(0)}MB
-            </span>
-          </div>
         </div>
         <div class="task-right">
           <span class="task-reward">
