@@ -85,7 +85,25 @@ function initEarn() {
     ADMIN_FEE_PERCENT  = settings.splits.admin || 15;
     DATA_SPLIT_PERCENT = settings.splits.data  || 30;
   }
+  bumpCampaignImpressions();
   renderTasks('all');
+}
+
+// ── Each time a user is shown their sponsored/active campaigns, count it
+//    as an ad impression for those campaigns (real, not simulated). ──
+function bumpCampaignImpressions() {
+  try {
+    var stored = localStorage.getItem('kwanda_campaigns');
+    var all    = stored ? JSON.parse(stored) : [];
+    var changed = false;
+    all.forEach(function(c) {
+      if (c.status === 'active') {
+        c.impressions = (c.impressions || 0) + 1;
+        changed = true;
+      }
+    });
+    if (changed) localStorage.setItem('kwanda_campaigns', JSON.stringify(all));
+  } catch (e) {}
 }
 
 function switchTab(tabBtn) {
@@ -215,6 +233,8 @@ function startTask(taskId) {
     localStorage.setItem('_k_fees', JSON.stringify(adminStats));
   } catch(e) {}
 
+  if (typeof window.logActivity === 'function') window.logActivity('task', null, { taskCategory: task.category });
+
   alert(
     `✅ Task completed!\n\n` +
     `Gross Reward:       R ${split.gross.toFixed(2)}\n` +
@@ -288,6 +308,8 @@ function startCampaignTask(campId) {
     adminStats.count = (adminStats.count || 0) + 1;
     localStorage.setItem('_k_fees', JSON.stringify(adminStats));
   } catch(e) {}
+
+  if (typeof window.logActivity === 'function') window.logActivity('campaign', campId);
 
   alert(
     `✅ Campaign task completed!\n\n` +

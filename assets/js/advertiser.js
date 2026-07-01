@@ -375,32 +375,178 @@ function updateCampaignStatus(campId, newStatus) {
 
 var advChartInstance = null;
 
+// ── Data helpers ──
+function getActivityLog() {
+  return JSON.parse(localStorage.getItem('kwanda_activity_log') || '[]');
+}
+function getAllUsersData() {
+  return JSON.parse(localStorage.getItem('kwanda_users') || '[]');
+}
+function ageBucket(age) {
+  var n = parseInt(age, 10);
+  if (isNaN(n)) return 'Unknown';
+  if (n < 18) return 'Under 18';
+  if (n <= 24) return '18–24';
+  if (n <= 34) return '25–34';
+  if (n <= 44) return '35–44';
+  if (n <= 54) return '45–54';
+  return '55+';
+}
+function prettyLabel(str) {
+  if (!str) return 'Unknown';
+  return String(str).replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+}
+
 function initAdvertiserAnalytics() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
+
   var campaigns  = getAdvertiserCampaigns(adv.id);
+  var campIds    = campaigns.map(function(c) { return c.id; });
+  var log        = getActivityLog();
+  var campEvents = log.filter(function(e) { return e.type === 'campaign' && campIds.indexOf(e.campaignId) !== -1; });
+
   var totalComp  = campaigns.reduce(function(sum, c) { return sum + (c.completions||0); }, 0);
   var totalSpent = campaigns.reduce(function(sum, c) { return sum + (c.spent||0); }, 0);
-  var totalImpr  = totalComp * 3;
-  var rate       = totalImpr > 0 ? Math.round((totalComp / totalImpr) * 100) : 0;
+  var totalImpr  = campaigns.reduce(function(sum, c) { return sum + (c.impressions||0); }, 0);
+  var ctr        = totalImpr > 0 ? Math.round((totalComp / totalImpr) * 1000) / 10 : 0;
+
   var el = function(id) { return document.getElementById(id); };
   if (el("analytics-impressions")) el("analytics-impressions").textContent = totalImpr.toLocaleString();
   if (el("analytics-completions")) el("analytics-completions").textContent = totalComp.toLocaleString();
-  if (el("analytics-rate"))        el("analytics-rate").textContent        = rate + "%";
+  if (el("analytics-rate"))        el("analytics-rate").textContent        = ctr + "%";
   if (el("analytics-spent"))       el("analytics-spent").textContent       = "R " + totalSpent.toFixed(2);
+
+  renderDemographics(campEvents);
+  renderActiveUsers();
+  renderSessionMetrics();
+  renderRetention();
   drawAdvChart("week");
   renderAnalyticsBreakdown(campaigns);
+  renderAttribution(campaigns, log);
 }
+
+// ── 1. User Demographics — age, gender, location of users who engaged with this advertiser's campaigns ──
+function renderDemographics(campEvents) {
+  var container = document.getElementById("analytics-demographics");
+  if (!container) return;
+
+  var seen = {}, uniqueUsers = [];
+  campEvents.forEach(function(e) {
+    if (e.userId && !seen[e.userId]) { seen[e.userId] = true; uniqueUsers.push(e); }
+  });
+
+  if (uniqueUsers.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:20px;color:var(--text-muted);'><i class='ti ti-users' style='font-size:28px;display:block;margin-bottom:6px;opacity:0.4;'></i><p style='font-size:12px;'>Demographic data appears once users complete your campaigns.</p></div>";
+    return;
+  }
+
+  var ageCounts = {}, genderCounts = {}, provinceCounts = {};
+  uniqueUsers.forEach(function(u) {
+    var a = ageBucket(u.age);      ageCounts[a] = (ageCounts[a]||0) + 1;
+    var g = u.gender || 'unknown'; genderCounts[g] = (genderCounts[g]||0) + 1;
+    var p = u.province || 'unknown'; provinceCounts[p] = (provinceCounts[p]||0) + 1;
+  });
+
+  function bars(counts) {
+    var total = uniqueUsers.length;
+    return Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; }).map(function(k) {
+      var pct = total > 0 ? Math.round((counts[k] / total) * 100) : 0;
+      return "<div style='margin-bottom:9px;'><div style='display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;'><span style='color:var(--text-primary);font-weight:600;'>" + prettyLabel(k) + "</span><span style='color:var(--text-muted);'>" + counts[k] + " (" + pct + "%)</span></div><div style='background:var(--bg);border-radius:6px;height:6px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div></div>";
+    }).join("");
+  }
+
+  container.innerHTML =
+    "<p style='font-size:11px;color:var(--text-muted);margin-bottom:12px;'>Based on " + uniqueUsers.length + " unique user" + (uniqueUsers.length===1?"":"s") + " reached</p>" +
+    "<div style='margin-bottom:16px;'><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Age</p>" + bars(ageCounts) + "</div>" +
+    "<div style='margin-bottom:16px;'><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Gender</p>" + bars(genderCounts) + "</div>" +
+    "<div><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Location (Province)</p>" + bars(provinceCounts) + "</div>";
+}
+
+// ── 2. Active Users — platform-wide DAU / MAU, to gauge overall app engagement ──
+function renderActiveUsers() {
+  var users = getAllUsersData();
+  var now = Date.now();
+  var oneDay = 24*60*60*1000, thirtyDays = 30*oneDay;
+  var dau = users.filter(function(u) { return u.lastActiveAt && (now - u.lastActiveAt) <= oneDay; }).length;
+  var mau = users.filter(function(u) { return u.lastActiveAt && (now - u.lastActiveAt) <= thirtyDays; }).length;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el("analytics-dau"))         el("analytics-dau").textContent = dau.toLocaleString();
+  if (el("analytics-mau"))         el("analytics-mau").textContent = mau.toLocaleString();
+  if (el("analytics-total-users")) el("analytics-total-users").textContent = users.length.toLocaleString();
+}
+
+// ── 3. Session Duration & Frequency ──
+function renderSessionMetrics() {
+  var users = getAllUsersData();
+  var withActivity = users.filter(function(u) { return u.activeDays && u.activeDays.length > 0; });
+  var avgFreq = withActivity.length > 0
+    ? withActivity.reduce(function(s, u) { return s + u.activeDays.length; }, 0) / withActivity.length
+    : 0;
+
+  var log = getActivityLog();
+  var relevant = log.filter(function(e) { return e.type === 'task' || e.type === 'campaign'; });
+  var durationMap = { videos:1, surveys:5, tasks:2, offers:3, sponsored:3 };
+  var totalMinutes = relevant.reduce(function(sum, e) {
+    var cat = e.taskCategory || (e.type === 'campaign' ? 'sponsored' : 'tasks');
+    return sum + (durationMap[cat] || 2);
+  }, 0);
+  var avgDuration = relevant.length > 0 ? (totalMinutes / relevant.length) : 0;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el("analytics-freq"))     el("analytics-freq").textContent     = withActivity.length ? avgFreq.toFixed(1) + " active days / user" : "—";
+  if (el("analytics-duration")) el("analytics-duration").textContent = relevant.length ? "~" + avgDuration.toFixed(1) + " min / activity" : "—";
+}
+
+// ── 4. Retention Rate — % of active users who came back more than once ──
+function renderRetention() {
+  var users = getAllUsersData();
+  var eligible  = users.filter(function(u) { return u.activeDays && u.activeDays.length > 0; });
+  var returning = eligible.filter(function(u) { return u.activeDays.length > 1; });
+  var rate = eligible.length > 0 ? Math.round((returning.length / eligible.length) * 100) : 0;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el("analytics-retention"))     el("analytics-retention").textContent     = eligible.length ? rate + "%" : "—";
+  if (el("analytics-retention-sub")) el("analytics-retention-sub").textContent = eligible.length ? (returning.length + " of " + eligible.length + " active users returned") : "No activity recorded yet";
+}
+
+// ── 5. Ad Impressions & CTR — see initAdvertiserAnalytics tiles + per-campaign breakdown below ──
 
 function drawAdvChart(period) {
   var canvas = document.getElementById("adv-chart");
   if (!canvas || typeof Chart === "undefined") return;
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+  var campIds = getAdvertiserCampaigns(adv.id).map(function(c) { return c.id; });
+  var log = getActivityLog();
+  var campEvents = log.filter(function(e) { return e.type === 'campaign' && campIds.indexOf(e.campaignId) !== -1; });
+
   if (advChartInstance) { advChartInstance.destroy(); advChartInstance = null; }
-  var labels = period==="week" ? ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] : ["Week 1","Week 2","Week 3","Week 4"];
-  var data   = period==="week" ? [12,18,15,22,19,25,20] : [85,92,78,105];
+
+  var labels = [], data = [];
+  var now = new Date();
+  if (period === "week") {
+    var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(now); d.setDate(now.getDate() - i);
+      var key = d.toISOString().slice(0, 10);
+      labels.push(dayNames[d.getDay()]);
+      data.push(campEvents.filter(function(e) { return e.day === key; }).length);
+    }
+  } else {
+    labels = ["Week 1","Week 2","Week 3","Week 4"];
+    data = [0,0,0,0];
+    campEvents.forEach(function(e) {
+      var daysAgo = Math.floor((now.getTime() - e.ts) / 86400000);
+      var w = Math.floor(daysAgo / 7);
+      if (w >= 0 && w < 4) data[3 - w]++;
+    });
+  }
+
   advChartInstance = new Chart(canvas.getContext("2d"), {
     type:"bar", data:{ labels:labels, datasets:[{ data:data, backgroundColor:"rgba(249,115,22,0.7)", borderColor:"#f97316", borderWidth:2, borderRadius:6 }] },
-    options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ font:{ size:11 }, color:"#9089cc" } }, y:{ grid:{ color:"#f0f0f8" }, ticks:{ font:{ size:11 }, color:"#9089cc" } } } }
+    options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ font:{ size:11 }, color:"#9089cc" } }, y:{ grid:{ color:"#f0f0f8" }, ticks:{ font:{ size:11 }, color:"#9089cc", precision:0 } } } }
   });
 }
 
@@ -414,9 +560,41 @@ function renderAnalyticsBreakdown(campaigns) {
     return;
   }
   container.innerHTML = campaigns.map(function(c) {
-    var pct = c.budget > 0 ? Math.round(((c.spent||0)/c.budget)*100) : 0;
-    return "<div style='background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;margin-bottom:8px;'><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:13px;font-weight:700;color:#f97316;'>" + (c.completions||0) + " completions</p></div><div style='background:var(--bg);border-radius:6px;height:8px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div><p style='font-size:11px;color:var(--text-muted);margin-top:4px;'>Budget used: " + pct + "%</p></div>";
+    var pct  = c.budget > 0 ? Math.round(((c.spent||0)/c.budget)*100) : 0;
+    var impr = c.impressions || 0;
+    var comp = c.completions || 0;
+    var ctr  = impr > 0 ? Math.round((comp/impr)*1000)/10 : 0;
+    return "<div style='background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;margin-bottom:8px;'><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:13px;font-weight:700;color:#f97316;'>" + comp + " completions</p></div><div style='background:var(--bg);border-radius:6px;height:8px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div><div style='display:flex;justify-content:space-between;margin-top:6px;'><p style='font-size:11px;color:var(--text-muted);'>" + impr + " impressions · " + ctr + "% CTR</p><p style='font-size:11px;color:var(--text-muted);'>Budget used: " + pct + "%</p></div></div>";
   }).join("");
+}
+
+// ── 6. Attribution — which campaign was a user's first-ever activity on KwandaData (drove their acquisition) ──
+function renderAttribution(campaigns, log) {
+  var container = document.getElementById("analytics-attribution");
+  if (!container) return;
+  if (!campaigns.length) {
+    container.innerHTML = "<div style='background:#fff;border-radius:14px;padding:24px;border:1px solid var(--border);text-align:center;color:var(--text-muted);'><i class='ti ti-target-arrow' style='font-size:28px;display:block;margin-bottom:6px;opacity:0.4;'></i><p style='font-size:12px;'>No campaigns yet</p></div>";
+    return;
+  }
+
+  var campIds = campaigns.map(function(c) { return c.id; });
+  var firstByUser = {};
+  log.forEach(function(e) {
+    if (!e.userId) return;
+    if (!firstByUser[e.userId] || e.ts < firstByUser[e.userId].ts) firstByUser[e.userId] = e;
+  });
+
+  var acquisitionCounts = {};
+  campIds.forEach(function(id) { acquisitionCounts[id] = 0; });
+  Object.keys(firstByUser).forEach(function(uid) {
+    var e = firstByUser[uid];
+    if (e.type === 'campaign' && campIds.indexOf(e.campaignId) !== -1) acquisitionCounts[e.campaignId]++;
+  });
+
+  container.innerHTML = campaigns.map(function(c) {
+    var count = acquisitionCounts[c.id] || 0;
+    return "<div style='background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;'><div><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:11px;color:var(--text-muted);'>" + (c.completions||0) + " total actions driven</p></div><div style='text-align:right;'><p style='font-size:17px;font-weight:700;color:#f97316;'>" + count + "</p><p style='font-size:10px;color:var(--text-muted);'>new users acquired</p></div></div>";
+  }).join("") + "<p style='font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;'>Shown when a campaign was a user's first-ever activity on KwandaData.</p>";
 }
 
 function initAdvertiserProfile() {

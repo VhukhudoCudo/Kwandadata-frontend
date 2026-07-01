@@ -139,6 +139,8 @@ function handleRegister() {
     bonus        : 0,
     dataBalance  : 0,
     referralCode : generateReferralCode(firstName, lastName),
+    createdAt    : Date.now(),
+    activeDays   : [],
   };
 
   // ── Save user ──
@@ -149,6 +151,8 @@ function handleRegister() {
   const session = { ...newUser };
   delete session.password;
   localStorage.setItem('kwanda_current_user', JSON.stringify(session));
+
+  if (typeof window.logActivity === 'function') window.logActivity('register', null);
 
   // ── Process referral bonus if referral code was used ──
   const referralInput = document.getElementById('reg-referral');
@@ -214,6 +218,8 @@ function handleLogin() {
   const session = { ...user };
   delete session.password;
   localStorage.setItem('kwanda_current_user', JSON.stringify(session));
+
+  if (typeof window.logActivity === 'function') window.logActivity('login', null);
 
   navigateTo('home');
 }

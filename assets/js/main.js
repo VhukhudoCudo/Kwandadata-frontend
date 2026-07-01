@@ -17,9 +17,10 @@ const PAGES = {
       <div class="splash-center">
         <div class="splash-logo">
           <svg viewBox="0 0 48 48" fill="none">
-            <path d="M10 36 L20 12 L28 28 L34 18 L42 36"
-              stroke="white" stroke-width="4.5"
-              stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="2" y="2" width="44" height="44" rx="10" fill="#1b1340"/>
+            <path d="M17 12 L17 36" stroke="#34d9c4" stroke-width="4" stroke-linecap="round"/>
+            <path d="M17 24 L31 12" stroke="#34d9c4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 25.5 L33.5 36" stroke="#f4717e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <h1 class="splash-title">KwandaData</h1>
@@ -571,4 +572,3 @@ document.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash.replace('#', '');
   navigateTo(hash && PAGES[hash] ? hash : 'splash');
 });
-
