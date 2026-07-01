@@ -104,7 +104,7 @@ function initAdvertiserDashboard() {
   var nameEl = document.getElementById("adv-company-name");
   if (nameEl) nameEl.textContent = adv.company || "Company";
   var budgetEl = document.getElementById("adv-budget");
-  if (budgetEl) budgetEl.textContent = "R " + (adv.budget || 0).toFixed(2);
+  if (budgetEl) budgetEl.textContent = window.formatRand((adv.budget || 0));
   var campaigns  = getAdvertiserCampaigns(adv.id);
   var active     = campaigns.filter(function(c) { return c.status === "active"; });
   var totalComp  = campaigns.reduce(function(sum, c) { return sum + (c.completions || 0); }, 0);
@@ -113,7 +113,7 @@ function initAdvertiserDashboard() {
   if (el("adv-total-campaigns"))   el("adv-total-campaigns").textContent  = campaigns.length;
   if (el("adv-active-campaigns"))  el("adv-active-campaigns").textContent = active.length;
   if (el("adv-total-completions")) el("adv-total-completions").textContent = totalComp;
-  if (el("adv-total-spent"))       el("adv-total-spent").textContent      = "R " + totalSpent.toFixed(2);
+  if (el("adv-total-spent"))       el("adv-total-spent").textContent      = window.formatRand(totalSpent);
   loadRecentCampaigns(adv.id);
 }
 
@@ -129,7 +129,7 @@ function loadRecentCampaigns(advId) {
   var sb = { active:"#dcfce7", pending:"#fff7ed", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
   container.innerHTML = campaigns.map(function(c) {
     var color = sc[c.status]||"#9089cc"; var bg = sb[c.status]||"#ede9fe";
-    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:3px 10px;border-radius:20px;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div><div style='display:flex;gap:16px;'><p style='font-size:12px;color:var(--text-muted);'>Completions: <strong>" + (c.completions||0) + "</strong></p><p style='font-size:12px;color:var(--text-muted);'>Spent: <strong>R " + (c.spent||0).toFixed(2) + "</strong></p></div></div>";
+    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:3px 10px;border-radius:20px;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div><div style='display:flex;gap:16px;'><p style='font-size:12px;color:var(--text-muted);'>Completions: <strong>" + (c.completions||0) + "</strong></p><p style='font-size:12px;color:var(--text-muted);'>Spent: <strong>R " + window.formatAmt((c.spent||0)) + "</strong></p></div></div>";
   }).join("");
 }
 
@@ -142,9 +142,9 @@ function updateCampPrice() {
   var budget = parseFloat(budgetEl ? budgetEl.value : "0") || 0;
   var comps  = price > 0 && budget > 0 ? Math.floor(budget / price) : 0;
   var el = function(id) { return document.getElementById(id); };
-  if (el("camp-price-display")) el("camp-price-display").textContent = price > 0 ? "R " + price.toFixed(2) : "Select activity type";
+  if (el("camp-price-display")) el("camp-price-display").textContent = price > 0 ? window.formatRand(price) : "Select activity type";
   if (el("camp-completions"))   el("camp-completions").textContent   = comps > 0 ? comps + " users" : "-";
-  if (el("camp-total-cost"))    el("camp-total-cost").textContent    = budget > 0 ? "R " + budget.toFixed(2) : "-";
+  if (el("camp-total-cost"))    el("camp-total-cost").textContent    = budget > 0 ? window.formatRand(budget) : "-";
 }
 
 function submitCampaign() {
@@ -174,17 +174,17 @@ function submitCampaign() {
   var totalCharge = budget + adminFee + vat;
 
   if ((adv.budget||0) < totalCharge) {
-    if (errorEl) errorEl.textContent = "Insufficient budget. You need R " + totalCharge.toFixed(2) + " (includes fees). Please top up first.";
+    if (errorEl) errorEl.textContent = "Insufficient budget. You need R " + window.formatAmt(totalCharge) + " (includes fees). Please top up first.";
     return;
   }
 
   var confirmed = confirm(
     "Campaign Cost Breakdown\n\n" +
-    "Campaign Budget:    R " + budget.toFixed(2) + "\n" +
-    "Admin Fee (15%):    R " + adminFee.toFixed(2) + "\n" +
-    "VAT (15%):          R " + vat.toFixed(2) + "\n" +
+    "Campaign Budget:    R " + window.formatAmt(budget) + "\n" +
+    "Admin Fee (15%):    R " + window.formatAmt(adminFee) + "\n" +
+    "VAT (15%):          R " + window.formatAmt(vat) + "\n" +
     "─────────────────────────\n" +
-    "Total Charged:      R " + totalCharge.toFixed(2) + "\n\n" +
+    "Total Charged:      R " + window.formatAmt(totalCharge) + "\n\n" +
     "Do you want to proceed?"
   );
   if (!confirmed) return;
@@ -242,11 +242,11 @@ function submitCampaign() {
 
   alert(
     "✅ Campaign submitted!\n\n" +
-    "Campaign Budget:    R " + budget.toFixed(2) + "\n" +
-    "Admin Fee (15%):    R " + adminFee.toFixed(2) + "\n" +
-    "VAT (15%):          R " + vat.toFixed(2) + "\n" +
+    "Campaign Budget:    R " + window.formatAmt(budget) + "\n" +
+    "Admin Fee (15%):    R " + window.formatAmt(adminFee) + "\n" +
+    "VAT (15%):          R " + window.formatAmt(vat) + "\n" +
     "─────────────────────────\n" +
-    "Total Charged:      R " + totalCharge.toFixed(2) + "\n\n" +
+    "Total Charged:      R " + window.formatAmt(totalCharge) + "\n\n" +
     "Your campaign is awaiting KwandaData approval."
   );
   navigateTo("advertiser-dashboard");
@@ -286,12 +286,12 @@ function renderCampaignsList(advId, filter) {
     var canStop      = c.status==="active"||c.status==="paused";
     var canAddBudget = c.status==="completed"||c.status==="active";
     var statsHtml = c.status!=="pending"
-      ? "<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Completions</p><p style='font-size:16px;font-weight:700;color:var(--primary);'>" + (c.completions||0) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + (c.spent||0).toFixed(2) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + remaining.toFixed(2) + "</p></div></div>"
+      ? "<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Completions</p><p style='font-size:16px;font-weight:700;color:var(--primary);'>" + (c.completions||0) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + window.formatAmt((c.spent||0)) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + window.formatAmt(remaining) + "</p></div></div>"
       : "<div style='background:#fff7ed;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-clock' style='color:#f97316;margin-right:4px;'></i><span style='font-size:12px;color:#f97316;font-weight:600;'>Awaiting approval from KwandaData</span></div>";
     var actionsHtml = (canResume||canStop)
       ? "<div style='display:flex;gap:8px;'>" + (canResume?"<button onclick=\"resumeCampaign('"+c.id+"')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:13px;font-weight:600;cursor:pointer;'>Resume</button>":"") + (canStop?"<button onclick=\"stopCampaign('"+c.id+"')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;'>Stop</button>":"") + "</div>" : "";
     var addBudgetHtml = canAddBudget ? "<button onclick=\"addCampaignBudget('"+c.id+"')\" style='width:100%;margin-top:8px;padding:10px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>+ Add More Budget</button>" : "";
-    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + c.type.charAt(0).toUpperCase() + c.type.slice(1) + " - R " + c.price.toFixed(2) + " per completion</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>" + statsHtml + actionsHtml + addBudgetHtml + "</div>";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + c.type.charAt(0).toUpperCase() + c.type.slice(1) + " - R " + window.formatAmt(c.price) + " per completion</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>" + statsHtml + actionsHtml + addBudgetHtml + "</div>";
   }).join("");
 }
 
@@ -307,11 +307,11 @@ function addCampaignBudget(campId) {
   var adv_        = advertisers.find(function(a) { return a.id === adv.id; });
   var available   = adv_ ? (adv_.budget || 0) : 0;
   if (available <= 0) { alert("You have no available budget. Please top up first."); navigateTo("advertiser-billing"); return; }
-  var input = prompt("Add budget to: " + camp.name + "\nAvailable: R " + available.toFixed(2) + "\nHow much to add? (R)");
+  var input = prompt("Add budget to: " + camp.name + "\nAvailable: R " + window.formatAmt(available) + "\nHow much to add? (R)");
   if (!input) return;
   var amount = parseFloat(input);
   if (isNaN(amount) || amount <= 0) { alert("Please enter a valid amount."); return; }
-  if (amount > available)           { alert("Not enough budget. Available: R " + available.toFixed(2)); return; }
+  if (amount > available)           { alert("Not enough budget. Available: R " + window.formatAmt(available)); return; }
   var advIndex = advertisers.findIndex(function(a) { return a.id === adv.id; });
   if (advIndex !== -1) {
     advertisers[advIndex].budget = available - amount;
@@ -325,7 +325,7 @@ function addCampaignBudget(campId) {
     if (campaigns[campIndex].status === "completed") campaigns[campIndex].status = "active";
     localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
   }
-  alert("Budget added! R " + amount.toFixed(2) + " added.");
+  alert("Budget added! R " + window.formatAmt(amount) + " added.");
   initAdvertiserCampaigns();
 }
 
@@ -350,7 +350,7 @@ function stopCampaign(campId) {
   var remaining = (camp.budget||0) - (camp.spent||0);
   var penalty   = remaining * 0.20;
   var refund    = remaining - penalty;
-  if (!confirm("Stop campaign? Fee: R " + penalty.toFixed(2) + " | Refund: R " + refund.toFixed(2))) return;
+  if (!confirm("Stop campaign? Fee: R " + window.formatAmt(penalty) + " | Refund: R " + window.formatAmt(refund))) return;
   updateCampaignStatus(campId, "completed");
   var adv         = getAdvertiserSession();
   var advStored   = localStorage.getItem("kwanda_advertisers");
@@ -362,7 +362,7 @@ function stopCampaign(campId) {
     adv.budget = advertisers[advIndex].budget;
     localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adv));
   }
-  alert("Campaign stopped. Refund: R " + refund.toFixed(2));
+  alert("Campaign stopped. Refund: R " + window.formatAmt(refund));
   initAdvertiserCampaigns();
 }
 
@@ -415,7 +415,7 @@ function initAdvertiserAnalytics() {
   if (el("analytics-impressions")) el("analytics-impressions").textContent = totalImpr.toLocaleString();
   if (el("analytics-completions")) el("analytics-completions").textContent = totalComp.toLocaleString();
   if (el("analytics-rate"))        el("analytics-rate").textContent        = ctr + "%";
-  if (el("analytics-spent"))       el("analytics-spent").textContent       = "R " + totalSpent.toFixed(2);
+  if (el("analytics-spent"))       el("analytics-spent").textContent       = window.formatRand(totalSpent);
 
   renderDemographics(campEvents);
   renderActiveUsers();
@@ -615,7 +615,7 @@ function initAdvertiserBilling() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
   var balEl = document.getElementById("billing-balance");
-  if (balEl) balEl.textContent = "R " + (adv.budget||0).toFixed(2);
+  if (balEl) balEl.textContent = window.formatRand((adv.budget||0));
   loadBillingHistory(adv.id);
 }
 
@@ -629,7 +629,7 @@ function handleTopUp() {
   if (!adv) return;
   var amountEl = document.getElementById("topup-amount");
   var amount   = parseFloat(amountEl ? amountEl.value : "0");
-  if (isNaN(amount) || amount < 500) { alert("Minimum top-up amount is R 500.00"); return; }
+  if (isNaN(amount) || amount < 5000) { alert("Minimum top-up amount is R 5,000.00"); return; }
   var stored      = localStorage.getItem("kwanda_advertisers");
   var advertisers = stored ? JSON.parse(stored) : [];
   var index       = advertisers.findIndex(function(a) { return a.id === adv.id; });
@@ -644,9 +644,9 @@ function handleTopUp() {
   localStorage.setItem("kwanda_billing_" + adv.id, JSON.stringify(history));
   if (amountEl) amountEl.value = "";
   var balEl = document.getElementById("billing-balance");
-  if (balEl) balEl.textContent = "R " + (adv.budget||0).toFixed(2);
+  if (balEl) balEl.textContent = window.formatRand((adv.budget||0));
   loadBillingHistory(adv.id);
-  alert("Budget topped up! Added: R " + amount.toFixed(2) + " | New Balance: R " + (adv.budget||0).toFixed(2));
+  alert("Budget topped up! Added: R " + window.formatAmt(amount) + " | New Balance: R " + window.formatAmt((adv.budget||0)));
 }
 
 function loadBillingHistory(advId) {
@@ -661,10 +661,10 @@ function loadBillingHistory(advId) {
     var isTopup = h.type === "topup";
     var detail = "";
     if (!isTopup && h.adminFee) {
-      detail = "<p style='font-size:10px;color:var(--text-muted);'>Admin Fee: R " + (h.adminFee||0).toFixed(2) + " | VAT: R " + (h.vat||0).toFixed(2) + "</p>";
+      detail = "<p style='font-size:10px;color:var(--text-muted);'>Admin Fee: R " + window.formatAmt((h.adminFee||0)) + " | VAT: R " + window.formatAmt((h.vat||0)) + "</p>";
     }
     var downloadBtn = !isTopup ? "<button onclick='downloadCampaignStatement(" + index + ")' style='margin-top:6px;padding:5px 12px;border-radius:20px;background:#ede9fe;color:#2d1b8e;border:none;font-size:11px;font-weight:600;cursor:pointer;'><i class=\"ti ti-download\" style=\"margin-right:4px;\"></i>Download</button>" : "";
-    return "<div style='padding:12px 0;border-bottom:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;'><div><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + (isTopup ? "Budget Top Up" : (h.campaignName || "Campaign Charge")) + "</p><p style='font-size:11px;color:var(--text-muted);'>" + h.date + "</p>" + detail + downloadBtn + "</div><div style='text-align:right;'><p style='font-size:14px;font-weight:700;color:" + (isTopup ? "#22c55e" : "#ef4444") + ";'>" + (isTopup ? "+" : "-") + "R " + h.amount.toFixed(2) + "</p><span style='font-size:11px;color:#166634;background:#dcfce7;padding:2px 8px;border-radius:10px;'>" + h.status + "</span></div></div></div>";
+    return "<div style='padding:12px 0;border-bottom:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;'><div><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + (isTopup ? "Budget Top Up" : (h.campaignName || "Campaign Charge")) + "</p><p style='font-size:11px;color:var(--text-muted);'>" + h.date + "</p>" + detail + downloadBtn + "</div><div style='text-align:right;'><p style='font-size:14px;font-weight:700;color:" + (isTopup ? "#22c55e" : "#ef4444") + ";'>" + (isTopup ? "+" : "-") + window.formatRand(h.amount) + "</p><span style='font-size:11px;color:#166634;background:#dcfce7;padding:2px 8px;border-radius:10px;'>" + h.status + "</span></div></div></div>";
   }).join("");
 }
 
@@ -689,11 +689,11 @@ function downloadCampaignStatement(index) {
   lines.push("Status:         " + h.status);
   lines.push("");
   lines.push("----------------------------------------");
-  lines.push("Campaign Budget:    R " + (h.budget || 0).toFixed(2));
-  lines.push("Admin Fee (15%):    R " + (h.adminFee || 0).toFixed(2));
-  lines.push("VAT (15%):          R " + (h.vat || 0).toFixed(2));
+  lines.push("Campaign Budget:    R " + window.formatAmt((h.budget || 0)));
+  lines.push("Admin Fee (15%):    R " + window.formatAmt((h.adminFee || 0)));
+  lines.push("VAT (15%):          R " + window.formatAmt((h.vat || 0)));
   lines.push("----------------------------------------");
-  lines.push("Total Charged:      R " + h.amount.toFixed(2));
+  lines.push("Total Charged:      R " + window.formatAmt(h.amount));
   lines.push("========================================");
   lines.push("Thank you for advertising with KwandaData");
   lines.push("support@kwandadata.co.za");
@@ -736,13 +736,13 @@ function downloadBillingStatement() {
     lines.push("Type:      " + (isTopup ? "Budget Top Up" : "Campaign Charge"));
     if (!isTopup) {
       lines.push("Campaign:  " + (h.campaignName || "N/A"));
-      lines.push("Budget:    R " + (h.budget || h.amount).toFixed(2));
-      lines.push("Admin Fee (15%): R " + (h.adminFee || 0).toFixed(2));
-      lines.push("VAT (15%): R " + (h.vat || 0).toFixed(2));
-      lines.push("Total Charged: R " + h.amount.toFixed(2));
+      lines.push("Budget:    R " + window.formatAmt((h.budget || h.amount)));
+      lines.push("Admin Fee (15%): R " + window.formatAmt((h.adminFee || 0)));
+      lines.push("VAT (15%): R " + window.formatAmt((h.vat || 0)));
+      lines.push("Total Charged: R " + window.formatAmt(h.amount));
       totalCharged += h.amount;
     } else {
-      lines.push("Amount:    R " + h.amount.toFixed(2));
+      lines.push("Amount:    R " + window.formatAmt(h.amount));
       totalTopUp += h.amount;
     }
     lines.push("Status:    " + h.status);
@@ -753,9 +753,9 @@ function downloadBillingStatement() {
   lines.push("========================================");
   lines.push("SUMMARY");
   lines.push("========================================");
-  lines.push("Total Top Ups:     R " + totalTopUp.toFixed(2));
-  lines.push("Total Charged:     R " + totalCharged.toFixed(2));
-  lines.push("Current Balance:   R " + (adv.budget || 0).toFixed(2));
+  lines.push("Total Top Ups:     R " + window.formatAmt(totalTopUp));
+  lines.push("Total Charged:     R " + window.formatAmt(totalCharged));
+  lines.push("Current Balance:   R " + window.formatAmt((adv.budget || 0)));
   lines.push("========================================");
   lines.push("Thank you for advertising with KwandaData");
   lines.push("support@kwandadata.co.za");
@@ -832,7 +832,7 @@ function renderAdminCampaigns(filter) {
     var bg        = sb[c.status]||"#ede9fe";
     var isPending = c.status==="pending";
     return "<div style='background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);'>"
-      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>By: " + c.companyName + "</p><p style='font-size:12px;color:var(--text-muted);'>" + c.type + " - R " + c.price.toFixed(2) + " per completion | Budget: R " + c.budget.toFixed(2) + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>"
+      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>By: " + c.companyName + "</p><p style='font-size:12px;color:var(--text-muted);'>" + c.type + " - R " + window.formatAmt(c.price) + " per completion | Budget: R " + window.formatAmt(c.budget) + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>"
       + "<p style='font-size:12px;color:var(--text-muted);margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;'>" + c.desc + "</p>"
       + (isPending ? "<div style='display:flex;gap:8px;'><button onclick=\"adminApproveCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Approve</button><button onclick=\"adminRejectCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Reject</button></div>" : "")
       + "</div>";
@@ -900,8 +900,8 @@ function renderAdminUsersList(users) {
       + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + name + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (u.email||"") + "</p></div>"
       + statusLabel + "</div>"
       + "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;'>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Wallet Balance</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>R " + (u.balance||0).toFixed(2) + "</p></div>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Data Balance</p><p style='font-size:14px;font-weight:700;color:#3b82f6;'>R " + (u.dataBalance||0).toFixed(2) + "</p></div>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Wallet Balance</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>R " + window.formatAmt((u.balance||0)) + "</p></div>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Data Balance</p><p style='font-size:14px;font-weight:700;color:#3b82f6;'>R " + window.formatAmt((u.dataBalance||0)) + "</p></div>"
       + "</div>"
       + "<div style='display:flex;gap:8px;'>"
       + "<button onclick=\"adjustUserBalance('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid var(--primary);color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;'>Adjust Balance</button>"
@@ -933,13 +933,13 @@ function adjustUserBalance(email) {
   var users  = stored ? JSON.parse(stored) : [];
   var user   = users.find(function(u) { return u.email === email; });
   if (!user) return;
-  var input = prompt("Adjust wallet for " + user.firstName + "\nCurrent: R " + (user.balance||0).toFixed(2) + "\nEnter new balance (R):");
+  var input = prompt("Adjust wallet for " + user.firstName + "\nCurrent: R " + window.formatAmt((user.balance||0)) + "\nEnter new balance (R):");
   if (input === null) return;
   var newBal = parseFloat(input);
   if (isNaN(newBal) || newBal < 0) { alert("Please enter a valid amount."); return; }
   var index = users.findIndex(function(u) { return u.email === email; });
   if (index !== -1) { users[index].balance = newBal; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
-  alert("Balance updated to R " + newBal.toFixed(2));
+  alert("Balance updated to R " + window.formatAmt(newBal));
   initAdminUsersMgmt();
 }
 
@@ -992,7 +992,7 @@ function renderAdminAdvertisersList(advs) {
       + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + (a.company||"—") + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (a.email||"") + "</p><p style='font-size:11px;color:var(--text-muted);'>" + industry + "</p></div>"
       + statusLabel + "</div>"
       + "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;'>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Budget</p><p style='font-size:14px;font-weight:700;color:#f97316;'>R " + (a.budget||0).toFixed(2) + "</p></div>"
+      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Budget</p><p style='font-size:14px;font-weight:700;color:#f97316;'>R " + window.formatAmt((a.budget||0)) + "</p></div>"
       + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Campaigns</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>" + campaigns.length + "</p></div>"
       + "</div>"
       + "<div style='display:flex;gap:8px;'>"
@@ -1029,13 +1029,13 @@ function adjustAdvertiserBudget(advId) {
   var advs   = stored ? JSON.parse(stored) : [];
   var adv    = advs.find(function(a) { return a.id === advId; });
   if (!adv) return;
-  var input = prompt("Adjust budget for " + adv.company + "\nCurrent: R " + (adv.budget||0).toFixed(2) + "\nEnter new budget (R):");
+  var input = prompt("Adjust budget for " + adv.company + "\nCurrent: R " + window.formatAmt((adv.budget||0)) + "\nEnter new budget (R):");
   if (input === null) return;
   var newBudget = parseFloat(input);
   if (isNaN(newBudget) || newBudget < 0) { alert("Please enter a valid amount."); return; }
   var index = advs.findIndex(function(a) { return a.id === advId; });
   if (index !== -1) { advs[index].budget = newBudget; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
-  alert("Budget updated to R " + newBudget.toFixed(2));
+  alert("Budget updated to R " + window.formatAmt(newBudget));
   initAdminAdvertisersMgmt();
 }
 

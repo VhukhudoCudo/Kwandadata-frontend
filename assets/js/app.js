@@ -76,7 +76,7 @@ PAGES['advertiser-campaigns'] = `<div class="home-screen"><div class="subpage-he
 
 PAGES['advertiser-analytics'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>Analytics</h2></div><button class="icon-btn" onclick="initAdvertiserAnalytics()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#f97316;margin-bottom:8px;"><i class="ti ti-eye"></i></div><p style="font-size:11px;color:var(--text-muted);">Total Impressions</p><p id="analytics-impressions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;margin-bottom:8px;"><i class="ti ti-check"></i></div><p style="font-size:11px;color:var(--text-muted);">Completions</p><p id="analytics-completions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);margin-bottom:8px;"><i class="ti ti-click"></i></div><p style="font-size:11px;color:var(--text-muted);">Click-Through Rate</p><p id="analytics-rate" style="font-size:22px;font-weight:700;color:var(--text-primary);">0%</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ef4444;margin-bottom:8px;"><i class="ti ti-currency-rand"></i></div><p style="font-size:11px;color:var(--text-muted);">Budget Spent</p><p id="analytics-spent" style="font-size:22px;font-weight:700;color:var(--text-primary);">R 0.00</p></div></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Audience Reach</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Who your campaigns are reaching across the platform</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;"><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-dau" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Daily Active</p></div><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-mau" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Monthly Active</p></div><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-total-users" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Total Users</p></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">User Demographics</p><div id="analytics-demographics"></div></div></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Engagement</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">How often and how long users engage</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:9px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:16px;color:#3b82f6;margin-bottom:8px;"><i class="ti ti-repeat"></i></div><p style="font-size:11px;color:var(--text-muted);">Session Frequency</p><p id="analytics-freq" style="font-size:15px;font-weight:700;color:var(--text-primary);">—</p></div><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:9px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:16px;color:#f97316;margin-bottom:8px;"><i class="ti ti-clock"></i></div><p style="font-size:11px;color:var(--text-muted);">Avg. Session Length</p><p id="analytics-duration" style="font-size:15px;font-weight:700;color:var(--text-primary);">—</p></div></div><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:11px;color:var(--text-muted);">Retention Rate</p><p id="analytics-retention" style="font-size:20px;font-weight:700;color:var(--text-primary);">—</p></div><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;"><i class="ti ti-user-check"></i></div></div><p id="analytics-retention-sub" style="font-size:11px;color:var(--text-muted);margin-top:6px;">No activity recorded yet</p></div></div><div style="background:#fff;border-radius:14px;margin:20px 16px 0;padding:16px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);">Performance Overview</p><select onchange="updateAdvChart(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:12px;color:var(--text-muted);background:#fff;outline:none;"><option value="week">This Week</option><option value="month">This Month</option></select></div><canvas id="adv-chart" height="120"></canvas></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Campaign Breakdown</p><div id="analytics-breakdown"></div></div><div style="padding:20px 16px 16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Attribution</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Which campaigns drove new users to KwandaData</p><div id="analytics-attribution"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item active"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
-PAGES['advertiser-billing'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-profile')"><i class="ti ti-arrow-left"></i></button><h1>Top Up</h1><p>Manage your campaign budget</p></div><div class="auth-body"><div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:4px;">Available Budget</p><p id="billing-balance" style="font-size:30px;font-weight:700;color:#fff;">R 0.00</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready for campaigns</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-credit-card"></i></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Top Up Budget</p><p style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Quick Select</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;"><button onclick="setTopUpAmount(500)" style="padding:10px;border-radius:10px;background:#fff7ed;border:1.5px solid #f97316;color:#f97316;font-size:13px;font-weight:700;cursor:pointer;">R 500</button><button onclick="setTopUpAmount(1000)" style="padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;">R 1,000</button><button onclick="setTopUpAmount(5000)" style="padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;">R 5,000</button></div><div class="form-group"><label for="topup-amount">Custom Amount (R)</label><div class="input-wrap has-icon-left"><i class="ti ti-currency-rand"></i><input type="number" id="topup-amount" placeholder="Enter amount" min="500"/></div></div><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Minimum top-up: R 500.00</p><button onclick="handleTopUp()" style="width:100%;padding:14px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Top Up Now</button></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Top Up History</p><div id="billing-history"><div style="text-align:center;padding:16px;color:var(--text-muted);"><i class="ti ti-receipt" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;"></i><p style="font-size:13px;">No top-up history yet</p></div></div></div></div></div>`;
+PAGES['advertiser-billing'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-profile')"><i class="ti ti-arrow-left"></i></button><h1>Top Up</h1><p>Manage your campaign budget</p></div><div class="auth-body"><div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:4px;">Available Budget</p><p id="billing-balance" style="font-size:30px;font-weight:700;color:#fff;">R 0.00</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready for campaigns</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-credit-card"></i></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Top Up Budget</p><p style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Quick Select</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;"><button onclick="setTopUpAmount(5000)" style="padding:10px;border-radius:10px;background:#fff7ed;border:1.5px solid #f97316;color:#f97316;font-size:13px;font-weight:700;cursor:pointer;">R 5,000</button><button onclick="setTopUpAmount(10000)" style="padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;">R 10,000</button><button onclick="setTopUpAmount(25000)" style="padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;">R 25,000</button></div><div class="form-group"><label for="topup-amount">Custom Amount (R)</label><div class="input-wrap has-icon-left"><i class="ti ti-currency-rand"></i><input type="number" id="topup-amount" placeholder="Enter amount" min="5000"/></div></div><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Minimum top-up: R 5,000.00</p><button onclick="handleTopUp()" style="width:100%;padding:14px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Top Up Now</button></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Top Up History</p><div id="billing-history"><div style="text-align:center;padding:16px;color:var(--text-muted);"><i class="ti ti-receipt" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;"></i><p style="font-size:13px;">No top-up history yet</p></div></div></div></div></div>`;
 
 PAGES['advertiser-profile'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><div id="adv-profile-avatar" style="width:72px;height:72px;border-radius:18px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;font-weight:700;">?</div><h2 id="adv-profile-name" style="font-size:18px;font-weight:700;color:#fff;margin:0;">Loading...</h2><p id="adv-profile-email" style="font-size:13px;color:rgba(255,255,255,0.8);margin:0;">...</p><span style="font-size:11px;font-weight:600;color:#f97316;background:#fff;padding:4px 14px;border-radius:20px;">Advertiser Account</span></div></div><div class="auth-body"><div style="background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px;"><div style="padding:12px 16px;background:#fff7ed;border-bottom:1px solid var(--border);"><p style="font-size:12px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">Company Information</p></div><div style="padding:14px 16px;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);"><p style="font-size:13px;color:var(--text-muted);">Industry</p><p id="adv-profile-industry" style="font-size:13px;font-weight:600;color:var(--text-primary);">—</p></div><div style="padding:14px 16px;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);"><p style="font-size:13px;color:var(--text-muted);">Contact Person</p><p id="adv-profile-contact" style="font-size:13px;font-weight:600;color:var(--text-primary);">—</p></div><div style="padding:14px 16px;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);"><p style="font-size:13px;color:var(--text-muted);">Phone</p><p id="adv-profile-phone" style="font-size:13px;font-weight:600;color:var(--text-primary);">—</p></div><div style="padding:14px 16px;display:flex;justify-content:space-between;"><p style="font-size:13px;color:var(--text-muted);">Reg Number</p><p id="adv-profile-reg" style="font-size:13px;font-weight:600;color:var(--text-primary);">—</p></div></div><div style="background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;"><div onclick="navigateTo('advertiser-billing')" style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><i class="ti ti-credit-card" style="font-size:18px;color:#f97316;"></i><span style="font-size:14px;font-weight:600;color:var(--text-primary);">Top Up & Budget</span></div><i class="ti ti-chevron-right" style="color:#ccc;"></i></div><div onclick="navigateTo('advertiser-security')" style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><i class="ti ti-shield-lock" style="font-size:18px;color:#f97316;"></i><span style="font-size:14px;font-weight:600;color:var(--text-primary);">Security</span></div><i class="ti ti-chevron-right" style="color:#ccc;"></i></div><div onclick="navigateTo('terms')" style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><i class="ti ti-file-text" style="font-size:18px;color:#f97316;"></i><span style="font-size:14px;font-weight:600;color:var(--text-primary);">Terms of Service</span></div><i class="ti ti-chevron-right" style="color:#ccc;"></i></div><div onclick="advertiserLogout()" style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><i class="ti ti-logout" style="font-size:18px;color:#ef4444;"></i><span style="font-size:14px;font-weight:600;color:#ef4444;">Sign Out</span></div><i class="ti ti-chevron-right" style="color:#ccc;"></i></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item active"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
@@ -188,16 +188,16 @@ function initAdminFinancial() {
   var adminFees     = JSON.parse(localStorage.getItem('_k_fees')            || '{"t":0,"count":0}');
 
   var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-  set('fin-total-fees',    'R ' + (adminFees.t || 0).toFixed(2));
+  set('fin-total-fees',    window.formatRand((adminFees.t || 0)));
 
   var totalUserWallets = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
   var totalDataBal     = allUsers.reduce(function(sum, u) { return sum + (u.dataBalance || 0); }, 0);
-  set('fin-paid-users',    'R ' + totalUserWallets.toFixed(2));
-  set('fin-user-wallets',  'R ' + totalUserWallets.toFixed(2));
+  set('fin-paid-users',    window.formatRand(totalUserWallets));
+  set('fin-user-wallets',  window.formatRand(totalUserWallets));
   set('fin-data-balances', totalDataBal.toFixed(0) + ' MB');
 
   var totalAdvSpend = allCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
-  set('fin-adv-spend', 'R ' + totalAdvSpend.toFixed(2));
+  set('fin-adv-spend', window.formatRand(totalAdvSpend));
 
   // Advertiser statements
   var container = document.getElementById('fin-transactions');
@@ -214,11 +214,11 @@ function initAdminFinancial() {
           "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>" +
           "<div><p style='font-size:14px;font-weight:700;color:var(--text-primary);margin:0;'>" + (adv.company || adv.email) + "</p>" +
           "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + adv.email + "</p></div>" +
-          "<span style='font-size:12px;font-weight:700;color:#ef4444;'>R " + totalSpent.toFixed(2) + "</span></div>" +
+          "<span style='font-size:12px;font-weight:700;color:#ef4444;'>R " + window.formatAmt(totalSpent) + "</span></div>" +
           "<div style='display:flex;gap:8px;font-size:11px;color:var(--text-muted);margin-bottom:10px;'>" +
           "<span>Campaigns: " + advCampaigns.length + "</span><span>|</span>" +
-          "<span>Admin Fee: R " + totalAdmin.toFixed(2) + "</span><span>|</span>" +
-          "<span>VAT: R " + totalVAT.toFixed(2) + "</span></div>" +
+          "<span>Admin Fee: R " + window.formatAmt(totalAdmin) + "</span><span>|</span>" +
+          "<span>VAT: R " + window.formatAmt(totalVAT) + "</span></div>" +
           "<button onclick=\"downloadAdvStatement('" + adv.id + "')\" style='width:100%;padding:9px;border-radius:20px;background:linear-gradient(135deg,#2d1b8e,#534AB7);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;'>" +
           "<i class=\"ti ti-download\" style=\"margin-right:5px;\"></i>Download Monthly Statement</button></div>";
       }).join('');
@@ -255,7 +255,7 @@ function initAdminFinancial() {
           html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);'>";
           html += "<div><p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + (u.firstName || '') + " " + (u.lastName || '') + "</p>";
           html += "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + (u.region || 'N/A') + " · " + (u.email || '') + "</p></div>";
-          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + (u.balance || 0).toFixed(2) + "</p></div>";
+          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + window.formatAmt((u.balance || 0)) + "</p></div>";
         });
         html += "</div>";
       });
@@ -320,8 +320,8 @@ function filterAnalytics(period) {
   var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
   set('pa-users',       users.length);
   set('pa-tasks',       totalTasks);
-  set('pa-wallets',     'R ' + totalWallets.toFixed(2));
-  set('pa-adv-budgets', 'R ' + totalAdvBudgets.toFixed(2));
+  set('pa-wallets',     window.formatRand(totalWallets));
+  set('pa-adv-budgets', window.formatRand(totalAdvBudgets));
   set('pa-advertisers', allAdvs.length);
   set('pa-campaigns',   activeCampaigns);
 
@@ -442,7 +442,7 @@ function togglePassword(id, icon) {
 }
 function showError(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 function clearError(id) { const el = document.getElementById(id); if (el) el.textContent = ''; }
-function formatMB(v) { return 'R ' + Number(v).toFixed(2); }
+function formatMB(v) { return window.formatRand(v); }
 function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
 // ── Activity tracking (powers advertiser analytics: demographics, DAU/MAU,
@@ -534,7 +534,7 @@ function submitDonate() {
   var user    = stored ? JSON.parse(stored) : null;
   var balance = user ? (user.balance || 0) : 0;
 
-  if (amount > balance) { if (errorEl) errorEl.textContent = "Not enough balance. Your balance is R " + balance.toFixed(2) + "."; return; }
+  if (amount > balance) { if (errorEl) errorEl.textContent = "Not enough balance. Your balance is R " + window.formatAmt(balance) + "."; return; }
 
   var receiverData   = amount * 0.30;
   var receiverWallet = amount * 0.70;
@@ -554,7 +554,7 @@ function submitDonate() {
   }
 
   var balEl = document.querySelector(".donate-balance");
-  if (balEl) balEl.textContent = "R " + (balance - amount).toFixed(2);
+  if (balEl) balEl.textContent = window.formatRand((balance - amount));
 
   var historyEl = document.getElementById("donate-history");
   if (historyEl) {
@@ -569,7 +569,7 @@ function submitDonate() {
       + "<p style='font-size:11px;color:var(--text-muted);'>" + date + "</p>"
       + (message ? "<p style='font-size:11px;color:var(--text-muted);font-style:italic;'>" + message + "</p>" : "")
       + "</div><div style='text-align:right;'>"
-      + "<p style='font-size:14px;font-weight:700;color:#ef4444;'>-R " + amount.toFixed(2) + "</p>"
+      + "<p style='font-size:14px;font-weight:700;color:#ef4444;'>-R " + window.formatAmt(amount) + "</p>"
       + "<span style='font-size:11px;font-weight:600;color:#166534;background:#dcfce7;padding:3px 10px;border-radius:20px;'>Success</span></div>";
     historyEl.insertBefore(newItem, historyEl.firstChild);
   }
@@ -578,7 +578,7 @@ function submitDonate() {
   if (amountEl)  amountEl.value  = "";
   if (messageEl) messageEl.value = "";
 
-  alert("Donation sent to " + phone + "\nTotal: R " + amount.toFixed(2) + "\nYour balance: R " + (balance - amount).toFixed(2));
+  alert("Donation sent to " + phone + "\nTotal: R " + window.formatAmt(amount) + "\nYour balance: R " + window.formatAmt((balance - amount)));
 }
 
 function initDonate() {
@@ -586,7 +586,7 @@ function initDonate() {
   var user    = stored ? JSON.parse(stored) : null;
   var balance = user ? (user.balance || 0) : 0;
   var balEl   = document.querySelector(".donate-balance");
-  if (balEl) balEl.textContent = "R " + balance.toFixed(2);
+  if (balEl) balEl.textContent = window.formatRand(balance);
   var codeEl = document.getElementById("user-referral-code");
   if (codeEl) codeEl.textContent = getUserReferralCode();
 }
@@ -646,7 +646,7 @@ function initAdminUsers() {
       + '<div style="background:var(--bg);border-radius:8px;padding:6px 10px;"><p style="font-size:10px;color:var(--text-muted);">Phone</p><p style="font-size:12px;font-weight:600;color:var(--text-primary);">' + (user.phone||"N/A") + '</p></div>'
       + '<div style="background:var(--bg);border-radius:8px;padding:6px 10px;"><p style="font-size:10px;color:var(--text-muted);">Province</p><p style="font-size:12px;font-weight:600;color:var(--text-primary);">' + province + '</p></div>'
       + '<div style="background:var(--bg);border-radius:8px;padding:6px 10px;"><p style="font-size:10px;color:var(--text-muted);">Employment</p><p style="font-size:12px;font-weight:600;color:var(--text-primary);">' + employment + '</p></div>'
-      + '<div style="background:var(--bg);border-radius:8px;padding:6px 10px;"><p style="font-size:10px;color:var(--text-muted);">Wallet Balance</p><p style="font-size:12px;font-weight:600;color:var(--primary);">R ' + (user.balance||0).toFixed(2) + '</p></div>'
+      + '<div style="background:var(--bg);border-radius:8px;padding:6px 10px;"><p style="font-size:10px;color:var(--text-muted);">Wallet Balance</p><p style="font-size:12px;font-weight:600;color:var(--primary);">R ' + window.formatAmt((user.balance||0)) + '</p></div>'
       + '</div></div>';
   }).join('');
 }
@@ -676,8 +676,8 @@ function initAdminWallets() {
   if (!container) return;
   var totalWallet = 0, totalData = 0;
   allUsers.forEach(function(u) { totalWallet += (u.balance||0); totalData += (u.dataBalance||0); });
-  if (totalWalletEl) totalWalletEl.textContent = "R " + totalWallet.toFixed(2);
-  if (totalDataEl)   totalDataEl.textContent   = "R " + totalData.toFixed(2);
+  if (totalWalletEl) totalWalletEl.textContent = window.formatRand(totalWallet);
+  if (totalDataEl)   totalDataEl.textContent   = window.formatRand(totalData);
   if (allUsers.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--text-muted);"><i class="ti ti-wallet-off" style="font-size:40px;display:block;margin-bottom:12px;"></i><p style="font-size:14px;font-weight:600;">No wallets yet</p></div>';
     return;
@@ -691,8 +691,8 @@ function initAdminWallets() {
       + '<div style="width:38px;height:38px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;flex-shrink:0;">' + letter + '</div>'
       + '<div style="flex:1;"><p style="font-size:13px;font-weight:600;color:var(--text-primary);">' + name + '</p>'
       + '<p style="font-size:11px;color:var(--text-muted);">' + (user.email||"") + '</p></div>'
-      + '<div style="text-align:right;"><p style="font-size:13px;font-weight:700;color:var(--primary);">R ' + (user.balance||0).toFixed(2) + '</p>'
-      + '<p style="font-size:11px;color:var(--accent-blue);">📶 R ' + (user.dataBalance||0).toFixed(2) + '</p></div></div>';
+      + '<div style="text-align:right;"><p style="font-size:13px;font-weight:700;color:var(--primary);">R ' + window.formatAmt((user.balance||0)) + '</p>'
+      + '<p style="font-size:11px;color:var(--accent-blue);">📶 R ' + window.formatAmt((user.dataBalance||0)) + '</p></div></div>';
   }).join('');
 }
 
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
           html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);'>";
           html += "<div><p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + (u.firstName || '') + " " + (u.lastName || '') + "</p>";
           html += "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + (u.region || 'N/A') + " · " + (u.email || '') + "</p></div>";
-          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + (u.balance || 0).toFixed(2) + "</p></div>";
+          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + window.formatAmt((u.balance || 0)) + "</p></div>";
         });
         html += "</div>";
       });
@@ -843,13 +843,13 @@ function exportFinancialSummary() {
   lines.push("Total Advertisers:    " + allAdvs.length);
   lines.push("Total Campaigns:      " + allCampaigns.length);
   lines.push("Active Campaigns:     " + allCampaigns.filter(function(c) { return c.status === 'active'; }).length);
-  lines.push("Total Admin Fees:     R " + (adminFees.t || 0).toFixed(2));
+  lines.push("Total Admin Fees:     R " + window.formatAmt((adminFees.t || 0)));
   lines.push("");
 
   // User wallets
   var totalWallets  = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
   var totalData     = allUsers.reduce(function(sum, u) { return sum + (u.dataBalance || 0); }, 0);
-  lines.push("Total User Wallets:   R " + totalWallets.toFixed(2));
+  lines.push("Total User Wallets:   R " + window.formatAmt(totalWallets));
   lines.push("Total Data Balances:  " + totalData.toFixed(0) + " MB");
   lines.push("");
 
@@ -872,11 +872,11 @@ function exportFinancialSummary() {
       lines.push((i + 1) + ". " + (adv.company || adv.email));
       lines.push("   Email:            " + adv.email);
       lines.push("   Campaigns:        " + advCampaigns.length);
-      lines.push("   Campaign Budgets: R " + totalBudget.toFixed(2));
-      lines.push("   Admin Fees (15%): R " + totalAdmin.toFixed(2));
-      lines.push("   VAT (15%):        R " + totalVAT.toFixed(2));
-      lines.push("   Total Charged:    R " + totalCharged.toFixed(2));
-      lines.push("   Current Balance:  R " + (adv.budget || 0).toFixed(2));
+      lines.push("   Campaign Budgets: R " + window.formatAmt(totalBudget));
+      lines.push("   Admin Fees (15%): R " + window.formatAmt(totalAdmin));
+      lines.push("   VAT (15%):        R " + window.formatAmt(totalVAT));
+      lines.push("   Total Charged:    R " + window.formatAmt(totalCharged));
+      lines.push("   Current Balance:  R " + window.formatAmt((adv.budget || 0)));
       lines.push("   ----------------------------------------");
     });
   }
@@ -891,10 +891,10 @@ function exportFinancialSummary() {
   lines.push("========================================");
   lines.push("GRAND TOTALS");
   lines.push("========================================");
-  lines.push("Total Campaign Budgets: R " + grandBudget.toFixed(2));
-  lines.push("Total Admin Fees:       R " + grandAdmin.toFixed(2));
-  lines.push("Total VAT Collected:    R " + grandVAT.toFixed(2));
-  lines.push("Total Charged:          R " + grandCharged.toFixed(2));
+  lines.push("Total Campaign Budgets: R " + window.formatAmt(grandBudget));
+  lines.push("Total Admin Fees:       R " + window.formatAmt(grandAdmin));
+  lines.push("Total VAT Collected:    R " + window.formatAmt(grandVAT));
+  lines.push("Total Charged:          R " + window.formatAmt(grandCharged));
   lines.push("========================================");
   lines.push("KwandaData - Turning Participation into Opportunity");
   lines.push("support@kwandadata.co.za");
@@ -964,7 +964,7 @@ function exportUsersByRegion() {
       lines.push("   Province:    " + (provName));
       lines.push("   Gender:      " + (u.gender || 'N/A'));
       lines.push("   Employment:  " + (u.employment || 'N/A'));
-      lines.push("   Balance:     R " + (u.balance || 0).toFixed(2));
+      lines.push("   Balance:     R " + window.formatAmt((u.balance || 0)));
       lines.push("   Data:        " + (u.dataBalance || 0).toFixed(0) + " MB");
       lines.push("");
     });
@@ -1024,10 +1024,10 @@ function downloadAdvStatement(advId) {
       lines.push((i + 1) + ". " + (c.name || 'Campaign'));
       lines.push("   Type:          " + (c.type || 'N/A'));
       lines.push("   Status:        " + (c.status || 'N/A'));
-      lines.push("   Budget:        R " + (c.budget || 0).toFixed(2));
-      lines.push("   Admin Fee:     R " + (c.adminFee || 0).toFixed(2));
-      lines.push("   VAT (15%):     R " + (c.vat || 0).toFixed(2));
-      lines.push("   Total Charged: R " + (c.totalCharged || c.budget || 0).toFixed(2));
+      lines.push("   Budget:        R " + window.formatAmt((c.budget || 0)));
+      lines.push("   Admin Fee:     R " + window.formatAmt((c.adminFee || 0)));
+      lines.push("   VAT (15%):     R " + window.formatAmt((c.vat || 0)));
+      lines.push("   Total Charged: R " + window.formatAmt((c.totalCharged || c.budget || 0)));
       lines.push("");
     });
   }
@@ -1040,11 +1040,11 @@ function downloadAdvStatement(advId) {
   lines.push("========================================");
   lines.push("TOTALS");
   lines.push("========================================");
-  lines.push("Campaign Budgets: R " + totalBudget.toFixed(2));
-  lines.push("Admin Fees:       R " + totalAdmin.toFixed(2));
-  lines.push("VAT Collected:    R " + totalVAT.toFixed(2));
-  lines.push("Total Charged:    R " + totalCharged.toFixed(2));
-  lines.push("Current Balance:  R " + (adv.budget || 0).toFixed(2));
+  lines.push("Campaign Budgets: R " + window.formatAmt(totalBudget));
+  lines.push("Admin Fees:       R " + window.formatAmt(totalAdmin));
+  lines.push("VAT Collected:    R " + window.formatAmt(totalVAT));
+  lines.push("Total Charged:    R " + window.formatAmt(totalCharged));
+  lines.push("Current Balance:  R " + window.formatAmt((adv.budget || 0)));
   lines.push("========================================");
   lines.push("KwandaData - Turning Participation into Opportunity");
   lines.push("support@kwandadata.co.za");

@@ -8,10 +8,22 @@ function getUser() {
   return stored ? JSON.parse(stored) : null;
 }
 
-// ── Format Rand ──
+// ── Format Rand (with comma-grouped thousands, e.g. R 1,200,000.00) ──
 function formatRand(value) {
-  return "R " + Number(value).toFixed(2);
+  var n = Number(value);
+  if (isNaN(n)) n = 0;
+  return "R " + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+window.formatRand = formatRand;
+
+// ── Format a plain amount with comma-grouped thousands, no "R " prefix
+//    (for use where "R" is already part of a surrounding label string) ──
+function formatAmt(value) {
+  var n = Number(value);
+  if (isNaN(n)) n = 0;
+  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+window.formatAmt = formatAmt;
 
 // ── Init Home ──
 function initHome() {

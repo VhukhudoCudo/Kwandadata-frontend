@@ -148,7 +148,7 @@ function renderTasks(tab) {
           <span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${camp.companyName}</span>
           <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;">
             <span style="font-size:10px;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:10px;font-weight:600;">
-              💰 Wallet: R ${split.wallet.toFixed(2)}
+              💰 Wallet: R ${window.formatAmt(split.wallet)}
             </span>
             <span style="font-size:10px;background:#dbeafe;color:#1e40af;padding:2px 7px;border-radius:10px;font-weight:600;">
               📶 Data: ${split.dataMB.toFixed(0)}MB
@@ -156,7 +156,7 @@ function renderTasks(tab) {
           </div>
         </div>
         <div class="task-right">
-          <span class="task-reward">R ${camp.price.toFixed(2)}</span>
+          <span class="task-reward">R ${window.formatAmt(camp.price)}</span>
           <button class="btn-small" style="background:#f97316;" onclick="startCampaignTask('${camp.id}')">Start</button>
         </div>
       </div>
@@ -181,7 +181,7 @@ function renderTasks(tab) {
           <span class="task-duration">${task.duration}</span>
           <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;">
             <span style="font-size:10px;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:10px;font-weight:600;">
-              💰 Wallet: R ${split.wallet.toFixed(2)}
+              💰 Wallet: R ${window.formatAmt(split.wallet)}
             </span>
             <span style="font-size:10px;background:#dbeafe;color:#1e40af;padding:2px 7px;border-radius:10px;font-weight:600;">
               📶 Data: ${split.dataMB.toFixed(0)}MB
@@ -190,7 +190,7 @@ function renderTasks(tab) {
         </div>
         <div class="task-right">
           <span class="task-reward">
-            ${task.isMax ? 'Up to ' : ''}R ${task.reward.toFixed(2)}
+            ${task.isMax ? 'Up to ' : ''}R ${window.formatAmt(task.reward)}
           </span>
           <button class="btn-small" onclick="startTask(${task.id})">Start</button>
         </div>
@@ -211,11 +211,11 @@ function startTask(taskId) {
 
   const confirmed = confirm(
     `Start "${task.title}"?\n\n` +
-    `Gross Reward:      R ${split.gross.toFixed(2)}\n` +
-    `Admin Fee (15%):  -R ${split.adminFee.toFixed(2)}\n` +
+    `Gross Reward:      R ${window.formatAmt(split.gross)}\n` +
+    `Admin Fee (15%):  -R ${window.formatAmt(split.adminFee)}\n` +
     `─────────────────────\n` +
     "📶 Auto Data (30%):  " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Your Wallet (55%): R ${split.wallet.toFixed(2)}`
+    `💰 Your Wallet (55%): R ${window.formatAmt(split.wallet)}`
   );
   if (!confirmed) return;
 
@@ -237,13 +237,13 @@ function startTask(taskId) {
 
   alert(
     `✅ Task completed!\n\n` +
-    `Gross Reward:       R ${split.gross.toFixed(2)}\n` +
-    `Admin Fee (15%):   -R ${split.adminFee.toFixed(2)}\n` +
+    `Gross Reward:       R ${window.formatAmt(split.gross)}\n` +
+    `Admin Fee (15%):   -R ${window.formatAmt(split.adminFee)}\n` +
     `─────────────────────────\n` +
     "📶 Added to Data:   " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Added to Wallet: R ${split.wallet.toFixed(2)}\n\n` +
-    `Wallet Balance: R ${user.balance.toFixed(2)}\n` +
-    `Data Balance:   R ${user.dataBalance.toFixed(2)}`
+    `💰 Added to Wallet: R ${window.formatAmt(split.wallet)}\n\n` +
+    `Wallet Balance: R ${window.formatAmt(user.balance)}\n` +
+    `Data Balance:   R ${window.formatAmt(user.dataBalance)}`
   );
 
   // Disable start button
@@ -257,8 +257,8 @@ function startTask(taskId) {
   // Update home balance if visible
   const balEl  = document.querySelector('.wallet-amount');
   const dataEl = document.querySelector('.data-balance');
-  if (balEl)  balEl.textContent  = 'R ' + user.balance.toFixed(2);
-  if (dataEl) dataEl.textContent = 'R ' + user.dataBalance.toFixed(2);
+  if (balEl)  balEl.textContent  = window.formatRand(user.balance);
+  if (dataEl) dataEl.textContent = window.formatRand(user.dataBalance);
 }
 
 
@@ -276,11 +276,11 @@ function startCampaignTask(campId) {
 
   const confirmed = confirm(
     `Start "${camp.name}" by ${camp.companyName}?\n\n` +
-    `Gross Reward:      R ${camp.price.toFixed(2)}\n` +
-    `Admin Fee (15%):  -R ${split.adminFee.toFixed(2)}\n` +
+    `Gross Reward:      R ${window.formatAmt(camp.price)}\n` +
+    `Admin Fee (15%):  -R ${window.formatAmt(split.adminFee)}\n` +
     `────────────────────\n` +
     "📶 Auto Data (30%):  " + split.dataMB.toFixed(0) + "MB\n" +
-    "💰 Your Wallet (55%): R " + split.wallet.toFixed(2)
+    "💰 Your Wallet (55%): R " + window.formatAmt(split.wallet)
   );
   if (!confirmed) return;
 
@@ -315,9 +315,9 @@ function startCampaignTask(campId) {
     `✅ Campaign task completed!\n\n` +
     `Sponsored by: ${camp.companyName}\n` +
     "📶 Added to Data:   " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Added to Wallet: R ${split.wallet.toFixed(2)}\n\n` +
-    `Wallet Balance: R ${currentUser.balance.toFixed(2)}\n` +
-    `Data Balance:   R ${currentUser.dataBalance.toFixed(2)}`
+    `💰 Added to Wallet: R ${window.formatAmt(split.wallet)}\n\n` +
+    `Wallet Balance: R ${window.formatAmt(currentUser.balance)}\n` +
+    `Data Balance:   R ${window.formatAmt(currentUser.dataBalance)}`
   );
 
   // Disable button
@@ -380,7 +380,7 @@ function releasePendingBonus(user) {
     localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
   }
 
-  alert('🎉 Referral bonus released!\n\nYou completed your first task!\n📶 Data bonus: ' + dataMB.toFixed(0) + 'MB\n💰 Wallet bonus: R ' + walletAmt.toFixed(2) + '\n\nYour referrer also received their bonus!');
+  alert('🎉 Referral bonus released!\n\nYou completed your first task!\n📶 Data bonus: ' + dataMB.toFixed(0) + 'MB\n💰 Wallet bonus: R ' + window.formatAmt(walletAmt) + '\n\nYour referrer also received their bonus!');
 }
 
 export { initEarn, switchTab, startTask };

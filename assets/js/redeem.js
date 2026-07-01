@@ -19,7 +19,7 @@ function loadRedeemBalance() {
   const user   = stored ? JSON.parse(stored) : null;
   if (!user) return;
   const balanceEl = document.querySelector('.wallet-amount');
-  if (balanceEl) balanceEl.textContent = 'R ' + (user.balance || 0).toFixed(2);
+  if (balanceEl) balanceEl.textContent = window.formatRand((user.balance || 0));
   const dataEl = document.querySelector('.data-balance-redeem');
   if (dataEl) dataEl.textContent = (user.dataBalance || 0).toFixed(0) + ' MB';
 }
@@ -75,17 +75,17 @@ function handleRedeem(type) {
   const balance = user.balance || 0;
 
   if (balance < option.minMB) {
-    alert('Not enough balance.\n' + option.title + ' requires at least R ' + option.minMB.toFixed(2) + '.\nYour balance: R ' + balance.toFixed(2));
+    alert('Not enough balance.\n' + option.title + ' requires at least R ' + window.formatAmt(option.minMB) + '.\nYour balance: R ' + window.formatAmt(balance));
     return;
   }
 
-  const input = prompt('Redeem: ' + option.title + ' | Balance: R ' + balance.toFixed(2) + ' | Min: R ' + option.minMB.toFixed(2) + ' | Enter amount (R):');
+  const input = prompt('Redeem: ' + option.title + ' | Balance: R ' + window.formatAmt(balance) + ' | Min: R ' + window.formatAmt(option.minMB) + ' | Enter amount (R):');
   if (input === null) return;
 
   const amount = parseFloat(input);
   if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
-  if (amount < option.minMB) { alert('Minimum for ' + option.title + ' is R ' + option.minMB.toFixed(2) + '.'); return; }
-  if (amount > balance) { alert('Not enough balance. Your balance: R ' + balance.toFixed(2)); return; }
+  if (amount < option.minMB) { alert('Minimum for ' + option.title + ' is R ' + window.formatAmt(option.minMB) + '.'); return; }
+  if (amount > balance) { alert('Not enough balance. Your balance: R ' + window.formatAmt(balance)); return; }
 
   const newBalance = balance - amount;
   user.balance = newBalance;
@@ -101,13 +101,13 @@ function handleRedeem(type) {
   }
 
   // Save to redemption history
-  saveRedemptionRecord(user.email, option.title, 'R ' + amount.toFixed(2));
+  saveRedemptionRecord(user.email, option.title, window.formatRand(amount));
 
   loadRedeemBalance();
   renderRedemptions();
   if (typeof addTransaction === 'function') addTransaction('redeemed', 'ti-refresh', option.title, amount);
 
-  alert('✅ Redemption successful!\n' + option.title + ': R ' + amount.toFixed(2) + '\nRemaining balance: R ' + newBalance.toFixed(2));
+  alert('✅ Redemption successful!\n' + option.title + ': R ' + window.formatAmt(amount) + '\nRemaining balance: R ' + window.formatAmt(newBalance));
 }
 
 // ── Save redemption to localStorage history ──

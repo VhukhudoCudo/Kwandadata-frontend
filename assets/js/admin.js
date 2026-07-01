@@ -188,7 +188,7 @@ function renderAdminActivities() {
       icon  : 'ti-wallet',
       title : 'Your Wallet Balance',
       time  : 'Current session',
-      delta : 'R ' + (currentUser.balance || 0).toFixed(2),
+      delta : window.formatRand((currentUser.balance || 0)),
       type  : 'positive',
     });
 
@@ -197,7 +197,7 @@ function renderAdminActivities() {
       icon  : 'ti-wifi',
       title : 'Your Data Balance',
       time  : 'Current session',
-      delta : 'R ' + (currentUser.dataBalance || 0).toFixed(2),
+      delta : window.formatRand((currentUser.dataBalance || 0)),
       type  : 'positive',
     });
   } else {

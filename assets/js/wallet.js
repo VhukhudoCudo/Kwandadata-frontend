@@ -13,10 +13,10 @@ function loadWalletBalance() {
   if (!user) return;
 
   const balanceEl = document.querySelector('.wallet-amount');
-  if (balanceEl) balanceEl.textContent = 'R ' + (user.balance || 0).toFixed(2);
+  if (balanceEl) balanceEl.textContent = window.formatRand((user.balance || 0));
 
   const bonusEl = document.querySelector('.bonus-amount');
-  if (bonusEl) bonusEl.textContent = 'R ' + (user.bonus || 0).toFixed(2);
+  if (bonusEl) bonusEl.textContent = window.formatRand((user.bonus || 0));
 
   const dataEl = document.querySelector('.data-balance');
   if (dataEl) dataEl.textContent = (user.dataBalance || 0).toFixed(0) + ' MB';
@@ -53,7 +53,7 @@ function renderTransactions(filter) {
       + '<div class="tx-info" style="flex:1;"><h4 style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 2px;">' + tx.title + '</h4>'
       + '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + tx.time + '</p></div>'
       + '<span class="tx-amount" style="font-size:14px;font-weight:700;color:' + (positive ? 'var(--accent-green)' : '#ef4444') + ';">'
-      + (positive ? '+R ' : '-R ') + Math.abs(tx.amount).toFixed(2)
+      + (positive ? '+R ' : '-R ') + Math.abswindow.formatAmt((tx.amount))
       + '</span></div>';
   }).join('');
 }
