@@ -209,16 +209,6 @@ function startTask(taskId) {
 
   const split = calculateSplit(task.reward);
 
-  const confirmed = confirm(
-    `Start "${task.title}"?\n\n` +
-    `Gross Reward:      R ${window.formatAmt(split.gross)}\n` +
-    `Admin Fee (15%):  -R ${window.formatAmt(split.adminFee)}\n` +
-    `─────────────────────\n` +
-    "📶 Auto Data (30%):  " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Your Wallet (55%): R ${window.formatAmt(split.wallet)}`
-  );
-  if (!confirmed) return;
-
   // Update wallet balance (Rands)
   user.balance     = (user.balance   || 0) + split.wallet;
   // Update data balance (MB)
@@ -235,18 +225,7 @@ function startTask(taskId) {
 
   if (typeof window.logActivity === 'function') window.logActivity('task', null, { taskCategory: task.category });
 
-  alert(
-    `✅ Task completed!\n\n` +
-    `Gross Reward:       R ${window.formatAmt(split.gross)}\n` +
-    `Admin Fee (15%):   -R ${window.formatAmt(split.adminFee)}\n` +
-    `─────────────────────────\n` +
-    "📶 Added to Data:   " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Added to Wallet: R ${window.formatAmt(split.wallet)}\n\n` +
-    `Wallet Balance: R ${window.formatAmt(user.balance)}\n` +
-    `Data Balance:   R ${window.formatAmt(user.dataBalance)}`
-  );
-
-  // Disable start button
+  // Disable start button (silent visual confirmation instead of a popup)
   const btn = document.querySelector(`#task-${taskId} .btn-small`);
   if (btn) {
     btn.textContent      = 'Done';
@@ -273,16 +252,6 @@ function startCampaignTask(campId) {
   if (!currentUser) { navigateTo('sign-in'); return; }
 
   const split = calculateSplit(camp.price);
-
-  const confirmed = confirm(
-    `Start "${camp.name}" by ${camp.companyName}?\n\n` +
-    `Gross Reward:      R ${window.formatAmt(camp.price)}\n` +
-    `Admin Fee (15%):  -R ${window.formatAmt(split.adminFee)}\n` +
-    `────────────────────\n` +
-    "📶 Auto Data (30%):  " + split.dataMB.toFixed(0) + "MB\n" +
-    "💰 Your Wallet (55%): R " + window.formatAmt(split.wallet)
-  );
-  if (!confirmed) return;
 
   // Credit user
   currentUser.balance     = (currentUser.balance     || 0) + split.wallet;
@@ -311,16 +280,7 @@ function startCampaignTask(campId) {
 
   if (typeof window.logActivity === 'function') window.logActivity('campaign', campId);
 
-  alert(
-    `✅ Campaign task completed!\n\n` +
-    `Sponsored by: ${camp.companyName}\n` +
-    "📶 Added to Data:   " + split.dataMB.toFixed(0) + "MB\n" +
-    `💰 Added to Wallet: R ${window.formatAmt(split.wallet)}\n\n` +
-    `Wallet Balance: R ${window.formatAmt(currentUser.balance)}\n` +
-    `Data Balance:   R ${window.formatAmt(currentUser.dataBalance)}`
-  );
-
-  // Disable button
+  // Disable button (silent visual confirmation instead of a popup)
   const btn = document.querySelector(`#camp-${campId} .btn-small`);
   if (btn) {
     btn.textContent      = 'Done';

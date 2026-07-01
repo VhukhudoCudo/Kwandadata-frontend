@@ -71,7 +71,6 @@ function handleAdvertiserRegister() {
   if (!contact)  { if (errorEl) errorEl.textContent = "Please enter the contact person name.";          return; }
   if (!phone)    { if (errorEl) errorEl.textContent = "Please enter your phone number.";                return; }
   if (!email || email.indexOf("@") === -1) { if (errorEl) errorEl.textContent = "Please enter a valid business email."; return; }
-  if (!regNum)   { if (errorEl) errorEl.textContent = "Please enter your company registration number."; return; }
   if (password.length < 6)  { if (errorEl) errorEl.textContent = "Password must be at least 6 characters."; return; }
   if (password !== confirm)  { if (errorEl) errorEl.textContent = "Passwords do not match.";            return; }
   if (!terms || !terms.checked) { if (errorEl) errorEl.textContent = "Please accept the Terms of Service."; return; }
@@ -85,8 +84,8 @@ function handleAdvertiserRegister() {
   var session = Object.assign({}, newAdv);
   delete session.password;
   localStorage.setItem("kwanda_advertiser_session", JSON.stringify(session));
-  alert("Business account created! Welcome to KwandaData, " + company + "!");
-  navigateTo("advertiser-dashboard");
+  alert("Business account created! Welcome to KwandaData, " + company + "! Let's top up your budget to get your first campaign approved.");
+  navigateTo("advertiser-billing");
 }
 
 function initAdvertiserDashboard() {
@@ -174,7 +173,8 @@ function submitCampaign() {
   var totalCharge = budget + adminFee + vat;
 
   if ((adv.budget||0) < totalCharge) {
-    if (errorEl) errorEl.textContent = "Insufficient budget. You need R " + window.formatAmt(totalCharge) + " (includes fees). Please top up first.";
+    if (errorEl) errorEl.textContent = "Insufficient budget. You need R " + window.formatAmt(totalCharge) + " (includes fees), but your balance is R " + window.formatAmt(adv.budget||0) + ". Redirecting you to Top Up...";
+    setTimeout(function() { navigateTo("advertiser-billing"); }, 1400);
     return;
   }
 
