@@ -23,9 +23,9 @@ const PAGES = {
             <path d="M18 25.5 L33.5 36" stroke="#f4717e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1 class="splash-title">KwandaData</h1>
-        <p class="splash-tagline">Participate. Earn. Connect.</p>
-        <p class="splash-sub">Your participation powers<br/>your connectivity.</p>
+        <h1 class="splash-title">KwandaData&trade;</h1>
+        <p class="splash-tagline">Connect. Earn. Empower Communities.</p>
+        <p class="splash-sub">Turning Participation into Opportunity</p>
       </div>
       <div class="splash-actions">
         <button class="btn-primary" onclick="navigateTo('create-account')">Create Account</button>
@@ -272,7 +272,7 @@ const PAGES = {
           </div>
         </div>
         <div class="kwanda-footer">
-          KwandaData – Connecting participation to possibilities.
+          KwandaData&trade; – Turning Participation into Opportunity
         </div>
       </div>
       <nav class="bottom-nav">
