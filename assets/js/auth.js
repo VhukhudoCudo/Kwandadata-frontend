@@ -17,6 +17,8 @@ function handleRegister() {
   const lastName   = getVal('last-name');
   const email      = getVal('reg-email');
   const phone      = getVal('reg-phone');
+  const networkSel = getVal('reg-network');
+  const network    = networkSel === 'other' ? getVal('reg-network-other') : networkSel;
   const dob        = getVal('reg-dob');
   const age        = getVal('reg-age');
   const gender     = getVal('reg-gender');
@@ -46,6 +48,16 @@ function handleRegister() {
 
   if (!phone) {
     showError('reg-error', 'Please enter your phone number.');
+    return;
+  }
+
+  if (!networkSel) {
+    showError('reg-error', 'Please select your network provider.');
+    return;
+  }
+
+  if (networkSel === 'other' && !network) {
+    showError('reg-error', 'Please type your network provider.');
     return;
   }
 
@@ -126,6 +138,7 @@ function handleRegister() {
     lastName,
     email,
     phone,
+    network,
     dob,
     age,
     gender,
