@@ -82,8 +82,8 @@ function handleAdvertiserRegister() {
   var session = Object.assign({}, newAdv);
   delete session.password;
   localStorage.setItem("kwanda_advertiser_session", JSON.stringify(session));
-  alert("Business account created! Welcome to KwandaData, " + company + "! Let's top up your budget to get your first campaign approved.");
-  navigateTo("advertiser-billing");
+  alert("Business account created! Welcome to KwandaData, " + company + "!");
+  navigateTo("advertiser-dashboard");
 }
 
 function initAdvertiserDashboard() {
@@ -122,11 +122,13 @@ function loadRecentCampaigns(advId) {
     container.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No campaigns yet</p></div>";
     return;
   }
-  var sc = { active:"#22c55e", pending:"#f97316", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
-  var sb = { active:"#dcfce7", pending:"#fff7ed", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
+  var sc = { active:"#22c55e", pending:"#f97316", unpaid:"#9089cc", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
+  var sb = { active:"#dcfce7", pending:"#fff7ed", unpaid:"#ede9fe", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
+  var statusLabel = { active:"Active", pending:"Pending", unpaid:"Draft", paused:"Paused", rejected:"Rejected", completed:"Completed" };
   container.innerHTML = campaigns.map(function(c) {
     var color = sc[c.status]||"#9089cc"; var bg = sb[c.status]||"#ede9fe";
-    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:3px 10px;border-radius:20px;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div><div style='display:flex;gap:16px;'><p style='font-size:12px;color:var(--text-muted);'>Completions: <strong>" + (c.completions||0) + "</strong></p><p style='font-size:12px;color:var(--text-muted);'>Spent: <strong>R " + window.formatAmt((c.spent||0)) + "</strong></p></div></div>";
+    var remaining = (c.budget||0) - (c.spent||0);
+    return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:3px 10px;border-radius:20px;'>" + (statusLabel[c.status] || c.status) + "</span></div><div style='display:flex;gap:16px;'><p style='font-size:12px;color:var(--text-muted);'>Completions: <strong>" + (c.completions||0) + "</strong></p><p style='font-size:12px;color:var(--text-muted);'>Spent: <strong>R " + window.formatAmt((c.spent||0)) + "</strong></p><p style='font-size:12px;color:var(--text-muted);'>Remaining: <strong style='color:#22c55e;'>R " + window.formatAmt(remaining) + "</strong></p></div></div>";
   }).join("");
 }
 
@@ -223,15 +225,19 @@ function submitCampaign() {
   navigateTo("advertiser-billing");
 }
 
+var currentCampaignFilter = "all";
+
 function initAdvertiserCampaigns() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
+  currentCampaignFilter = "all";
   renderCampaignsList(adv.id, "all");
 }
 
 function filterCampaigns(status) {
   var adv = getAdvertiserSession();
   if (!adv) return;
+  currentCampaignFilter = status;
   ["all","unpaid","pending","active","paused","completed"].forEach(function(s) {
     var btn = document.getElementById("filter-" + s);
     if (btn) { btn.style.background = s===status?"#f97316":"#fff"; btn.style.color = s===status?"#fff":"var(--text-muted)"; btn.style.border = s===status?"none":"1px solid var(--border)"; }
@@ -250,6 +256,7 @@ function renderCampaignsList(advId, filter) {
   }
   var sc = { active:"#22c55e", pending:"#f97316", unpaid:"#9089cc", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
   var sb = { active:"#dcfce7", pending:"#fff7ed", unpaid:"#ede9fe", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
+  var statusLabel = { active:"Active", pending:"Pending", unpaid:"Draft", paused:"Paused", rejected:"Rejected", completed:"Completed" };
   container.innerHTML = filtered.map(function(c) {
     var color = sc[c.status]||"#9089cc"; var bg = sb[c.status]||"#ede9fe";
     var remaining    = (c.budget||0) - (c.spent||0);
@@ -257,7 +264,7 @@ function renderCampaignsList(advId, filter) {
     var canStop      = c.status==="active"||c.status==="paused";
     var canAddBudget = c.status==="completed"||c.status==="active";
     var statsHtml = c.status==="unpaid"
-      ? "<div style='background:#ede9fe;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-credit-card' style='color:#6c63ff;margin-right:4px;'></i><span style='font-size:12px;color:#6c63ff;font-weight:600;'>Awaiting payment — total due R " + window.formatAmt((c.totalCharged||0)) + "</span></div>"
+      ? "<div style='background:#ede9fe;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-credit-card' style='color:#6c63ff;margin-right:4px;'></i><span style='font-size:12px;color:#6c63ff;font-weight:600;'>Draft — top up and launch to send for approval. Total due: R " + window.formatAmt((c.totalCharged||0)) + "</span></div>"
       : c.status!=="pending"
       ? "<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Completions</p><p style='font-size:16px;font-weight:700;color:var(--primary);'>" + (c.completions||0) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + window.formatAmt((c.spent||0)) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + window.formatAmt(remaining) + "</p></div></div>"
       : "<div style='background:#fff7ed;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-clock' style='color:#f97316;margin-right:4px;'></i><span style='font-size:12px;color:#f97316;font-weight:600;'>Awaiting approval from KwandaData</span></div>";
@@ -265,7 +272,7 @@ function renderCampaignsList(advId, filter) {
       ? "<div style='display:flex;gap:8px;'>" + (canResume?"<button onclick=\"resumeCampaign('"+c.id+"')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:13px;font-weight:600;cursor:pointer;'>Resume</button>":"") + (canStop?"<button onclick=\"stopCampaign('"+c.id+"')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;'>Stop</button>":"") + "</div>" : "";
     var addBudgetHtml = canAddBudget ? "<button onclick=\"addCampaignBudget('"+c.id+"')\" style='width:100%;margin-top:8px;padding:10px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>+ Add More Budget</button>" : "";
     var goToTopUpHtml = c.status==="unpaid" ? "<button onclick=\"goToTopUpForCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6c63ff,#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Go to Top Up</button>" : "";
-    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + c.type.charAt(0).toUpperCase() + c.type.slice(1) + " - R " + window.formatAmt(c.price) + " per completion</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>" + statsHtml + actionsHtml + addBudgetHtml + goToTopUpHtml + "</div>";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + c.type.charAt(0).toUpperCase() + c.type.slice(1) + " - R " + window.formatAmt(c.price) + " per completion</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + (statusLabel[c.status] || c.status) + "</span></div>" + statsHtml + actionsHtml + addBudgetHtml + goToTopUpHtml + "</div>";
   }).join("");
 }
 
@@ -401,7 +408,7 @@ function initAdvertiserAnalytics() {
   renderDemographics(campEvents);
   renderActiveUsers();
   renderSessionMetrics();
-  renderRetention();
+  renderRetention(campEvents);
   drawAdvChart("week");
   renderAnalyticsBreakdown(campaigns);
   renderAttribution(campaigns, log);
@@ -480,16 +487,31 @@ function renderSessionMetrics() {
   if (el("analytics-duration")) el("analytics-duration").textContent = relevant.length ? "~" + avgDuration.toFixed(1) + " min / activity" : "—";
 }
 
-// ── 4. Retention Rate — % of active users who came back more than once ──
-function renderRetention() {
-  var users = getAllUsersData();
-  var eligible  = users.filter(function(u) { return u.activeDays && u.activeDays.length > 0; });
-  var returning = eligible.filter(function(u) { return u.activeDays.length > 1; });
-  var rate = eligible.length > 0 ? Math.round((returning.length / eligible.length) * 100) : 0;
-
+// ── 4. Retention Rate — % of users who came back to THIS advertiser's
+//    campaign(s) more than once (i.e. completed a campaign activity,
+//    then came back on a separate occasion and did so again) ──
+function renderRetention(campEvents) {
   var el = function(id) { return document.getElementById(id); };
-  if (el("analytics-retention"))     el("analytics-retention").textContent     = eligible.length ? rate + "%" : "—";
-  if (el("analytics-retention-sub")) el("analytics-retention-sub").textContent = eligible.length ? (returning.length + " of " + eligible.length + " active users returned") : "No activity recorded yet";
+
+  var byUser = {};
+  (campEvents || []).forEach(function(e) {
+    if (!e.userId) return;
+    if (!byUser[e.userId]) byUser[e.userId] = { days: {}, visits: 0 };
+    byUser[e.userId].days[e.day] = true;
+    byUser[e.userId].visits += 1;
+  });
+
+  var userIds = Object.keys(byUser);
+  // "Returned" = engaged with the campaign on more than one separate
+  // occasion (a different day, or more than one completion overall).
+  var returning = userIds.filter(function(uid) {
+    var u = byUser[uid];
+    return Object.keys(u.days).length > 1 || u.visits > 1;
+  });
+  var rate = userIds.length > 0 ? Math.round((returning.length / userIds.length) * 100) : 0;
+
+  if (el("analytics-retention"))     el("analytics-retention").textContent     = userIds.length ? rate + "%" : "—";
+  if (el("analytics-retention-sub")) el("analytics-retention-sub").textContent = userIds.length ? (returning.length + " of " + userIds.length + " users came back to this campaign") : "No campaign activity recorded yet";
 }
 
 // ── 5. Ad Impressions & CTR — see initAdvertiserAnalytics tiles + per-campaign breakdown below ──
@@ -1117,6 +1139,34 @@ function changeAdvertiserPassword() {
   if (document.getElementById("adv-new-pw"))     document.getElementById("adv-new-pw").value     = "";
   if (document.getElementById("adv-confirm-pw")) document.getElementById("adv-confirm-pw").value = "";
 }
+
+// ── Live-update: as users complete activities (possibly in another
+//    browser tab), refresh whichever advertiser screen is currently
+//    open so "Remaining", "Spent", and analytics figures (including
+//    campaign retention) stay current without the advertiser needing
+//    to navigate away and back. ──
+window.addEventListener("storage", function(e) {
+  if (["kwanda_campaigns", "kwanda_advertisers", "kwanda_activity_log", "kwanda_users"].indexOf(e.key) === -1) return;
+  var adv = getAdvertiserSession();
+  if (!adv) return;
+
+  if (document.getElementById("campaigns-list")) {
+    renderCampaignsList(adv.id, currentCampaignFilter);
+  }
+  if (document.getElementById("adv-recent-campaigns")) {
+    initAdvertiserDashboard();
+  }
+  if (document.getElementById("analytics-retention")) {
+    initAdvertiserAnalytics();
+  }
+  if (document.getElementById("billing-balance")) {
+    var stored      = localStorage.getItem("kwanda_advertisers");
+    var advertisers = stored ? JSON.parse(stored) : [];
+    var fresh        = advertisers.find(function(a) { return a.id === adv.id; });
+    var balEl = document.getElementById("billing-balance");
+    if (balEl && fresh) balEl.textContent = window.formatRand((fresh.budget || 0));
+  }
+});
 
 window.handleAdvertiserLogin    = handleAdvertiserLogin;
 window.handleAdvertiserRegister = handleAdvertiserRegister;
