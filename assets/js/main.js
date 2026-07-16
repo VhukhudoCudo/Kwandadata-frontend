@@ -180,8 +180,6 @@ const PAGES = {
         </div>
         <div class="bonus-card">
           <div>
-         <div class="bonus-card">
-          <div>
             <p class="bonus-label">Pending Bonus</p>
             <p class="bonus-amount">50 MB</p>
           </div>
