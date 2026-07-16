@@ -308,6 +308,12 @@ function renderCampaignCodes() {
   }).join('');
 }
 
+// ── Init the dedicated Campaign Wallet page ──
+function initCampaignWallet() {
+  renderCampaignWallets();
+  renderCampaignCodes();
+}
+
 export { initRedeem, handleRedeem };
 window.initRedeem              = initRedeem;
 window.redeemDataBundle        = redeemDataBundle;
@@ -316,3 +322,4 @@ window.renderRedemptions       = renderRedemptions;
 window.renderCampaignWallets   = renderCampaignWallets;
 window.redeemCampaignBalance   = redeemCampaignBalance;
 window.renderCampaignCodes     = renderCampaignCodes;
+window.initCampaignWallet      = initCampaignWallet;

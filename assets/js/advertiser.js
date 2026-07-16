@@ -1227,3 +1227,114 @@ function handleAdvertiserForgotPassword() {
 }
 
 window.handleAdvertiserForgotPassword = handleAdvertiserForgotPassword;
+
+/* ══════════════════════════════════════
+   Campaign Objective Wallet — advertiser-side code redemption
+   Codes are stored per-user under kwanda_campaign_redemptions_<email>.
+   Advertisers don't know which user holds a code, so we scan all
+   regular users to find a match, then confirm it belongs to this
+   advertiser before marking it redeemed.
+══════════════════════════════════════ */
+
+// ── Search every user's redemption history for a matching code ──
+function findCampaignRedemptionByCode(code) {
+  var usersStored = localStorage.getItem('kwanda_users');
+  var allUsers     = usersStored ? JSON.parse(usersStored) : [];
+
+  for (var i = 0; i < allUsers.length; i++) {
+    var email   = allUsers[i].email;
+    var key     = 'kwanda_campaign_redemptions_' + email;
+    var history = JSON.parse(localStorage.getItem(key) || '[]');
+
+    for (var j = 0; j < history.length; j++) {
+      if (history[j].code === code) {
+        return { email: email, key: key, index: j, record: history[j] };
+      }
+    }
+  }
+  return null;
+}
+
+// ── Advertiser confirms a customer's code ──
+function confirmCampaignCode() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo('advertiser-login'); return; }
+
+  var input = document.getElementById('adv-redeem-code-input');
+  var code  = input ? input.value.trim().toUpperCase() : '';
+  if (!code) { alert('Please enter a code.'); return; }
+
+  var found = findCampaignRedemptionByCode(code);
+  if (!found) { alert('Code not found. Please check it and try again.'); return; }
+
+  if (found.record.advertiserId !== adv.id) {
+    alert('This code was not issued for your company.');
+    return;
+  }
+  if (found.record.status === 'redeemed') {
+    alert('This code has already been redeemed on ' + found.record.date + '.');
+    return;
+  }
+
+  found.record.status     = 'redeemed';
+  found.record.redeemedAt = new Date().toLocaleString('en-ZA');
+
+  var history = JSON.parse(localStorage.getItem(found.key) || '[]');
+  history[found.index] = found.record;
+  localStorage.setItem(found.key, JSON.stringify(history));
+
+  if (input) input.value = '';
+
+  alert(
+    '✅ Code confirmed!\n\n' +
+    'Amount: R ' + window.formatAmt(found.record.amount) + '\n' +
+    'Customer: ' + found.email + '\n\n' +
+    'You may now complete the purchase.'
+  );
+
+  renderAdvPendingCodes();
+}
+
+// ── List codes still pending for this advertiser, across all users ──
+function renderAdvPendingCodes() {
+  var container = document.getElementById('adv-pending-codes-list');
+  if (!container) return;
+
+  var adv = getAdvertiserSession();
+  if (!adv) { container.innerHTML = ''; return; }
+
+  var usersStored = localStorage.getItem('kwanda_users');
+  var allUsers     = usersStored ? JSON.parse(usersStored) : [];
+  var pending      = [];
+
+  allUsers.forEach(function(u) {
+    var key     = 'kwanda_campaign_redemptions_' + u.email;
+    var history = JSON.parse(localStorage.getItem(key) || '[]');
+    history.forEach(function(r) {
+      if (r.advertiserId === adv.id && r.status === 'pending') {
+        pending.push(Object.assign({}, r, { userEmail: u.email }));
+      }
+    });
+  });
+
+  if (pending.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;"><i class="ti ti-ticket-off" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.4;"></i>No pending codes right now.</div>';
+    return;
+  }
+
+  container.innerHTML = pending.map(function(r) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">'
+      + '<div><h4 style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 2px;">' + r.code + '</h4>'
+      + '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + r.userEmail + ' &bull; ' + r.date + '</p></div>'
+      + '<p style="font-size:14px;font-weight:700;color:#f97316;margin:0;">R ' + window.formatAmt(r.amount) + '</p>'
+      + '</div>';
+  }).join('');
+}
+
+// ── Init the Redeem Code page ──
+function initAdvertiserRedeemCode() {
+  renderAdvPendingCodes();
+}
+
+window.confirmCampaignCode   = confirmCampaignCode;
+window.initAdvertiserRedeemCode = initAdvertiserRedeemCode;
