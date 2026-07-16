@@ -252,6 +252,7 @@ function startTask(taskId) {
   } catch(e) {}
 
   if (typeof window.logActivity === 'function') window.logActivity('task', null, { taskCategory: task.category });
+  if (typeof window.addTransaction === 'function') window.addTransaction('earned', task.icon, task.title, split.wallet);
 
   // Disable start button (silent visual confirmation instead of a popup)
   const btn = document.querySelector(`#task-${taskId} .btn-small`);
@@ -311,6 +312,7 @@ function startCampaignTask(campId) {
   } catch(e) {}
 
   if (typeof window.logActivity === 'function') window.logActivity('campaign', campId);
+  if (typeof window.addTransaction === 'function') window.addTransaction('earned', 'ti-speakerphone', camp.name, split.wallet);
 
   // Disable button (silent visual confirmation instead of a popup)
   const btn = document.querySelector(`#camp-${campId} .btn-small`);

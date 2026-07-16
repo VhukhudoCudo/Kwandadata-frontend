@@ -217,15 +217,22 @@ function redeemCampaignBalance(advertiserId) {
     return;
   }
 
+  if (entry.balance < 20) {
+    alert('Minimum redemption is R20. Available: R ' + window.formatAmt(entry.balance) + '. Keep earning to reach the minimum.');
+    return;
+  }
+
   var input = prompt(
     'Redeem Campaign Reward — ' + entry.companyName +
     '\nAvailable: R ' + window.formatAmt(entry.balance) +
+    '\nMinimum redemption: R20' +
     '\nEnter amount to redeem:'
   );
   if (!input) return;
 
   var amount = parseFloat(input);
   if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
+  if (amount < 20) { alert('Minimum redemption is R20.'); return; }
   if (amount > entry.balance) { alert('Not enough balance. Available: R ' + window.formatAmt(entry.balance)); return; }
 
   entry.balance -= amount;

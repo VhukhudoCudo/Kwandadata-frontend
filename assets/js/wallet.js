@@ -5,6 +5,7 @@
 function initWallet() {
   loadWalletBalance();
   renderTransactions('all');
+  if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
 }
 
 function loadWalletBalance() {
@@ -53,7 +54,7 @@ function renderTransactions(filter) {
       + '<div class="tx-info" style="flex:1;"><h4 style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 2px;">' + tx.title + '</h4>'
       + '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + tx.time + '</p></div>'
       + '<span class="tx-amount" style="font-size:14px;font-weight:700;color:' + (positive ? 'var(--accent-green)' : '#ef4444') + ';">'
-      + (positive ? '+R ' : '-R ') + Math.abswindow.formatAmt((tx.amount))
+      + (positive ? '+R ' : '-R ') + window.formatAmt(Math.abs(tx.amount))
       + '</span></div>';
   }).join('');
 }
