@@ -180,10 +180,34 @@ const PAGES = {
         </div>
         <div class="bonus-card">
           <div>
+         <div class="bonus-card">
+          <div>
             <p class="bonus-label">Pending Bonus</p>
             <p class="bonus-amount">50 MB</p>
           </div>
           <div class="bonus-icon"><i class="ti ti-clock"></i></div>
+        </div>
+        <div class="bonus-card bonus-card-green">
+          <div>
+            <p class="bonus-label">📶 Ready-to-Use Data Balance</p>
+            <p class="bonus-amount data-balance">0 MB</p>
+            <p class="wallet-sub">Ready to redeem as data</p>
+          </div>
+          <div class="bonus-icon"><i class="ti ti-wifi"></i></div>
+        </div>
+        <div class="wallet-card">
+          <div>
+            <p class="wallet-label">Campaign Objective Wallet</p>
+            <p class="wallet-amount" id="campaign-wallet-total">R 0.00</p>
+            <p class="wallet-sub">Redeemable with specific companies</p>
+          </div>
+          <div class="wallet-icon"><i class="ti ti-building-store"></i></div>
+        </div>
+        <div class="section">
+          <div class="section-header">
+            <p class="section-title">By Company</p>
+          </div>
+          <div id="campaign-wallet-list"></div>
         </div>
         <div class="section">
           <p class="section-title">Quick Actions</p>
