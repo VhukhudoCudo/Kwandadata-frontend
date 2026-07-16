@@ -234,3 +234,95 @@ setInterval(function() {
 export { initAdmin, updateChart };
 window.initAdmin   = initAdmin;
 window.updateChart = updateChart;
+
+/* ══════════════════════════════════════
+   App Settings — pricing, earnings split, maintenance mode
+   All persisted to kwanda_app_settings so they apply to every
+   user immediately and survive refresh/logout.
+══════════════════════════════════════ */
+
+function initAdminSettings() {
+  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+  var prices   = settings.prices || {};
+  var splits   = settings.splits || {};
+  var maint    = settings.maintenance || {};
+
+  var priceFields = {
+    'price-survey'   : prices.survey   || 15,
+    'price-video'    : prices.video    || 5,
+    'price-quiz'     : prices.quiz     || 8,
+    'price-download' : prices.download || 20,
+    'price-signup'   : prices.signup   || 25,
+  };
+  Object.keys(priceFields).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = priceFields[id];
+  });
+
+  var splitAdmin = document.getElementById('split-admin');
+  var splitData  = document.getElementById('split-data');
+  if (splitAdmin) splitAdmin.value = splits.admin || 20;
+  if (splitData)  splitData.value  = splits.data  || 20;
+
+  var maintToggle = document.getElementById('maintenance-toggle');
+  var maintMsg    = document.getElementById('maintenance-msg');
+  if (maintToggle) maintToggle.checked = !!maint.enabled;
+  if (maintMsg)    maintMsg.value      = maint.message || '';
+}
+
+function savePricing() {
+  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+  var getNum = function(id, fallback) {
+    var el = document.getElementById(id);
+    var n  = el ? parseFloat(el.value) : NaN;
+    return isNaN(n) || n <= 0 ? fallback : n;
+  };
+  settings.prices = {
+    survey   : getNum('price-survey', 15),
+    video    : getNum('price-video', 5),
+    quiz     : getNum('price-quiz', 8),
+    download : getNum('price-download', 20),
+    signup   : getNum('price-signup', 25),
+  };
+  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
+  alert('✅ Pricing saved. New prices apply to all users immediately.');
+}
+
+function saveSplitSettings() {
+  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+  var adminEl  = document.getElementById('split-admin');
+  var dataEl   = document.getElementById('split-data');
+  var admin    = adminEl ? parseFloat(adminEl.value) : NaN;
+  var data     = dataEl  ? parseFloat(dataEl.value)  : NaN;
+  if (isNaN(admin) || admin < 0) admin = 20;
+  if (isNaN(data)  || data  < 0) data  = 20;
+  if (admin + data > 100) {
+    alert("Admin fee and data split together can't exceed 100%.");
+    return;
+  }
+  settings.splits = { admin: admin, data: data };
+  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
+  alert('✅ Earnings split saved. Applies to all users immediately.');
+}
+
+function toggleMaintenance(checked) {
+  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+  if (!settings.maintenance) settings.maintenance = {};
+  settings.maintenance.enabled = checked;
+  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
+}
+
+function saveMaintenanceSettings() {
+  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+  if (!settings.maintenance) settings.maintenance = {};
+  var msgEl = document.getElementById('maintenance-msg');
+  settings.maintenance.message = msgEl ? msgEl.value.trim() : '';
+  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
+  alert('✅ Maintenance settings saved.');
+}
+
+window.initAdminSettings       = initAdminSettings;
+window.savePricing             = savePricing;
+window.saveSplitSettings       = saveSplitSettings;
+window.toggleMaintenance       = toggleMaintenance;
+window.saveMaintenanceSettings = saveMaintenanceSettings;

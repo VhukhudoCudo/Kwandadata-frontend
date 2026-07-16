@@ -213,6 +213,19 @@ function renderTasks(tab) {
   }).join('') + sponsoredSection;
 }
 
+// ── Sync a balance/data change back to the master users list so it
+//    survives logout/login (kwanda_current_user is just the session copy) ──
+function syncUserToUsersList(user) {
+  var allStored = localStorage.getItem('kwanda_users');
+  var allUsers  = allStored ? JSON.parse(allStored) : [];
+  var idx       = allUsers.findIndex(function(u) { return u.email === user.email; });
+  if (idx !== -1) {
+    allUsers[idx].balance     = user.balance;
+    allUsers[idx].dataBalance = user.dataBalance;
+    localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
+  }
+}
+
 function startTask(taskId) {
   const task = TASKS.find(t => t.id === taskId);
   if (!task) return;
@@ -228,6 +241,7 @@ function startTask(taskId) {
   // Update data balance (MB)
   user.dataBalance = (user.dataBalance || 0) + split.dataMB;
   localStorage.setItem('kwanda_current_user', JSON.stringify(user));
+  syncUserToUsersList(user);
 
   // Track privately (not shown in user-facing admin)
   try {
@@ -271,6 +285,7 @@ function startCampaignTask(campId) {
   currentUser.balance     = (currentUser.balance     || 0) + split.wallet;
   currentUser.dataBalance = (currentUser.dataBalance || 0) + split.dataMB;
   localStorage.setItem('kwanda_current_user', JSON.stringify(currentUser));
+  syncUserToUsersList(currentUser);
 
   // Credit the Campaign Objective wallet for this specific company
   addCampaignObjectiveBalance(currentUser.email, camp.advertiserId, camp.companyName, split.campaignObjective);
