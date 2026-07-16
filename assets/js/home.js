@@ -29,7 +29,9 @@ window.formatAmt = formatAmt;
 function initHome() {
   loadHomeUserData();
   setHomeGreeting();
+  if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
 }
+
 
 // ── Load user data into home page ──
 function loadHomeUserData() {
@@ -225,6 +227,16 @@ function updateHomeBalance(newBalance) {
   if (user) {
     user.balance = newBalance;
     localStorage.setItem("kwanda_current_user", JSON.stringify(user));
+
+    // Persist to the master users list too, so it carries over next
+    // time this user logs in (login re-reads from kwanda_users)
+    var stored   = localStorage.getItem("kwanda_users");
+    var allUsers = stored ? JSON.parse(stored) : [];
+    var idx      = allUsers.findIndex(function(u) { return u.email === user.email; });
+    if (idx !== -1) {
+      allUsers[idx].balance = newBalance;
+      localStorage.setItem("kwanda_users", JSON.stringify(allUsers));
+    }
   }
 }
 

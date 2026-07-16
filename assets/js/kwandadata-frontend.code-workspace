@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "kwandadata-frontend",
+			"path": "../.."
+		},
+		{
+			"name": "Kwandadata-backend",
+			"path": "../../../Kwandadata-backend"
+		},
+		{
+			"name": "Kwndadat-backend",
+			"path": "../../../Kwndadat-backend"
+		}
+	],
+	"settings": {}
+}

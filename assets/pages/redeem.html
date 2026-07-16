@@ -33,6 +33,29 @@
       </div>
     </div>
 
+    <!-- Campaign Objective Wallets -->
+   <!-- Campaign Objective Wallet (summary card, always visible like Balance/Bonus) -->
+    <div class="wallet-card">
+      <div>
+        <p class="wallet-label">Campaign Objective Wallet</p>
+        <p class="wallet-amount" id="campaign-wallet-total">R 0.00</p>
+        <p class="wallet-sub">Redeemable with specific companies</p>
+      </div>
+      <div class="wallet-icon">
+        <i class="ti ti-building-store"></i>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <p class="section-title">By Company</p>
+      </div>
+
+      <div id="campaign-wallet-list">
+        <!-- Populated by renderCampaignWallets() -->
+      </div>
+    </div>
+ 
     <!-- Redeem options heading -->
     <div class="section">
       <div class="section-header">
@@ -144,6 +167,17 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Campaign Redemption Codes -->
+    <div class="section">
+      <div class="section-header">
+        <p class="section-title">My Campaign Codes</p>
+      </div>
+
+      <div id="campaign-codes-list">
+        <!-- Populated by renderCampaignCodes() -->
       </div>
     </div>
 

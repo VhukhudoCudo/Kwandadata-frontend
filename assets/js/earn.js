@@ -1,13 +1,16 @@
 /* ══════════════════════════════════════
    KwandaData — Earn JS
-   - 15% admin fee
-   - 30% auto data allocation
-   - 55% to wallet
+   - Generic tasks (no company attached): 20% admin fee,
+     20% auto data, 60% wallet
+   - Campaign tasks (linked to a company/advertiser): 20% admin fee,
+     20% auto data, 20% Campaign Objective wallet (company-specific,
+     redeemable only with that company), 40% wallet
 ══════════════════════════════════════ */
 
-let ADMIN_FEE_PERCENT  = 15;
-let DATA_SPLIT_PERCENT = 30;
-const MB_PER_RAND        = 5;  // R 1.00 = 5MB
+let ADMIN_FEE_PERCENT          = 20;
+let DATA_SPLIT_PERCENT         = 20;
+let CAMPAIGN_OBJECTIVE_PERCENT = 20;
+const MB_PER_RAND              = 5;  // R 1.00 = 5MB
 
 const TASKS = [
   {
@@ -53,21 +56,49 @@ const TASKS = [
   },
 ];
 
-// ── Calculate earnings split ──
+// ── Calculate earnings split for GENERIC tasks (no company) ──
 function calculateSplit(grossReward) {
   const adminFee     = grossReward * (ADMIN_FEE_PERCENT / 100);
-  const afterFee     = grossReward - adminFee;
-  const dataRands    = afterFee * (DATA_SPLIT_PERCENT / 100);
+  const dataRands    = grossReward * (DATA_SPLIT_PERCENT / 100);
   const dataMB       = dataRands * MB_PER_RAND;  // Convert to MB
-  const walletAmount = afterFee - dataRands;
+  const walletAmount = grossReward - adminFee - dataRands;
   return {
     gross    : grossReward,
     adminFee : adminFee,
-    afterFee : afterFee,
     dataRands: dataRands,
     dataMB   : dataMB,
     wallet   : walletAmount,
   };
+}
+
+// ── Calculate earnings split for CAMPAIGN tasks (linked to a company) ──
+function calculateCampaignSplit(grossReward) {
+  const adminFee          = grossReward * (ADMIN_FEE_PERCENT / 100);
+  const dataRands         = grossReward * (DATA_SPLIT_PERCENT / 100);
+  const dataMB            = dataRands * MB_PER_RAND;
+  const campaignObjective = grossReward * (CAMPAIGN_OBJECTIVE_PERCENT / 100);
+  const walletAmount      = grossReward - adminFee - dataRands - campaignObjective;
+  return {
+    gross            : grossReward,
+    adminFee         : adminFee,
+    dataRands        : dataRands,
+    dataMB           : dataMB,
+    campaignObjective: campaignObjective,
+    wallet           : walletAmount,
+  };
+}
+
+// ── Credit a user's Campaign Objective balance for a specific company ──
+function addCampaignObjectiveBalance(email, advertiserId, companyName, amount) {
+  if (!advertiserId || !amount || amount <= 0) return;
+  var key    = 'kwanda_campaign_wallet_' + email;
+  var wallet = JSON.parse(localStorage.getItem(key) || '{}');
+  if (!wallet[advertiserId]) {
+    wallet[advertiserId] = { companyName: companyName, balance: 0 };
+  }
+  wallet[advertiserId].balance     = (wallet[advertiserId].balance || 0) + amount;
+  wallet[advertiserId].companyName = companyName; // keep name fresh
+  localStorage.setItem(key, JSON.stringify(wallet));
 }
 
 let activeTab = 'all';
@@ -82,8 +113,9 @@ function initEarn() {
     TASKS[3].reward = settings.prices.download || 15.00;
   }
   if (settings.splits) {
-    ADMIN_FEE_PERCENT  = settings.splits.admin || 15;
-    DATA_SPLIT_PERCENT = settings.splits.data  || 30;
+    ADMIN_FEE_PERCENT          = settings.splits.admin             || 20;
+    DATA_SPLIT_PERCENT         = settings.splits.data              || 20;
+    CAMPAIGN_OBJECTIVE_PERCENT = settings.splits.campaignObjective || 20;
   }
   bumpCampaignImpressions();
   renderTasks('all');
@@ -233,12 +265,15 @@ function startCampaignTask(campId) {
   const currentUser = user ? JSON.parse(user) : null;
   if (!currentUser) { navigateTo('sign-in'); return; }
 
-  const split = calculateSplit(camp.price);
+  const split = calculateCampaignSplit(camp.price);
 
-  // Credit user
+  // Credit user's main wallet + data balance
   currentUser.balance     = (currentUser.balance     || 0) + split.wallet;
   currentUser.dataBalance = (currentUser.dataBalance || 0) + split.dataMB;
   localStorage.setItem('kwanda_current_user', JSON.stringify(currentUser));
+
+  // Credit the Campaign Objective wallet for this specific company
+  addCampaignObjectiveBalance(currentUser.email, camp.advertiserId, camp.companyName, split.campaignObjective);
 
   // Update campaign stats
   const index = campaigns.findIndex(c => c.id === campId);
@@ -269,6 +304,9 @@ function startCampaignTask(campId) {
     btn.disabled         = true;
     btn.style.background = '#22c55e';
   }
+
+  // Refresh campaign wallet display if the redeem page is currently visible
+  if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
 }
 
 
@@ -326,8 +364,9 @@ function releasePendingBonus(user) {
 }
 
 export { initEarn, switchTab, startTask };
-window.initEarn  = initEarn;
-window.switchTab = switchTab;
-window.startTask            = startTask;
-window.startCampaignTask    = startCampaignTask;
-window.releasePendingBonus  = releasePendingBonus;
+window.initEarn                  = initEarn;
+window.switchTab                 = switchTab;
+window.startTask                 = startTask;
+window.startCampaignTask         = startCampaignTask;
+window.releasePendingBonus       = releasePendingBonus;
+window.addCampaignObjectiveBalance = addCampaignObjectiveBalance;

@@ -12,6 +12,8 @@ const REDEEM_OPTIONS = {
 function initRedeem() {
   loadRedeemBalance();
   renderRedemptions();
+  renderCampaignWallets();
+  renderCampaignCodes();
 }
 
 function loadRedeemBalance() {
@@ -56,7 +58,6 @@ function redeemDataBundle() {
     localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
   }
 
-  // Save to redemption history
   saveRedemptionRecord(user.email, 'Data Bundle', amount + 'MB');
 
   loadRedeemBalance();
@@ -91,7 +92,6 @@ function handleRedeem(type) {
   user.balance = newBalance;
   localStorage.setItem('kwanda_current_user', JSON.stringify(user));
 
-  // Update in users list too
   const allUsersStored = localStorage.getItem('kwanda_users');
   const allUsers = allUsersStored ? JSON.parse(allUsersStored) : [];
   const idx = allUsers.findIndex(function(u) { return u.email === user.email; });
@@ -100,7 +100,6 @@ function handleRedeem(type) {
     localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
   }
 
-  // Save to redemption history
   saveRedemptionRecord(user.email, option.title, window.formatRand(amount));
 
   loadRedeemBalance();
@@ -149,8 +148,171 @@ function renderRedemptions() {
   }).join('');
 }
 
+/* ══════════════════════════════════════
+   Campaign Objective Wallet
+   - Summary card (like Balance/Bonus), always visible
+   - Per-company breakdown listed below it
+   - Redeemed for a unique code, shown to that company's
+     shop to complete a purchase
+══════════════════════════════════════ */
+
+// ── Render the Campaign Objective Wallet total + per-company breakdown ──
+function renderCampaignWallets() {
+  const stored = localStorage.getItem('kwanda_current_user');
+  const user   = stored ? JSON.parse(stored) : null;
+
+  const totalEl = document.getElementById('campaign-wallet-total');
+  const listEl  = document.getElementById('campaign-wallet-list');
+
+  if (!user) {
+    if (totalEl) totalEl.textContent = window.formatRand(0);
+    if (listEl)  listEl.innerHTML = '';
+    return;
+  }
+
+  var key    = 'kwanda_campaign_wallet_' + user.email;
+  var wallet = JSON.parse(localStorage.getItem(key) || '{}');
+
+  var entries = Object.keys(wallet).map(function(advId) {
+    return {
+      advertiserId: advId,
+      companyName : wallet[advId].companyName,
+      balance     : wallet[advId].balance || 0,
+    };
+  }).filter(function(e) { return e.balance > 0; });
+
+  // Update the summary card total
+  var total = entries.reduce(function(sum, e) { return sum + e.balance; }, 0);
+  if (totalEl) totalEl.textContent = window.formatRand(total);
+
+  // Update the per-company breakdown list
+  if (!listEl) return;
+
+  if (entries.length === 0) {
+    listEl.innerHTML = '<div class="tx-empty" style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;"><i class="ti ti-building-store" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.4;"></i>No campaign rewards yet. Complete sponsored tasks to earn company-specific rewards.</div>';
+    return;
+  }
+
+  listEl.innerHTML = entries.map(function(e) {
+    return '<div class="redeem-option" onclick="redeemCampaignBalance(\'' + e.advertiserId + '\')">'
+      + '<div class="redeem-icon orange"><i class="ti ti-building-store"></i></div>'
+      + '<div class="redeem-info"><h4>' + e.companyName + '</h4><p>Available: R ' + window.formatAmt(e.balance) + '</p></div>'
+      + '<i class="ti ti-chevron-right redeem-arrow"></i>'
+      + '</div>';
+  }).join('');
+}
+
+// ── Redeem some/all of a company's balance for a code ──
+function redeemCampaignBalance(advertiserId) {
+  const stored = localStorage.getItem('kwanda_current_user');
+  const user   = stored ? JSON.parse(stored) : null;
+  if (!user) { navigateTo('sign-in'); return; }
+
+  var key    = 'kwanda_campaign_wallet_' + user.email;
+  var wallet = JSON.parse(localStorage.getItem(key) || '{}');
+  var entry  = wallet[advertiserId];
+
+  if (!entry || entry.balance <= 0) {
+    alert('No balance available to redeem for this company.');
+    return;
+  }
+
+  var input = prompt(
+    'Redeem Campaign Reward — ' + entry.companyName +
+    '\nAvailable: R ' + window.formatAmt(entry.balance) +
+    '\nEnter amount to redeem:'
+  );
+  if (!input) return;
+
+  var amount = parseFloat(input);
+  if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
+  if (amount > entry.balance) { alert('Not enough balance. Available: R ' + window.formatAmt(entry.balance)); return; }
+
+  entry.balance -= amount;
+  wallet[advertiserId] = entry;
+  localStorage.setItem(key, JSON.stringify(wallet));
+
+  var code = generateRedemptionCode();
+  saveCampaignRedemption(user.email, advertiserId, entry.companyName, amount, code);
+
+  renderCampaignWallets();
+  renderCampaignCodes();
+
+  alert(
+    '✅ Redeemed!\n\n' +
+    'Company: ' + entry.companyName + '\n' +
+    'Amount: R ' + window.formatAmt(amount) + '\n\n' +
+    'Your code:\n' + code + '\n\n' +
+    'Show this code at ' + entry.companyName + ' to complete your purchase.'
+  );
+}
+
+// ── Generate a unique-looking redemption code ──
+function generateRedemptionCode() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
+  var code  = 'KW-';
+  for (var i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// ── Save a campaign redemption code to localStorage history ──
+function saveCampaignRedemption(email, advertiserId, companyName, amount, code) {
+  var key     = 'kwanda_campaign_redemptions_' + email;
+  var history = JSON.parse(localStorage.getItem(key) || '[]');
+  var now     = new Date();
+  var date    = now.toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' });
+  var time    = now.toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit' });
+
+  history.unshift({
+    advertiserId: advertiserId,
+    companyName : companyName,
+    amount      : amount,
+    code        : code,
+    status      : 'pending', // becomes 'redeemed' once the shop confirms it (future step)
+    date        : date + ' • ' + time,
+  });
+
+  localStorage.setItem(key, JSON.stringify(history));
+}
+
+// ── Render the user's list of generated campaign codes ──
+function renderCampaignCodes() {
+  const container = document.getElementById('campaign-codes-list');
+  if (!container) return;
+
+  const stored = localStorage.getItem('kwanda_current_user');
+  const user   = stored ? JSON.parse(stored) : null;
+  if (!user) { container.innerHTML = ''; return; }
+
+  var key     = 'kwanda_campaign_redemptions_' + user.email;
+  var history = JSON.parse(localStorage.getItem(key) || '[]');
+
+  if (history.length === 0) {
+    container.innerHTML = '<div class="tx-empty" style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;"><i class="ti ti-ticket" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.4;"></i>No redemption codes yet.</div>';
+    return;
+  }
+
+  container.innerHTML = history.map(function(r) {
+    var statusColor = r.status === 'redeemed' ? '#166534' : '#92400e';
+    var statusBg    = r.status === 'redeemed' ? '#dcfce7' : '#fef3c7';
+    return '<div class="redemption-item" style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">'
+      + '<div class="redemption-info"><h4 style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 2px;">' + r.companyName + '</h4>'
+      + '<p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">' + r.date + '</p>'
+      + '<p style="font-size:12px;font-weight:700;letter-spacing:0.5px;color:var(--text-primary);margin:0;">' + r.code + '</p></div>'
+      + '<div class="redemption-right" style="text-align:right;">'
+      + '<p class="amount" style="font-size:14px;font-weight:700;color:#ef4444;margin:0 0 4px;">R ' + window.formatAmt(r.amount) + '</p>'
+      + '<span style="font-size:11px;font-weight:600;color:' + statusColor + ';background:' + statusBg + ';padding:2px 8px;border-radius:10px;">' + (r.status.charAt(0).toUpperCase() + r.status.slice(1)) + '</span>'
+      + '</div></div>';
+  }).join('');
+}
+
 export { initRedeem, handleRedeem };
-window.initRedeem       = initRedeem;
-window.redeemDataBundle = redeemDataBundle;
-window.handleRedeem     = handleRedeem;
-window.renderRedemptions = renderRedemptions;
+window.initRedeem              = initRedeem;
+window.redeemDataBundle        = redeemDataBundle;
+window.handleRedeem            = handleRedeem;
+window.renderRedemptions       = renderRedemptions;
+window.renderCampaignWallets   = renderCampaignWallets;
+window.redeemCampaignBalance   = redeemCampaignBalance;
+window.renderCampaignCodes     = renderCampaignCodes;
