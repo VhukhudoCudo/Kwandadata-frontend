@@ -370,6 +370,59 @@ function getActivityLog() {
 function getAllUsersData() {
   return JSON.parse(localStorage.getItem('kwanda_users') || '[]');
 }
+
+// ── Advertiser self-service: download who completed their campaigns ──
+function downloadCampaignParticipants() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo('advertiser-login'); return; }
+
+  var campaigns = getAdvertiserCampaigns(adv.id);
+  if (campaigns.length === 0) {
+    alert('You have no campaigns yet.');
+    return;
+  }
+
+  var campaignMap = {};
+  campaigns.forEach(function(c) { campaignMap[c.id] = c; });
+
+  var users = getAllUsersData();
+  var userMap = {};
+  users.forEach(function(u) { userMap[u.email] = u; });
+
+  var log = getActivityLog();
+  var rows = log.filter(function(entry) {
+    return entry.type === 'campaign' && entry.campaignId && campaignMap[entry.campaignId];
+  });
+
+  if (rows.length === 0) {
+    alert('No participants yet for your campaigns.');
+    return;
+  }
+
+  var lines = ['User ID,User Name,Campaign,Amount (R),Date'];
+  rows.forEach(function(entry) {
+    var camp   = campaignMap[entry.campaignId];
+    var user   = userMap[entry.userId] || {};
+    var name   = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || 'Unknown';
+    var date   = entry.day || (entry.ts ? new Date(entry.ts).toISOString().slice(0, 10) : '');
+    var amount = camp ? Number(camp.price).toFixed(2) : '0.00';
+    var safeName = '"' + name.replace(/"/g, '""') + '"';
+    var safeCamp = '"' + (camp ? camp.name : 'Unknown').replace(/"/g, '""') + '"';
+    lines.push([entry.userId || '', safeName, safeCamp, amount, date].join(','));
+  });
+
+  var content = lines.join('\n');
+  var blob    = new Blob([content], { type: 'text/csv' });
+  var url     = URL.createObjectURL(blob);
+  var a       = document.createElement('a');
+  a.href      = url;
+  a.download  = 'Campaign_Participants_' + (adv.company || adv.id) + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+window.downloadCampaignParticipants = downloadCampaignParticipants;
 function ageBucket(age) {
   var n = parseInt(age, 10);
   if (isNaN(n)) return 'Unknown';
