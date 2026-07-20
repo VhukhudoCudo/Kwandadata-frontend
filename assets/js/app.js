@@ -5,6 +5,7 @@ import { initHome } from './home.js';
 import { initEarn, switchTab, startTask } from './earn.js';
 import { initWallet, filterTransactions } from './wallet.js';
 import { initRedeem, handleRedeem } from './redeem.js';
+import { createGoal, fundGoal, deleteGoal, getGoals, promptCreateGoal, promptFundGoal, renderPersonalGoals, redeemGoal, promptRedeemGoal, renderGoalRedemptions, initPersonalGoals } from './goals.js';
 import { initAdmin, updateChart } from './admin.js';
  import Chart from 'chart.js/auto';
  window.Chart = Chart;
@@ -18,17 +19,19 @@ PAGES['register-type'] = `<div class="auth-screen"><div class="auth-header"><div
 PAGES['signin-type'] = `<div class="auth-screen"><div class="auth-header"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('splash')"><i class="ti ti-arrow-left"></i></button><h1>Sign In</h1><p>Choose the type of account you want to sign in to</p></div><div class="auth-body"><button onclick="navigateTo('sign-in')" style="width:100%;padding:20px;border-radius:20px;background:#fff;border:1.5px solid var(--border);cursor:pointer;font-family:sans-serif;display:flex;align-items:center;gap:14px;text-align:left;"><span style="width:48px;height:48px;border-radius:14px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">👤</span><span><span style="display:block;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">User</span><span style="display:block;font-size:12px;color:var(--text-muted);">Access your earnings account</span></span></button><button onclick="navigateTo('advertiser-login')" style="width:100%;padding:20px;border-radius:20px;background:#fff;border:1.5px solid var(--border);cursor:pointer;font-family:sans-serif;display:flex;align-items:center;gap:14px;text-align:left;"><span style="width:48px;height:48px;border-radius:14px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🏢</span><span><span style="display:block;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Advertiser</span><span style="display:block;font-size:12px;color:var(--text-muted);">Access your campaign dashboard</span></span></button><p class="auth-footer">Don't have an account? <span onclick="navigateTo('register-type')">Register</span></p></div></div>`;
 
 PAGES['campaign-wallet'] = `<div class="wallet-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>Campaign Objective Wallet</h2></div><button class="icon-btn"><i class="ti ti-info-circle"></i></button></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Campaign Objective Wallet</p><p class="wallet-amount" id="campaign-wallet-total">R 0.00</p><p class="wallet-sub">Redeemable with specific companies</p></div><div class="wallet-icon"><i class="ti ti-building-store"></i></div></div><div class="section"><div class="section-header"><p class="section-title">By Company</p></div><div id="campaign-wallet-list"></div></div><div class="section"><div class="section-header"><p class="section-title">My Redemption Codes</p></div><div id="campaign-codes-list"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
+
+PAGES['personal-goals'] = `<div class="wallet-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>Personal Goals Wallet</h2></div><button class="icon-btn" onclick="promptCreateGoal()"><i class="ti ti-plus"></i></button></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Personal Goals Wallet</p><p class="wallet-amount" id="goals-wallet-total">R 0.00</p><p class="wallet-sub">Saved toward your personal goals</p></div><div class="wallet-icon"><i class="ti ti-target-arrow"></i></div></div><div style="padding:0 16px 16px;"><button onclick="promptCreateGoal()" style="width:100%;padding:13px;border-radius:30px;background:var(--primary);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">+ Create New Goal</button></div><div class="section"><div class="section-header"><p class="section-title">My Goals</p></div><div id="personal-goals-list"></div></div><div class="section"><div class="section-header"><p class="section-title">My Redemption Codes</p></div><div id="goal-redemptions-list"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 PAGES['advertiser-redeem-code'] = `<div class="wallet-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>Redeem Customer Code</h2></div><button class="icon-btn" onclick="initAdvertiserRedeemCode()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div class="section"><p class="section-title">Enter Code</p><div class="form-group"><div class="input-wrap has-icon-left"><i class="ti ti-ticket"></i><input type="text" id="adv-redeem-code-input" placeholder="e.g. KW-AB12CD" style="text-transform:uppercase;"/></div></div><button onclick="confirmCampaignCode()" style="width:100%;padding:14px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;margin-top:8px;">Confirm &amp; Redeem</button></div><div class="section"><div class="section-header"><p class="section-title">Pending Codes For Your Company</p></div><div id="adv-pending-codes-list"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
 PAGES['create-account'] = `<div class="auth-screen"><div class="auth-header"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('splash')"><i class="ti ti-arrow-left"></i></button><h1>Create Account</h1><p>Join KwandaData and start earning</p></div><div class="auth-body"><div class="name-row"><div class="form-group"><label for="first-name">First Name</label><input type="text" id="first-name" placeholder="John"/></div><div class="form-group"><label for="last-name">Last Name</label><input type="text" id="last-name" placeholder="Doe"/></div></div><div class="form-group"><label for="reg-email">Email Address</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="reg-email" placeholder="john@example.com"/></div></div><div class="form-group"><label for="reg-phone">Phone Number</label><div class="input-wrap has-icon-left"><i class="ti ti-phone"></i><input type="tel" id="reg-phone" placeholder="+27 000 000 0000"/></div></div><div class="form-group"><label for="reg-network">Network Provider</label><select id="reg-network" class="form-select" onchange="toggleOtherNetwork(this.value)"><option value="">Select network provider</option><option value="vodacom">Vodacom</option><option value="mtn">MTN</option><option value="cell-c">Cell C</option><option value="other">Other</option></select><div id="other-network-wrap" style="display:none;margin-top:8px;"><div class="input-wrap has-icon-left"><i class="ti ti-pencil"></i><input type="text" id="reg-network-other" placeholder="Type your network provider..."/></div></div></div><div class="form-group"><label for="reg-dob">Date of Birth</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="reg-dob" onchange="calcAge(this.value)"/></div></div><div class="form-group"><label for="reg-age">Age</label><div class="input-wrap has-icon-left"><i class="ti ti-user"></i><input type="number" id="reg-age" placeholder="Auto-calculated" min="1" max="120" readonly style="background:#f5f6fa;cursor:not-allowed;"/></div></div><div class="form-group"><label for="reg-gender">Gender</label><select id="reg-gender" class="form-select"><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="non-binary">Non-binary</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-race">Race</label><select id="reg-race" class="form-select"><option value="">Select race</option><option value="black-african"> African</option><option value="coloured">Coloured</option><option value="indian-asian">Indian/Asian</option><option value="white">White</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-language">Home Language</label><select id="reg-language" class="form-select"><option value="">Select language</option><option value="zulu">isiZulu</option><option value="xhosa">isiXhosa</option><option value="afrikaans">Afrikaans</option><option value="english">English</option><option value="northern-sotho">Sepedi</option><option value="tswana">Setswana</option><option value="sotho">Sesotho</option><option value="tsonga">Xitsonga</option><option value="swati">siSwati</option><option value="venda">Tshivenda</option><option value="ndebele">isiNdebele</option></select></div><div class="form-group"><label for="reg-province">Province</label><select id="reg-province" class="form-select"><option value="">Select province</option><option value="eastern-cape">Eastern Cape</option><option value="free-state">Free State</option><option value="gauteng">Gauteng</option><option value="kwazulu-natal">KwaZulu-Natal</option><option value="limpopo">Limpopo</option><option value="mpumalanga">Mpumalanga</option><option value="north-west">North West</option><option value="northern-cape">Northern Cape</option><option value="western-cape">Western Cape</option></select></div><div class="form-group"><label for="reg-region">Region / City</label><div class="input-wrap has-icon-left"><i class="ti ti-map-pin"></i><input type="text" id="reg-region" placeholder="e.g. Soweto, Sandton"/></div></div><div class="form-group"><label for="reg-employment">Employment Status</label><select id="reg-employment" class="form-select"><option value="">Select status</option><option value="employed-full-time">Employed Full-time</option><option value="employed-part-time">Employed Part-time</option><option value="self-employed">Self-employed</option><option value="unemployed">Unemployed</option><option value="student">Student</option><option value="retired">Retired</option><option value="prefer-not-to-say">Prefer not to say</option></select></div><div class="form-group"><label for="reg-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="reg-password" placeholder="Create a password"/><i class="ti ti-eye icon-right" onclick="togglePassword('reg-password', this)"></i></div></div><div class="form-group"><label for="reg-confirm">Confirm Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="reg-confirm" placeholder="Repeat your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('reg-confirm', this)"></i></div></div><div class="form-group"><label for="reg-referral">Referral Code (Optional)</label><div class="input-wrap has-icon-left"><i class="ti ti-gift"></i><input type="text" id="reg-referral" placeholder="Enter referral code if you have one"/></div></div><div class="terms-row"><input type="checkbox" id="terms"/><label for="terms">I agree to the <a href="#" onclick="navigateTo('terms')">Terms of Service</a> and <a href="#" onclick="navigateTo('privacy')">Privacy Policy</a></label></div><p class="auth-error" id="reg-error"></p><button class="btn-purple" onclick="handleRegister()">Create Account</button><p class="auth-footer">Already have an account? <span onclick="navigateTo('sign-in')">Sign In</span></p></div></div>`;
 
 PAGES['sign-in'] = `<div class="auth-screen"><div class="auth-header"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('splash')"><i class="ti ti-arrow-left"></i></button><h1>Welcome Back</h1><p>Sign in to your KwandaData account</p></div><div class="auth-body"><div class="form-group"><label for="login-email">Email Address</label><div class="input-wrap has-icon-left"><i class="ti ti-mail"></i><input type="email" id="login-email" placeholder="john@example.com"/></div></div><div class="form-group"><label for="login-password">Password</label><div class="input-wrap has-icon-both"><i class="ti ti-lock"></i><input type="password" id="login-password" placeholder="Enter your password"/><i class="ti ti-eye icon-right" onclick="togglePassword('login-password', this)"></i></div></div><p class="forgot-link" onclick="navigateTo('forgot-password')">Forgot Password?</p><p class="auth-error" id="login-error"></p><button class="btn-purple" onclick="handleLogin()">Sign In</button><p class="auth-footer">Don't have an account? <span onclick="navigateTo('create-account')">Create Account</span></p></div></div>`;
 
-PAGES['home'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting">Good morning</p><h2 class="home-name">Hello</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('notifications')" style="cursor:pointer;"><i class="ti ti-bell"></i><span class="notif-dot"></span></button><button onclick="logout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:16px;"></i><span style="color:#ef4444;font-size:13px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Hello Wallet</p><p class="wallet-amount">R 0.00</p><p class="wallet-sub">Available Balance</p></div><div class="wallet-icon"><i class="ti ti-wallet"></i></div></div><div class="bonus-card"><div><p class="bonus-label">Pending Bonus</p><p class="bonus-amount">R 0.00</p></div><div class="bonus-icon"><i class="ti ti-clock"></i></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:14px 18px;margin:10px 16px 0;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">📶 Ready-to-Use Data Balance</p><p class="data-balance" style="font-size:22px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready to redeem as data</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-wifi"></i></div></div><div class="wallet-card" onclick="navigateTo('campaign-wallet')" style="cursor:pointer;"><div><p class="wallet-label">Campaign Objective Wallet</p><p class="wallet-amount" id="campaign-wallet-total">R 0.00</p><p class="wallet-sub">Redeemable with specific companies</p></div><div class="wallet-icon"><i class="ti ti-building-store"></i></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('earn')"><div class="action-icon green"><i class="ti ti-database"></i></div><h3>Earn</h3><p>Complete activities to earn data</p></div><div class="action-card" onclick="navigateTo('wallet')"><div class="action-icon purple"><i class="ti ti-wallet"></i></div><h3>My Wallet</h3><p>View balance and history</p></div><div class="action-card" onclick="navigateTo('redeem')"><div class="action-icon violet"><i class="ti ti-refresh"></i></div><h3>Redeem / Use</h3><p>Redeem data or use on partners</p></div><div class="action-card" onclick="navigateTo('refer')"><div class="action-icon orange"><i class="ti ti-users"></i></div><h3>Refer &amp; Earn</h3><p>Invite friends and earn more</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Activity</p></div><div id="home-recent-activity"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">No activity yet</div></div></div><div class="highlights"><h2>Key Highlights</h2><div class="highlights-grid"><div class="highlight-item"><div class="highlight-icon" style="background:var(--primary);"><i class="ti ti-shield-check"></i></div><h4>Participate</h4><p>Engage in activities that matter.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-green);"><i class="ti ti-gift"></i></div><h4>Earn</h4><p>Earn data for your participation.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-blue);"><i class="ti ti-wallet"></i></div><h4>Store</h4><p>Your earnings safely in wallet.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-orange);"><i class="ti ti-transfer"></i></div><h4>Redeem</h4><p>Use or convert your data easily.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-purple);"><i class="ti ti-users"></i></div><h4>Grow</h4><p>Invite others and unlock more.</p></div></div></div><div class="kwanda-footer">KwandaData&trade; - Turning Participation into Opportunity</div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
+PAGES['home'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting">Good morning</p><h2 class="home-name">Hello</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('notifications')" style="cursor:pointer;"><i class="ti ti-bell"></i><span class="notif-dot"></span></button><button onclick="logout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:16px;"></i><span style="color:#ef4444;font-size:13px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Hello Wallet</p><p class="wallet-amount">R 0.00</p><p class="wallet-sub">Available Balance</p></div><div class="wallet-icon"><i class="ti ti-wallet"></i></div></div><div class="bonus-card"><div><p class="bonus-label">Pending Bonus</p><p class="bonus-amount">R 0.00</p></div><div class="bonus-icon"><i class="ti ti-clock"></i></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:14px 18px;margin:10px 16px 0;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">📶 Ready-to-Use Data Balance</p><p class="data-balance" style="font-size:22px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready to redeem as data</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-wifi"></i></div></div><div class="wallet-card" onclick="navigateTo('campaign-wallet')" style="cursor:pointer;"><div><p class="wallet-label">Campaign Objective Wallet</p><p class="wallet-amount" id="campaign-wallet-total">R 0.00</p><p class="wallet-sub">Redeemable with specific companies</p></div><div class="wallet-icon"><i class="ti ti-building-store"></i></div></div><div class="wallet-card" onclick="navigateTo('personal-goals')" style="cursor:pointer;"><div><p class="wallet-label">Personal Goals Wallet</p><p class="wallet-amount" id="goals-wallet-total">R 0.00</p><p class="wallet-sub">Saved toward your personal goals</p></div><div class="wallet-icon"><i class="ti ti-target-arrow"></i></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('earn')"><div class="action-icon green"><i class="ti ti-database"></i></div><h3>Earn</h3><p>Complete activities to earn data</p></div><div class="action-card" onclick="navigateTo('wallet')"><div class="action-icon purple"><i class="ti ti-wallet"></i></div><h3>My Wallet</h3><p>View balance and history</p></div><div class="action-card" onclick="navigateTo('redeem')"><div class="action-icon violet"><i class="ti ti-refresh"></i></div><h3>Redeem / Use</h3><p>Redeem data or use on partners</p></div><div class="action-card" onclick="navigateTo('refer')"><div class="action-icon orange"><i class="ti ti-users"></i></div><h3>Refer &amp; Earn</h3><p>Invite friends and earn more</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Activity</p></div><div id="home-recent-activity"><div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">No activity yet</div></div></div><div class="highlights"><h2>Key Highlights</h2><div class="highlights-grid"><div class="highlight-item"><div class="highlight-icon" style="background:var(--primary);"><i class="ti ti-shield-check"></i></div><h4>Participate</h4><p>Engage in activities that matter.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-green);"><i class="ti ti-gift"></i></div><h4>Earn</h4><p>Earn data for your participation.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-blue);"><i class="ti ti-wallet"></i></div><h4>Store</h4><p>Your earnings safely in wallet.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-orange);"><i class="ti ti-transfer"></i></div><h4>Redeem</h4><p>Use or convert your data easily.</p></div><div class="highlight-item"><div class="highlight-icon" style="background:var(--accent-purple);"><i class="ti ti-users"></i></div><h4>Grow</h4><p>Invite others and unlock more.</p></div></div></div><div class="kwanda-footer">KwandaData&trade; - Turning Participation into Opportunity</div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
 PAGES['earn'] = `<div class="earn-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>Earn Data</h2></div><button class="icon-btn"><i class="ti ti-info-circle"></i></button></div><div class="page-scroll"><div class="earn-banner"><p>Complete activities and earn data into your wallet</p><span class="earn-banner-icon">🎁</span></div><div class="earn-tabs"><button class="earn-tab active" id="tab-all" onclick="switchTab(this)">All</button><button class="earn-tab" id="tab-tasks" onclick="switchTab(this)">Tasks</button><button class="earn-tab" id="tab-surveys" onclick="switchTab(this)">Surveys</button><button class="earn-tab" id="tab-offers" onclick="switchTab(this)">Offers</button><button class="earn-tab" id="tab-videos" onclick="switchTab(this)">Videos</button></div><div id="task-list"></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item active"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
-PAGES['wallet'] = `<div class="wallet-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>My Wallet</h2></div><button class="icon-btn"><i class="ti ti-world"></i></button></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Available Balance</p><p class="wallet-amount">R 0.00</p><p class="wallet-sub">KwandaData Wallet</p></div><div class="wallet-icon"><i class="ti ti-wallet"></i></div></div><div class="bonus-card"><div><p class="bonus-label">Pending Bonus</p><p class="bonus-amount">R 0.00</p></div><div class="bonus-icon"><i class="ti ti-gift"></i></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:14px 18px;margin:10px 16px 0;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">📶 Ready-to-Use Data Balance</p><p class="data-balance" style="font-size:22px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready to redeem as data</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-wifi"></i></div></div><div class="wallet-card"><div><p class="wallet-label">Campaign Objective Wallet</p><p class="wallet-amount" id="campaign-wallet-total">R 0.00</p><p class="wallet-sub">Redeemable with specific companies</p></div><div class="wallet-icon"><i class="ti ti-building-store"></i></div></div><div class="section"><div class="section-header"><p class="section-title">Transaction History</p><select class="tx-filter" onchange="filterTransactions(this.value)"><option value="all">All</option><option value="earned">Earned</option><option value="redeemed">Redeemed</option></select></div><div class="tx-list" id="tx-list"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item active"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
+PAGES['wallet'] = `<div class="wallet-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>My Wallet</h2></div><button class="icon-btn"><i class="ti ti-world"></i></button></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Available Balance</p><p class="wallet-amount">R 0.00</p><p class="wallet-sub">KwandaData Wallet</p></div><div class="wallet-icon"><i class="ti ti-wallet"></i></div></div><div class="bonus-card"><div><p class="bonus-label">Pending Bonus</p><p class="bonus-amount">R 0.00</p></div><div class="bonus-icon"><i class="ti ti-gift"></i></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:14px 18px;margin:10px 16px 0;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">📶 Ready-to-Use Data Balance</p><p class="data-balance" style="font-size:22px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready to redeem as data</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-wifi"></i></div></div><div class="wallet-card" onclick="navigateTo('campaign-wallet')" style="cursor:pointer;"><div><p class="wallet-label">Campaign Objective Wallet</p><p class="wallet-amount" id="campaign-wallet-total">R 0.00</p><p class="wallet-sub">Redeemable with specific companies</p></div><div class="wallet-icon"><i class="ti ti-building-store"></i></div></div><div class="wallet-card" onclick="navigateTo('personal-goals')" style="cursor:pointer;"><div><p class="wallet-label">Personal Goals Wallet</p><p class="wallet-amount" id="goals-wallet-total">R 0.00</p><p class="wallet-sub">Saved toward your personal goals</p></div><div class="wallet-icon"><i class="ti ti-target-arrow"></i></div></div><div class="section"><div class="section-header"><p class="section-title">Transaction History</p><select class="tx-filter" onchange="filterTransactions(this.value)"><option value="all">All</option><option value="earned">Earned</option><option value="redeemed">Redeemed</option></select></div><div class="tx-list" id="tx-list"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item active"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item" onclick="navigateTo('redeem')"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
 PAGES['redeem'] = `<div class="redeem-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('home')"><i class="ti ti-arrow-left"></i></button><h2>Redeem / Use</h2></div><button class="icon-btn"><i class="ti ti-info-circle"></i></button></div><div class="page-scroll"><div class="wallet-card"><div><p class="wallet-label">Your Balance</p><p class="wallet-amount">R 0.00</p></div><div class="wallet-icon"><i class="ti ti-cloud-upload"></i></div></div><div class="section"><div class="section-header"><p class="section-title">Redeem Data</p></div></div><div class="redeem-option" onclick="handleRedeem('airtime')"><div class="redeem-icon violet"><i class="ti ti-device-mobile"></i></div><div class="redeem-info"><h4>Airtime</h4><p>Buy airtime with your earnings</p></div><i class="ti ti-chevron-right redeem-arrow"></i></div><div class="redeem-option" onclick="handleRedeem('data-bundle')"><div class="redeem-icon blue"><i class="ti ti-wifi"></i></div><div class="redeem-info"><h4>Data Bundle</h4><p>Buy a data bundle</p></div><i class="ti ti-chevron-right redeem-arrow"></i></div><div class="redeem-option" onclick="handleRedeem('partner-apps')"><div class="redeem-icon green"><i class="ti ti-apps"></i></div><div class="redeem-info"><h4>Partner Apps</h4><p>Spend on partner platforms</p></div><i class="ti ti-chevron-right redeem-arrow"></i></div><div class="redeem-option" onclick="handleRedeem('cash-out')"><div class="redeem-icon red"><i class="ti ti-banknote"></i></div><div class="redeem-info"><h4>Cash Out</h4><p>Withdraw to your bank account</p></div><i class="ti ti-chevron-right redeem-arrow"></i></div><div class="section"><div class="section-header"><p class="section-title">📶 Data Balance</p></div></div><div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:14px;padding:16px 18px;margin:0 16px 16px;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:2px;">Ready-to-Use Data</p><p class="data-balance-redeem" style="font-size:24px;font-weight:700;color:#fff;">0 MB</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Redeem as data bundle to your number</p></div><i class="ti ti-wifi" style="font-size:32px;color:rgba(255,255,255,0.6);"></i></div><div style="padding:0 16px 16px;"><button onclick="redeemDataBundle()" style="width:100%;padding:13px;border-radius:30px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Redeem Data Bundle</button></div><div class="section"><div class="section-header"><p class="section-title">Recent Redemptions</p></div><div class="redemption-list" id="redemption-list"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('home')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('earn')"><i class="ti ti-database"></i><span>Earn</span></button><button class="nav-item" onclick="navigateTo('wallet')"><i class="ti ti-wallet"></i><span>Wallet</span></button><button class="nav-item active"><i class="ti ti-refresh"></i><span>Redeem</span></button><button class="nav-item" onclick="navigateTo('donate')"><i class="ti ti-heart"></i><span>Donate</span></button><button class="nav-item" onclick="navigateTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
@@ -112,7 +115,7 @@ PAGES['admin-advertisers-mgmt'] = `<div class="home-screen"><div class="subpage-
 
 PAGES['admin-announcements'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Announcements</h2></div></div><div class="page-scroll"><div style="padding:16px;"><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:16px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Send New Announcement</p><div style="margin-bottom:10px;"><p style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Send To</p><div style="display:flex;gap:8px;"><button onclick="selectAudience('users')" id="aud-users" style="flex:1;padding:8px;border-radius:10px;background:var(--primary);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;">Users</button><button onclick="selectAudience('advertisers')" id="aud-advertisers" style="flex:1;padding:8px;border-radius:10px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;">Advertisers</button><button onclick="selectAudience('all')" id="aud-all" style="flex:1;padding:8px;border-radius:10px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;">All</button></div></div><div class="form-group"><label for="ann-title">Title</label><div class="input-wrap has-icon-left"><i class="ti ti-speakerphone"></i><input type="text" id="ann-title" placeholder="Announcement title..."/></div></div><div class="form-group"><label for="ann-message">Message</label><textarea id="ann-message" placeholder="Write your announcement..." style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;outline:none;box-sizing:border-box;resize:none;height:90px;font-family:sans-serif;"></textarea></div><p class="auth-error" id="ann-error"></p><button onclick="sendAnnouncement()" style="width:100%;padding:13px;border-radius:30px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Send Announcement</button></div><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Past Announcements</p><div id="announcements-list"></div></div></div></div>`;
 
-PAGES['admin-financial'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Financial Control</h2></div><button class="icon-btn" onclick="initAdminFinancial()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 16px 0;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-total-fees" style="font-size:20px;font-weight:700;color:var(--primary);">R 0.00</p><p style="font-size:11px;color:var(--text-muted);">Total Admin Fees</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-adv-spend" style="font-size:20px;font-weight:700;color:#f97316;">R 0.00</p><p style="font-size:11px;color:var(--text-muted);">Advertiser Spend</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-user-wallets" style="font-size:20px;font-weight:700;color:#22c55e;">R 0.00</p><p style="font-size:11px;color:var(--text-muted);">User Wallets</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-data-balances" style="font-size:20px;font-weight:700;color:#3b82f6;">0 MB</p><p style="font-size:11px;color:var(--text-muted);">Data Balances</p></div></div><div style="padding:16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Advertiser Statements</p><div id="fin-transactions"></div></div><div style="padding:0 16px 8px;display:flex;gap:10px;"><button onclick="exportFinancialSummary()" style="flex:1;padding:11px;border-radius:20px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;"><i class="ti ti-download" style="margin-right:5px;"></i>Export Financial Summary</button></div><div style="padding:16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Users By Region</p><div id="fin-users-region"></div></div><div style="padding:0 16px 24px;"><button onclick="exportUsersByRegion()" style="width:100%;padding:11px;border-radius:20px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;"><i class="ti ti-download" style="margin-right:5px;"></i>Export Users By Region</button></div></div></div>`;
+PAGES['admin-financial'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Financial Control</h2></div><button class="icon-btn" onclick="initAdminFinancial()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 16px 0;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-total-fees" style="font-size:20px;font-weight:700;color:var(--primary);">R 0.00</p><p style="font-size:11px;color:var(--text-muted);">Total Admin Fees</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-adv-spend" style="font-size:20px;font-weight:700;color:#f97316;">R 0.00</p><p style="font-size:11px;color:var(--text-muted);">Advertiser Spend</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-user-wallets" style="font-size:20px;font-weight:700;color:#22c55e;">R 0.00</p><p style="font-size:11px;color:var(--text-muted);">User Wallets</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="fin-data-balances" style="font-size:20px;font-weight:700;color:#3b82f6;">0 MB</p><p style="font-size:11px;color:var(--text-muted);">Data Balances</p></div></div><div style="padding:16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Advertiser Statements</p><div id="fin-transactions"></div></div><div style="padding:0 16px 8px;display:flex;gap:10px;"><button onclick="exportFinancialSummary()" style="flex:1;padding:11px;border-radius:20px;background:linear-gradient(135deg,var(--primary),#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;"><i class="ti ti-download" style="margin-right:5px;"></i>Export Financial Summary</button></div><div style="padding:16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Users By Region</p><div style="display:flex;gap:8px;margin-bottom:10px;"><select id="region-filter-province" class="form-select" onchange="filterUsersByRegion()" style="flex:1;"><option value="">All Provinces</option><option value="gauteng">Gauteng</option><option value="western-cape">Western Cape</option><option value="kwazulu-natal">KwaZulu-Natal</option><option value="eastern-cape">Eastern Cape</option><option value="limpopo">Limpopo</option><option value="mpumalanga">Mpumalanga</option><option value="north-west">North West</option><option value="northern-cape">Northern Cape</option><option value="free-state">Free State</option></select><input type="text" id="region-filter-search" placeholder="Search region, name or email..." oninput="filterUsersByRegion()" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;"/></div><div id="fin-users-region"></div></div><div style="padding:0 16px 24px;"><button onclick="exportUsersByRegion()" style="width:100%;padding:11px;border-radius:20px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;"><i class="ti ti-download" style="margin-right:5px;"></i>Export Users By Region</button></div></div></div>`;
 
 var selectedAudience = 'users';
 
@@ -237,46 +240,162 @@ function initAdminFinancial() {
     }
   }
 
-  // Users by region
-  var regionContainer = document.getElementById('fin-users-region');
-  if (regionContainer) {
-    var provinces = {
-      'gauteng':'Gauteng','western-cape':'Western Cape','kwazulu-natal':'KwaZulu-Natal',
-      'eastern-cape':'Eastern Cape','limpopo':'Limpopo','mpumalanga':'Mpumalanga',
-      'north-west':'North West','northern-cape':'Northern Cape','free-state':'Free State','':'Not Specified'
-    };
-    var grouped = {};
-    allUsers.forEach(function(u) {
-      var prov = u.province || '';
-      if (!grouped[prov]) grouped[prov] = [];
-      grouped[prov].push(u);
-    });
-    if (allUsers.length === 0) {
-      regionContainer.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No users yet</div>";
-    } else {
-      var html = '';
-      Object.keys(provinces).forEach(function(provKey) {
-        var users = grouped[provKey] || [];
-        if (users.length === 0) return;
-        var provName = provinces[provKey];
-        html += "<div style='margin-bottom:12px;'>";
-        html += "<div style='display:flex;justify-content:space-between;align-items:center;background:#f3f4f6;border-radius:8px;padding:8px 12px;margin-bottom:6px;'>";
-        html += "<p style='font-size:13px;font-weight:700;color:var(--text-primary);margin:0;'>" + provName + "</p>";
-        html += "<span style='font-size:12px;font-weight:600;color:var(--primary);background:#ede9fe;padding:2px 10px;border-radius:10px;'>" + users.length + " users</span></div>";
-        users.forEach(function(u) {
-          html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);'>";
-          html += "<div><p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + (u.firstName || '') + " " + (u.lastName || '') + "</p>";
-          html += "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + (u.region || 'N/A') + " · " + (u.email || '') + "</p></div>";
-          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + window.formatAmt((u.balance || 0)) + "</p></div>";
-        });
-        html += "</div>";
-      });
-      regionContainer.innerHTML = html;
-    }
-  }
+  // Users by region (with full wallet detail — see renderUsersByRegion)
+  renderUsersByRegion();
 }
 
 window.initAdminFinancial  = initAdminFinancial;
+
+// ── Gather a user's full wallet picture: Hello Wallet, Campaign Objective Wallet
+//    (per-company balances + redemption history), Personal Goals Wallet (goals +
+//    redemption history). Used by both the on-screen admin list and the export. ──
+function getUserWalletDetail(user) {
+  var email = user.email || '';
+
+  var campaignWallet = JSON.parse(localStorage.getItem('kwanda_campaign_wallet_' + email) || '{}');
+  var campaignCompanies = Object.keys(campaignWallet).map(function(id) {
+    return { companyName: campaignWallet[id].companyName || 'Unknown', balance: campaignWallet[id].balance || 0 };
+  }).filter(function(c) { return c.balance > 0; });
+  var campaignTotal = campaignCompanies.reduce(function(s, c) { return s + c.balance; }, 0);
+  var campaignRedemptions = JSON.parse(localStorage.getItem('kwanda_campaign_redemptions_' + email) || '[]');
+
+  var goals = JSON.parse(localStorage.getItem('kwanda_goals_' + email) || '[]');
+  var goalsTotal = goals.reduce(function(s, g) { return s + (g.saved || 0); }, 0);
+  var goalRedemptions = JSON.parse(localStorage.getItem('kwanda_goals_redemptions_' + email) || '[]');
+
+  return {
+    helloBalance: user.balance || 0,
+    campaign: { total: campaignTotal, companies: campaignCompanies, redemptions: campaignRedemptions },
+    goals: { total: goalsTotal, list: goals, redemptions: goalRedemptions },
+  };
+}
+
+// ── Build the expandable detail HTML for one user's wallets (used on-screen only) ──
+function buildUserRegionDetailHTML(detail) {
+  var html = '';
+
+  // Campaign Objective Wallet
+  html += '<p style="font-size:12px;font-weight:700;color:var(--text-primary);margin:10px 0 4px;">Campaign Objective Wallet — R ' + window.formatAmt(detail.campaign.total) + '</p>';
+  if (detail.campaign.companies.length === 0) {
+    html += '<p style="font-size:11px;color:var(--text-muted);margin:0 0 6px;">No company balances.</p>';
+  } else {
+    detail.campaign.companies.forEach(function(c) {
+      html += '<p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">• ' + c.companyName + ': R ' + window.formatAmt(c.balance) + '</p>';
+    });
+  }
+  if (detail.campaign.redemptions.length > 0) {
+    html += '<p style="font-size:11px;font-weight:600;color:var(--text-primary);margin:6px 0 2px;">Redemption history:</p>';
+    detail.campaign.redemptions.forEach(function(r) {
+      html += '<p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">• ' + r.companyName + ' — R ' + window.formatAmt(r.amount) + ' — ' + r.code + ' (' + r.status + ') — ' + r.date + '</p>';
+    });
+  }
+
+  // Personal Goals Wallet
+  html += '<p style="font-size:12px;font-weight:700;color:var(--text-primary);margin:10px 0 4px;">Personal Goals Wallet — R ' + window.formatAmt(detail.goals.total) + '</p>';
+  if (detail.goals.list.length === 0) {
+    html += '<p style="font-size:11px;color:var(--text-muted);margin:0 0 6px;">No goals created.</p>';
+  } else {
+    detail.goals.list.forEach(function(g) {
+      html += '<p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">• ' + g.name + ': R ' + window.formatAmt(g.saved) + ' of R ' + window.formatAmt(g.target) + '</p>';
+    });
+  }
+  if (detail.goals.redemptions.length > 0) {
+    html += '<p style="font-size:11px;font-weight:600;color:var(--text-primary);margin:6px 0 2px;">Redemption history:</p>';
+    detail.goals.redemptions.forEach(function(r) {
+      var line = r.method === 'bank_payout'
+        ? (r.bankDetails.bankName + ' •••• ' + r.bankDetails.accountNumber.slice(-4) + ' — Ref: ' + r.reference)
+        : r.code;
+      html += '<p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">• ' + r.goalName + ' — R ' + window.formatAmt(r.amount) + ' — ' + line + ' (' + r.status + ') — ' + r.date + '</p>';
+    });
+  }
+
+  return html;
+}
+
+// ── Render the Users By Region list: grouped by province, filterable, each
+//    user collapsed to a summary row that expands to show full wallet detail. ──
+function renderUsersByRegion() {
+  var regionContainer = document.getElementById('fin-users-region');
+  if (!regionContainer) return;
+
+  var allUsers = JSON.parse(localStorage.getItem('kwanda_users') || '[]');
+  var provinces = {
+    'gauteng':'Gauteng','western-cape':'Western Cape','kwazulu-natal':'KwaZulu-Natal',
+    'eastern-cape':'Eastern Cape','limpopo':'Limpopo','mpumalanga':'Mpumalanga',
+    'north-west':'North West','northern-cape':'Northern Cape','free-state':'Free State','':'Not Specified'
+  };
+
+  if (allUsers.length === 0) {
+    regionContainer.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No users yet</div>";
+    return;
+  }
+
+  var provEl   = document.getElementById('region-filter-province');
+  var searchEl = document.getElementById('region-filter-search');
+  var provFilter   = provEl   ? provEl.value : '';
+  var searchFilter = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+  var filtered = allUsers.filter(function(u) {
+    if (provFilter && (u.province || '') !== provFilter) return false;
+    if (searchFilter) {
+      var region = (u.region || '').toLowerCase();
+      var name   = ((u.firstName || '') + ' ' + (u.lastName || '')).toLowerCase();
+      var email  = (u.email || '').toLowerCase();
+      if (region.indexOf(searchFilter) === -1 && name.indexOf(searchFilter) === -1 && email.indexOf(searchFilter) === -1) return false;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    regionContainer.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No users match your search</div>";
+    return;
+  }
+
+  var grouped = {};
+  filtered.forEach(function(u) {
+    var prov = u.province || '';
+    if (!grouped[prov]) grouped[prov] = [];
+    grouped[prov].push(u);
+  });
+
+  var html = '';
+  Object.keys(provinces).forEach(function(provKey) {
+    var users = grouped[provKey] || [];
+    if (users.length === 0) return;
+    var provName = provinces[provKey];
+
+    html += "<div style='margin-bottom:12px;'>";
+    html += "<div style='display:flex;justify-content:space-between;align-items:center;background:#f3f4f6;border-radius:8px;padding:8px 12px;margin-bottom:6px;'>";
+    html += "<p style='font-size:13px;font-weight:700;color:var(--text-primary);margin:0;'>" + provName + "</p>";
+    html += "<span style='font-size:12px;font-weight:600;color:var(--primary);background:#ede9fe;padding:2px 10px;border-radius:10px;'>" + users.length + " users</span></div>";
+
+    users.forEach(function(u) {
+      var detail = getUserWalletDetail(u);
+      html += '<details style="border-bottom:1px solid var(--border);">';
+      html += '<summary style="cursor:pointer;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">';
+      html += '<div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0;">' + (u.firstName || '') + ' ' + (u.lastName || '') + '</p>';
+      html += '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + (u.region || 'N/A') + ' · ' + (u.email || '') + '</p></div>';
+      html += '<div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;flex-shrink:0;">';
+      html += '<span style="font-size:11px;font-weight:700;color:#22c55e;">Hello: R ' + window.formatAmt(detail.helloBalance) + '</span>';
+      html += '<span style="font-size:11px;font-weight:700;color:#f97316;">Campaign: R ' + window.formatAmt(detail.campaign.total) + '</span>';
+      html += '<span style="font-size:11px;font-weight:700;color:#3b82f6;">Goals: R ' + window.formatAmt(detail.goals.total) + '</span>';
+      html += '</div></summary>';
+      html += '<div style="padding:0 12px 12px;background:#fafafa;">' + buildUserRegionDetailHTML(detail) + '</div>';
+      html += '</details>';
+    });
+
+    html += "</div>";
+  });
+
+  regionContainer.innerHTML = html;
+}
+
+function filterUsersByRegion() {
+  renderUsersByRegion();
+}
+
+window.renderUsersByRegion  = renderUsersByRegion;
+window.filterUsersByRegion  = filterUsersByRegion;
 var currentAdminAnalyticsPeriod = 'today';
 function initAdminAnalytics() {
   filterAnalytics('today');
@@ -815,57 +934,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
  
 
-// Add this code at the END of your initAdminFinancial function, before the closing }
-
-  // Display users by region
-  var regionContainer = document.getElementById('fin-users-region');
-  if (regionContainer) {
-    var allUsersForRegion = JSON.parse(localStorage.getItem('kwanda_users') || '[]');
-    var provinces = {
-      'gauteng':       'Gauteng',
-      'western-cape':  'Western Cape',
-      'kwazulu-natal': 'KwaZulu-Natal',
-      'eastern-cape':  'Eastern Cape',
-      'limpopo':       'Limpopo',
-      'mpumalanga':    'Mpumalanga',
-      'north-west':    'North West',
-      'northern-cape': 'Northern Cape',
-      'free-state':    'Free State',
-      '':              'Not Specified'
-    };
-
-    var grouped = {};
-    allUsersForRegion.forEach(function(u) {
-      var prov = u.province || '';
-      if (!grouped[prov]) grouped[prov] = [];
-      grouped[prov].push(u);
-    });
-
-    if (allUsersForRegion.length === 0) {
-      regionContainer.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No users yet</div>";
-    } else {
-      var html = '';
-      Object.keys(provinces).forEach(function(provKey) {
-        var users = grouped[provKey] || [];
-        if (users.length === 0) return;
-        var provName = provinces[provKey];
-        html += "<div style='margin-bottom:12px;'>";
-        html += "<div style='display:flex;justify-content:space-between;align-items:center;background:#f3f4f6;border-radius:8px;padding:8px 12px;margin-bottom:6px;'>";
-        html += "<p style='font-size:13px;font-weight:700;color:var(--text-primary);margin:0;'>" + provName + "</p>";
-        html += "<span style='font-size:12px;font-weight:600;color:var(--primary);background:#ede9fe;padding:2px 10px;border-radius:10px;'>" + users.length + " users</span></div>";
-        users.forEach(function(u) {
-          html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);'>";
-          html += "<div><p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + (u.firstName || '') + " " + (u.lastName || '') + "</p>";
-          html += "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + (u.region || 'N/A') + " · " + (u.email || '') + "</p></div>";
-          html += "<p style='font-size:12px;font-weight:700;color:#22c55e;margin:0;'>R " + window.formatAmt((u.balance || 0)) + "</p></div>";
-        });
-        html += "</div>";
-      });
-      regionContainer.innerHTML = html;
-    }
-  }
-
 function exportFinancialSummary() {
+
   var allAdvs      = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
   var allCampaigns = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
   var allUsers     = JSON.parse(localStorage.getItem('kwanda_users')       || '[]');
@@ -1001,6 +1071,8 @@ function exportUsersByRegion() {
     lines.push("----------------------------------------");
 
     users.forEach(function(u, i) {
+      var detail = getUserWalletDetail(u);
+
       lines.push((i + 1) + ". " + (u.firstName || '') + " " + (u.lastName || ''));
       lines.push("   Email:       " + (u.email || 'N/A'));
       lines.push("   Contact:     " + (u.phone || 'N/A'));
@@ -1010,8 +1082,45 @@ function exportUsersByRegion() {
       lines.push("   Province:    " + (provName));
       lines.push("   Gender:      " + (u.gender || 'N/A'));
       lines.push("   Employment:  " + (u.employment || 'N/A'));
-      lines.push("   Balance:     R " + window.formatAmt((u.balance || 0)));
       lines.push("   Data:        " + (u.dataBalance || 0).toFixed(0) + " MB");
+      lines.push("");
+      lines.push("   -- Hello Wallet --");
+      lines.push("   Balance: R " + window.formatAmt(detail.helloBalance));
+      lines.push("");
+      lines.push("   -- Campaign Objective Wallet -- (Total: R " + window.formatAmt(detail.campaign.total) + ")");
+      if (detail.campaign.companies.length === 0) {
+        lines.push("   No company balances.");
+      } else {
+        detail.campaign.companies.forEach(function(c) {
+          lines.push("   • " + c.companyName + ": R " + window.formatAmt(c.balance));
+        });
+      }
+      if (detail.campaign.redemptions.length > 0) {
+        lines.push("   Redemption history:");
+        detail.campaign.redemptions.forEach(function(r) {
+          lines.push("     - " + r.companyName + " | R " + window.formatAmt(r.amount) + " | " + r.code + " | " + r.status + " | " + r.date);
+        });
+      }
+      lines.push("");
+      lines.push("   -- Personal Goals Wallet -- (Total saved: R " + window.formatAmt(detail.goals.total) + ")");
+      if (detail.goals.list.length === 0) {
+        lines.push("   No goals created.");
+      } else {
+        detail.goals.list.forEach(function(g) {
+          lines.push("   • " + g.name + ": R " + window.formatAmt(g.saved) + " of R " + window.formatAmt(g.target));
+        });
+      }
+      if (detail.goals.redemptions.length > 0) {
+        lines.push("   Redemption history:");
+        detail.goals.redemptions.forEach(function(r) {
+          var line = r.method === 'bank_payout'
+            ? (r.bankDetails.bankName + ' ****' + r.bankDetails.accountNumber.slice(-4) + ' | Ref: ' + r.reference)
+            : r.code;
+          lines.push("     - " + r.goalName + " | R " + window.formatAmt(r.amount) + " | " + line + " | " + r.status + " | " + r.date);
+        });
+      }
+      lines.push("");
+      lines.push("   ----------------------------------------");
       lines.push("");
     });
   });

@@ -6,6 +6,7 @@ function initWallet() {
   loadWalletBalance();
   renderTransactions('all');
   if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
+  if (typeof window.renderPersonalGoals === 'function') window.renderPersonalGoals();
 }
 
 function loadWalletBalance() {

@@ -30,6 +30,7 @@ function initHome() {
   loadHomeUserData();
   setHomeGreeting();
   if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
+  if (typeof window.renderPersonalGoals === 'function') window.renderPersonalGoals();
 }
 
 
