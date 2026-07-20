@@ -120,9 +120,22 @@ function saveProfile() {
   var user = getUser();
   if (!user) return;
 
+  var oldEmail = user.email;
+  var newEmail = document.getElementById("edit-email") ? document.getElementById("edit-email").value.trim().toLowerCase() : user.email;
+
+  // Prevent switching to an email another account already uses
+  if (newEmail !== oldEmail) {
+    var allUsersCheck = JSON.parse(localStorage.getItem("kwanda_users") || "[]");
+    var collision = allUsersCheck.find(function(u) { return (u.email || "").toLowerCase() === newEmail; });
+    if (collision) {
+      alert("That email is already in use by another account.");
+      return;
+    }
+  }
+
   user.firstName  = document.getElementById("edit-first-name")  ? document.getElementById("edit-first-name").value.trim()  : user.firstName;
   user.lastName   = document.getElementById("edit-last-name")   ? document.getElementById("edit-last-name").value.trim()   : user.lastName;
-  user.email      = document.getElementById("edit-email")       ? document.getElementById("edit-email").value.trim()       : user.email;
+  user.email      = newEmail;
   user.phone      = document.getElementById("edit-phone")       ? document.getElementById("edit-phone").value.trim()       : user.phone;
   user.dob        = document.getElementById("edit-dob")         ? document.getElementById("edit-dob").value                : user.dob;
   user.gender     = document.getElementById("edit-gender")      ? document.getElementById("edit-gender").value             : user.gender;
@@ -133,6 +146,30 @@ function saveProfile() {
   user.employment = document.getElementById("edit-employment")  ? document.getElementById("edit-employment").value         : user.employment;
 
   localStorage.setItem("kwanda_current_user", JSON.stringify(user));
+
+  // Keep kwanda_users in sync — without this, future logins keep checking
+  // the OLD stored details and fail even with the new/correct ones.
+  // The session copy has no password field, so merge rather than overwrite.
+  var allUsers = JSON.parse(localStorage.getItem("kwanda_users") || "[]");
+  var idx = allUsers.findIndex(function(u) { return (u.email || "").toLowerCase() === (oldEmail || "").toLowerCase(); });
+  if (idx !== -1) {
+    var existingPassword = allUsers[idx].password;
+    allUsers[idx] = Object.assign({}, allUsers[idx], user, { password: existingPassword });
+    localStorage.setItem("kwanda_users", JSON.stringify(allUsers));
+  }
+
+  // If the email changed, migrate this user's wallet/goals data to the new key
+  // so nothing gets orphaned under the old email.
+  if (newEmail !== oldEmail) {
+    ['kwanda_campaign_wallet_', 'kwanda_campaign_redemptions_', 'kwanda_goals_', 'kwanda_goals_redemptions_'].forEach(function(prefix) {
+      var oldVal = localStorage.getItem(prefix + oldEmail);
+      if (oldVal !== null) {
+        localStorage.setItem(prefix + newEmail, oldVal);
+        localStorage.removeItem(prefix + oldEmail);
+      }
+    });
+  }
+
   alert("Profile updated successfully!");
   navigateTo("profile");
 }

@@ -15,7 +15,7 @@ function handleRegister() {
   // Get all field values
   const firstName  = getVal('first-name');
   const lastName   = getVal('last-name');
-  const email      = getVal('reg-email');
+  const email      = getVal('reg-email').toLowerCase();
   const phone      = getVal('reg-phone');
   const networkSel = getVal('reg-network');
   const network    = networkSel === 'other' ? getVal('reg-network-other') : networkSel;
@@ -119,7 +119,7 @@ function handleRegister() {
   // Check email not already registered
   const stored  = localStorage.getItem('kwanda_users');
   const allUsers = stored ? JSON.parse(stored) : [];
-  const exists  = allUsers.find(u => u.email === email);
+  const exists  = allUsers.find(u => (u.email || '').toLowerCase() === email);
   if (exists) {
     showError('reg-error', 'An account with this email already exists.');
     return;
@@ -200,7 +200,7 @@ function handleRegister() {
 // ── Handle Login ──
 function handleLogin() {
 
-  const email    = getVal('login-email');
+  const email    = getVal('login-email').toLowerCase();
   const password = getVal('login-password');
 
   clearError('login-error');
@@ -219,7 +219,7 @@ function handleLogin() {
   const allUsers = stored ? JSON.parse(stored) : [];
 
   const user = allUsers.find(
-    u => u.email === email && u.password === password
+    u => (u.email || '').toLowerCase() === email && u.password === password
   );
 
   if (!user) {
