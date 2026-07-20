@@ -19,6 +19,7 @@
   gap: 14px;
   border: 1px solid var(--border);
   cursor: pointer;
+  touch-action: manipulation;
   transition: box-shadow 0.2s;
 }
 .redeem-option:hover {
