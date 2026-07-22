@@ -794,62 +794,76 @@ async function loadAdminPanelStats() {
 }
 
 // ── NEW: Admin Campaigns Management ──
-function initAdminCampaignsMgmt() {
+
+let cachedAdminCampaigns = [];
+
+async function initAdminCampaignsMgmt() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
-  loadAdminPanelStats();
-  var stored    = localStorage.getItem("kwanda_campaigns");
-  var campaigns = stored ? JSON.parse(stored) : [];
-  var totalEl   = document.getElementById("camp-mgmt-total");
-  var pendingEl = document.getElementById("camp-mgmt-pending");
-  if (totalEl)   totalEl.textContent   = campaigns.length;
-  if (pendingEl) pendingEl.textContent = campaigns.filter(function(c){ return c.status==="pending"; }).length;
-  filterAdminCampaigns("pending");
+  await loadAdminPanelStats();
+  await filterAdminCampaigns("active");
 }
 
-function filterAdminCampaigns(status) {
-  ["pending","active","all"].forEach(function(f) {
+async function filterAdminCampaigns(status) {
+  ["active","paused","completed","all"].forEach(function(f) {
     var btn = document.getElementById("admin-filter-" + f);
     if (btn) { btn.style.background = f===status?"#f97316":"#fff"; btn.style.color = f===status?"#fff":"var(--text-muted)"; btn.style.border = f===status?"none":"1px solid var(--border)"; }
   });
-  renderAdminCampaigns(status);
+
+  var container = document.getElementById("admin-campaigns-list");
+  if (container) container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'>Loading...</div>";
+
+  try {
+    var query = status === "all" ? "" : ("?status=" + status);
+    var data = await apiFetch('/admin/campaigns' + query);
+    cachedAdminCampaigns = data.campaigns || [];
+  } catch (err) {
+    console.error('Failed to load campaigns:', err.message);
+    cachedAdminCampaigns = [];
+  }
+
+  var totalEl  = document.getElementById("camp-mgmt-total");
+  var activeEl = document.getElementById("camp-mgmt-pending");
+  if (totalEl)  totalEl.textContent  = cachedAdminCampaigns.length;
+  if (activeEl) activeEl.textContent = cachedAdminCampaigns.filter(function(c) { return c.status === "active"; }).length;
+
+  renderAdminCampaigns();
 }
 
-function renderAdminCampaigns(filter) {
+function renderAdminCampaigns() {
   var container = document.getElementById("admin-campaigns-list");
   if (!container) return;
-  var stored    = localStorage.getItem("kwanda_campaigns");
-  var campaigns = stored ? JSON.parse(stored) : [];
-  var filtered  = filter==="all" ? campaigns : campaigns.filter(function(c) { return c.status===filter; });
-  if (filtered.length === 0) {
+  var campaigns = cachedAdminCampaigns;
+  if (campaigns.length === 0) {
     container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No campaigns found</p></div>";
     return;
   }
-  var sc = { active:"#22c55e", pending:"#f97316", paused:"#9089cc", rejected:"#ef4444", completed:"#3b82f6" };
-  var sb = { active:"#dcfce7", pending:"#fff7ed", paused:"#ede9fe", rejected:"#fee2e2", completed:"#dbeafe" };
-  container.innerHTML = filtered.map(function(c) {
-    var color     = sc[c.status]||"#9089cc";
-    var bg        = sb[c.status]||"#ede9fe";
-    var isPending = c.status==="pending";
+  var sc = { active:"#22c55e", draft:"#9089cc", paused:"#9089cc", completed:"#3b82f6" };
+  var sb = { active:"#dcfce7", draft:"#ede9fe", paused:"#ede9fe", completed:"#dbeafe" };
+  container.innerHTML = campaigns.map(function(c) {
+    var color      = sc[c.status]||"#9089cc";
+    var bg         = sb[c.status]||"#ede9fe";
+    var advertiser = c.advertiser ? (c.advertiser.firstName + " " + c.advertiser.lastName) : "Unknown";
+    var firstTask  = (c.tasks && c.tasks[0]) || {};
+    var pauseBtn   = c.status === "active"
+      ? "<button onclick=\"adminPauseCampaign('" + c.id + "')\" style='width:100%;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Pause Campaign</button>"
+      : "";
     return "<div style='background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);'>"
-      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>By: " + c.companyName + "</p><p style='font-size:12px;color:var(--text-muted);'>" + c.type + " - R " + window.formatAmt(c.price) + " per completion | Budget: R " + window.formatAmt(c.budget) + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>"
-      + "<p style='font-size:12px;color:var(--text-muted);margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;'>" + c.desc + "</p>"
-      + (isPending ? "<div style='display:flex;gap:8px;'><button onclick=\"adminApproveCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Approve</button><button onclick=\"adminRejectCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Reject</button></div>" : "")
+      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>By: " + advertiser + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (firstTask.type ? firstTask.type + " - R " + window.formatAmt(firstTask.reward) + " per completion | " : "") + "Budget: R " + window.formatAmt(c.budget) + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>"
+      + "<p style='font-size:12px;color:var(--text-muted);margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;'>" + c.description + "</p>"
+      + pauseBtn
       + "</div>";
   }).join("");
 }
 
-function adminApproveCampaign(campId) {
-  if (!confirm("Approve this campaign? It will go live immediately.")) return;
-  updateCampaignStatus(campId, "active");
-  alert("Campaign approved and is now live!");
-  initAdminCampaignsMgmt();
-}
-
-function adminRejectCampaign(campId) {
-  if (!confirm("Reject this campaign?")) return;
-  updateCampaignStatus(campId, "rejected");
-  alert("Campaign rejected.");
-  initAdminCampaignsMgmt();
+async function adminPauseCampaign(campId) {
+  if (!confirm("Pause this campaign? It will stop being available to users immediately.")) return;
+  try {
+    await apiFetch('/admin/campaigns/' + campId + '/pause', { method: 'PATCH' });
+    alert("Campaign paused.");
+    filterAdminCampaigns("active");
+  } catch (err) {
+    alert(err.message || "Could not pause this campaign. Please try again.");
+  }
 }
 
 let cachedAdminUsers = [];
@@ -1212,8 +1226,7 @@ window.launchDraftCampaign      = launchDraftCampaign;
 window.initAdminPanel           = initAdminPanel;
 window.initAdminCampaignsMgmt   = initAdminCampaignsMgmt;
 window.filterAdminCampaigns     = filterAdminCampaigns;
-window.adminApproveCampaign     = adminApproveCampaign;
-window.adminRejectCampaign      = adminRejectCampaign;
+window.adminPauseCampaign       = adminPauseCampaign;
 window.initAdminUsersMgmt       = initAdminUsersMgmt;
 window.searchAdminUsers         = searchAdminUsers;
 window.suspendUser              = suspendUser;
