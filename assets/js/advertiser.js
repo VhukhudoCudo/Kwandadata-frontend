@@ -852,26 +852,33 @@ function adminRejectCampaign(campId) {
   initAdminCampaignsMgmt();
 }
 
-function initAdminUsersMgmt() {
+let cachedAdminUsers = [];
+
+async function initAdminUsersMgmt() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
-  var stored   = localStorage.getItem("kwanda_users");
-  var users    = stored ? JSON.parse(stored) : [];
-  var active   = users.filter(function(u) { return u.status !== "suspended"; });
+  await fetchAndRenderAdminUsers();
+}
+
+async function fetchAndRenderAdminUsers(search) {
+  try {
+    var query = '?role=USER' + (search ? '&search=' + encodeURIComponent(search) : '');
+    var data = await apiFetch('/admin/users' + query);
+    cachedAdminUsers = data.users || [];
+  } catch (err) {
+    console.error('Failed to load users:', err.message);
+    cachedAdminUsers = [];
+  }
+
+  var active   = cachedAdminUsers.filter(function(u) { return !u.suspended; });
   var totalEl  = document.getElementById("admin-total-users");
   var activeEl = document.getElementById("admin-active-users");
-  if (totalEl)  totalEl.textContent  = users.length;
+  if (totalEl)  totalEl.textContent  = cachedAdminUsers.length;
   if (activeEl) activeEl.textContent = active.length;
-  renderAdminUsersList(users);
+  renderAdminUsersList(cachedAdminUsers);
 }
 
 function searchAdminUsers(query) {
-  var stored = localStorage.getItem("kwanda_users");
-  var users  = stored ? JSON.parse(stored) : [];
-  var q      = query.toLowerCase();
-  var filtered = q ? users.filter(function(u) {
-    return ((u.firstName||"") + " " + (u.lastName||"")).toLowerCase().includes(q) || (u.email||"").toLowerCase().includes(q);
-  }) : users;
-  renderAdminUsersList(filtered);
+  fetchAndRenderAdminUsers(query.trim());
 }
 
 function renderAdminUsersList(users) {
@@ -886,60 +893,48 @@ function renderAdminUsersList(users) {
     var name      = (u.firstName||"") + " " + (u.lastName||"");
     var letter    = u.firstName ? u.firstName.charAt(0).toUpperCase() : "?";
     var color     = colors[i % colors.length];
-    var suspended = u.status === "suspended";
+    var suspended = u.suspended;
+    var date      = new Date(u.createdAt).toLocaleDateString("en-ZA");
     var statusLabel = suspended
       ? "<span style='font-size:11px;font-weight:600;color:#ef4444;background:#fee2e2;padding:3px 10px;border-radius:20px;'>Suspended</span>"
       : "<span style='font-size:11px;font-weight:600;color:#22c55e;background:#dcfce7;padding:3px 10px;border-radius:20px;'>Active</span>";
     var actionBtn = suspended
-      ? "<button onclick=\"reinstateUser('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:12px;font-weight:600;cursor:pointer;'>Reinstate</button>"
-      : "<button onclick=\"suspendUser('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;'>Suspend</button>";
+      ? "<button onclick=\"reinstateUser('" + u.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:12px;font-weight:600;cursor:pointer;'>Reinstate</button>"
+      : "<button onclick=\"suspendUser('" + u.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;'>Suspend</button>";
     return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--border);'>"
       + "<div style='display:flex;align-items:center;gap:12px;margin-bottom:10px;'>"
       + "<div style='width:40px;height:40px;border-radius:50%;background:" + color + ";display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;flex-shrink:0;'>" + letter + "</div>"
       + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + name + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (u.email||"") + "</p></div>"
       + statusLabel + "</div>"
-      + "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;'>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Wallet Balance</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>R " + window.formatAmt((u.balance||0)) + "</p></div>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Data Balance</p><p style='font-size:14px;font-weight:700;color:#3b82f6;'>R " + window.formatAmt((u.dataBalance||0)) + "</p></div>"
-      + "</div>"
+      + "<p style='font-size:11px;color:var(--text-muted);margin-bottom:10px;'>Joined " + date + " \u00b7 " + (u.phone||"") + "</p>"
       + "<div style='display:flex;gap:8px;'>"
-      + "<button onclick=\"adjustUserBalance('" + u.email + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid var(--primary);color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;'>Adjust Balance</button>"
       + actionBtn + "</div></div>";
   }).join("");
 }
 
-function suspendUser(email) {
-  if (!confirm("Suspend user " + email + "?")) return;
-  var stored = localStorage.getItem("kwanda_users");
-  var users  = stored ? JSON.parse(stored) : [];
-  var index  = users.findIndex(function(u) { return u.email === email; });
-  if (index !== -1) { users[index].status = "suspended"; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
-  alert("User suspended.");
-  initAdminUsersMgmt();
+async function suspendUser(id) {
+  if (!confirm("Suspend this user?")) return;
+  try {
+    await apiFetch('/admin/users/' + id + '/suspend', { method: 'PATCH' });
+    alert("User suspended.");
+    fetchAndRenderAdminUsers();
+  } catch (err) {
+    alert(err.message || "Could not suspend this user. Please try again.");
+  }
 }
 
-function reinstateUser(email) {
-  var stored = localStorage.getItem("kwanda_users");
-  var users  = stored ? JSON.parse(stored) : [];
-  var index  = users.findIndex(function(u) { return u.email === email; });
-  if (index !== -1) { users[index].status = "active"; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
-  alert("User reinstated.");
-  initAdminUsersMgmt();
+async function reinstateUser(id) {
+  try {
+    await apiFetch('/admin/users/' + id + '/reinstate', { method: 'PATCH' });
+    alert("User reinstated.");
+    fetchAndRenderAdminUsers();
+  } catch (err) {
+    alert(err.message || "Could not reinstate this user. Please try again.");
+  }
 }
 
-function adjustUserBalance(email) {
-  var stored = localStorage.getItem("kwanda_users");
-  var users  = stored ? JSON.parse(stored) : [];
-  var user   = users.find(function(u) { return u.email === email; });
-  if (!user) return;
-  var input = prompt("Adjust wallet for " + user.firstName + "\nCurrent: R " + window.formatAmt((user.balance||0)) + "\nEnter new balance (R):");
-  if (input === null) return;
-  var newBal = parseFloat(input);
-  if (isNaN(newBal) || newBal < 0) { alert("Please enter a valid amount."); return; }
-  var index = users.findIndex(function(u) { return u.email === email; });
-  if (index !== -1) { users[index].balance = newBal; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
-  alert("Balance updated to R " + window.formatAmt(newBal));
-  initAdminUsersMgmt();
+function adjustUserBalance(id) {
+  alert("Directly adjusting a user's wallet balance isn't available yet.");
 }
 
 // ── Admin Redemptions Queue ──
