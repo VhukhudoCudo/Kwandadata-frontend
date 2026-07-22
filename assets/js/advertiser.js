@@ -2,33 +2,35 @@
    KwandaData - Advertiser JS
    Full clean version
 ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   KwandaData - Advertiser JS
+   Full clean version
+══════════════════════════════════════ */
+
+import { apiFetch, setToken } from './api.js';
 
 var CAMPAIGN_PRICES = { "survey":15.00, "video":5.00, "quiz":8.00, "download":20.00, "signup":25.00 };
-var ADMIN_EMAIL     = "admin@kwandadata.co.za";
-var ADMIN_PASS      = "KwandaAdmin@2025";
 
 function getAdvertiserSession() {
   var s = localStorage.getItem("kwanda_advertiser_session");
   return s ? JSON.parse(s) : null;
 }
-
 function isAdminSession() {
   var adv = getAdvertiserSession();
-  return adv && adv.isAdmin === true;
+  return adv && adv.role === 'ADMIN';
 }
-
 function advertiserLogout() {
   localStorage.removeItem("kwanda_advertiser_session");
+  setToken(null);
   navigateTo("splash");
 }
-
 function getAdvertiserCampaigns(advId) {
   var s   = localStorage.getItem("kwanda_campaigns");
   var all = s ? JSON.parse(s) : [];
   return all.filter(function(c) { return c.advertiserId === advId; });
 }
 
-function handleAdvertiserLogin() {
+async function handleAdvertiserLogin() {
   var email    = document.getElementById("adv-login-email")    ? document.getElementById("adv-login-email").value.trim() : "";
   var password = document.getElementById("adv-login-password") ? document.getElementById("adv-login-password").value     : "";
   var errorEl  = document.getElementById("adv-login-error");
@@ -36,21 +38,28 @@ function handleAdvertiserLogin() {
   if (!email)    { if (errorEl) errorEl.textContent = "Please enter your business email."; return; }
   if (!password) { if (errorEl) errorEl.textContent = "Please enter your password.";       return; }
 
-  if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
-    var adminSession = { id:"kwanda-admin", company:"KwandaData Admin", email:ADMIN_EMAIL, isAdmin:true, budget:0 };
-    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(adminSession));
-    navigateTo("admin-panel");
-    return;
-  }
+  try {
+    var data = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
 
-  var stored      = localStorage.getItem("kwanda_advertisers");
-  var advertisers = stored ? JSON.parse(stored) : [];
-  var advertiser  = advertisers.find(function(a) { return a.email === email && a.password === password; });
-  if (!advertiser) { if (errorEl) errorEl.textContent = "Incorrect email or password."; return; }
-  var session = Object.assign({}, advertiser);
-  delete session.password;
-  localStorage.setItem("kwanda_advertiser_session", JSON.stringify(session));
-  navigateTo("advertiser-dashboard");
+    if (data.user.role !== 'ADVERTISER' && data.user.role !== 'ADMIN') {
+      if (errorEl) errorEl.textContent = "This account is not registered as a business or admin account.";
+      return;
+    }
+
+    setToken(data.token);
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(data.user));
+
+    if (data.user.role === 'ADMIN') {
+      navigateTo("admin-panel");
+    } else {
+      navigateTo("advertiser-dashboard");
+    }
+  } catch (err) {
+    if (errorEl) errorEl.textContent = err.message || "Incorrect email or password.";
+  }
 }
 
 function handleAdvertiserRegister() {
@@ -89,7 +98,7 @@ function handleAdvertiserRegister() {
 function initAdvertiserDashboard() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
-  if (adv.isAdmin) { navigateTo("admin-panel"); return; }
+ if (adv.role === 'ADMIN') { navigateTo("admin-panel"); return; }
   var greetingEl = document.getElementById("adv-greeting");
   var hour = new Date().getHours();
   if (greetingEl) {
