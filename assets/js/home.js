@@ -208,20 +208,28 @@ function initNotifications() {
   loadUserAnnouncements();
 }
 
-function loadUserAnnouncements() {
+async function loadUserAnnouncements() {
   var container = document.getElementById("user-announcements");
   if (!container) return;
-  var announcements = JSON.parse(localStorage.getItem("kwanda_announcements") || "[]");
-  var userAnns = announcements.filter(function(a) { return a.audience === "users" || a.audience === "everyone"; });
-  if (userAnns.length === 0) {
+
+  var announcements = [];
+  try {
+    var data = await apiFetch('/announcements');
+    announcements = data.announcements || [];
+  } catch (err) {
+    console.error('Failed to load announcements:', err.message);
+  }
+
+  if (announcements.length === 0) {
     container.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No announcements yet</div>";
     return;
   }
-  container.innerHTML = userAnns.map(function(a) {
+  container.innerHTML = announcements.map(function(a) {
+    var date = new Date(a.createdAt).toLocaleString("en-ZA");
     return "<div style='background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);border-left:3px solid var(--primary);'>"
       + "<p style='font-size:13px;font-weight:700;color:var(--text-primary);margin:0 0 4px;'>" + a.title + "</p>"
       + "<p style='font-size:12px;color:var(--text-muted);margin:0 0 4px;line-height:1.5;'>" + a.message + "</p>"
-      + "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + a.date + "</p>"
+      + "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + date + "</p>"
       + "</div>";
   }).join("");
 }

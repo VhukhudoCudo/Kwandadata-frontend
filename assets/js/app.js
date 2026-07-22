@@ -1,4 +1,6 @@
 // app.js - KwandaData Main App File
+// app.js - KwandaData Main App File
+import { apiFetch } from './api.js';
 import './auth.js';
 import './advertiser.js';
 import { initHome } from './home.js';
@@ -137,7 +139,7 @@ function selectAudience(type) {
   });
 }
 
-function sendAnnouncement() {
+async function sendAnnouncement() {
   var title   = document.getElementById('ann-title')   ? document.getElementById('ann-title').value.trim()   : '';
   var message = document.getElementById('ann-message') ? document.getElementById('ann-message').value.trim() : '';
   var errorEl = document.getElementById('ann-error');
@@ -145,45 +147,50 @@ function sendAnnouncement() {
   if (!title)   { if (errorEl) errorEl.textContent = 'Please enter a title.';   return; }
   if (!message) { if (errorEl) errorEl.textContent = 'Please enter a message.'; return; }
 
-  var announcement = {
-    id: Date.now().toString(),
-    title: title,
-    message: message,
-    audience: selectedAudience,
-    date: new Date().toLocaleString('en-ZA'),
-    sentBy: 'Admin'
-  };
+  try {
+    await apiFetch('/announcements', {
+      method: 'POST',
+      body: JSON.stringify({ title, message, audience: selectedAudience }),
+    });
 
-  var stored = JSON.parse(localStorage.getItem('kwanda_announcements') || '[]');
-  stored.unshift(announcement);
-  localStorage.setItem('kwanda_announcements', JSON.stringify(stored));
+    document.getElementById('ann-title').value   = '';
+    document.getElementById('ann-message').value = '';
+    selectAudience('users');
 
-  document.getElementById('ann-title').value   = '';
-  document.getElementById('ann-message').value = '';
-  selectAudience('users');
-
-  loadAnnouncements();
-  alert('✅ Announcement sent to: ' + (selectedAudience === 'all' ? 'Everyone' : selectedAudience));
+    await loadAnnouncements();
+    alert('✅ Announcement sent to: ' + (selectedAudience === 'all' ? 'Everyone' : selectedAudience));
+  } catch (err) {
+    if (errorEl) errorEl.textContent = err.message || 'Could not send this announcement. Please try again.';
+  }
 }
-
-function loadAnnouncements() {
+async function loadAnnouncements() {
   var container = document.getElementById('announcements-list');
   if (!container) return;
-  var stored = JSON.parse(localStorage.getItem('kwanda_announcements') || '[]');
+
+  var stored = [];
+  try {
+    var data = await apiFetch('/announcements');
+    stored = data.announcements || [];
+  } catch (err) {
+    console.error('Failed to load announcements:', err.message);
+  }
+
   if (stored.length === 0) {
     container.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);'><i class='ti ti-bell-off' style='font-size:32px;display:block;margin-bottom:8px;opacity:0.4;'></i><p style='font-size:13px;'>No announcements yet</p></div>";
     return;
   }
   container.innerHTML = stored.map(function(a) {
     var audienceLabel = a.audience === 'all' ? 'Everyone' : a.audience === 'users' ? 'Users' : 'Advertisers';
-    return "<div style='background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:10px;'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + a.title + "</p><span style='font-size:11px;background:#ede9fe;color:#2d1b8e;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;'>" + audienceLabel + "</span></div><p style='font-size:13px;color:var(--text-muted);margin-bottom:6px;'>" + a.message + "</p><p style='font-size:11px;color:var(--text-muted);'>" + a.date + "</p></div>";
+    var date = new Date(a.createdAt).toLocaleString('en-ZA');
+    return "<div style='background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:10px;'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;'><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + a.title + "</p><span style='font-size:11px;background:#ede9fe;color:#2d1b8e;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;'>" + audienceLabel + "</span></div><p style='font-size:13px;color:var(--text-muted);margin-bottom:6px;'>" + a.message + "</p><p style='font-size:11px;color:var(--text-muted);'>" + date + " · " + a.sentBy + "</p></div>";
   }).join('');
 }
 
-function initAdminAnnouncements() {
+async function initAdminAnnouncements() {
   selectedAudience = 'users';
-  loadAnnouncements();
+  await loadAnnouncements();
 }
+
 
 window.selectAudience        = selectAudience;
 window.sendAnnouncement      = sendAnnouncement;
