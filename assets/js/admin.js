@@ -5,6 +5,8 @@
    - Nothing about app earnings
 ══════════════════════════════════════ */
 
+import { apiFetch } from './api.js';
+
 let adminChartInstance = null;
 
 const CHART_DATA = {
@@ -241,18 +243,22 @@ window.updateChart = updateChart;
    user immediately and survive refresh/logout.
 ══════════════════════════════════════ */
 
-function initAdminSettings() {
-  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
-  var prices   = settings.prices || {};
-  var splits   = settings.splits || {};
-  var maint    = settings.maintenance || {};
+async function initAdminSettings() {
+  var settings;
+  try {
+    var data = await apiFetch('/settings');
+    settings = data.settings;
+  } catch (err) {
+    console.error('Failed to load settings:', err.message);
+    return;
+  }
 
   var priceFields = {
-    'price-survey'   : prices.survey   || 15,
-    'price-video'    : prices.video    || 5,
-    'price-quiz'     : prices.quiz     || 8,
-    'price-download' : prices.download || 20,
-    'price-signup'   : prices.signup   || 25,
+    'price-survey'   : settings.prices.survey   || 15,
+    'price-video'    : settings.prices.video    || 5,
+    'price-quiz'     : settings.prices.quiz     || 8,
+    'price-download' : settings.prices.download || 20,
+    'price-signup'   : settings.prices.signup   || 25,
   };
   Object.keys(priceFields).forEach(function(id) {
     var el = document.getElementById(id);
@@ -261,64 +267,87 @@ function initAdminSettings() {
 
   var splitAdmin = document.getElementById('split-admin');
   var splitData  = document.getElementById('split-data');
-  if (splitAdmin) splitAdmin.value = splits.admin || 20;
-  if (splitData)  splitData.value  = splits.data  || 20;
+  if (splitAdmin) splitAdmin.value = settings.splitAdmin;
+  if (splitData)  splitData.value  = settings.splitData;
 
   var maintToggle = document.getElementById('maintenance-toggle');
   var maintMsg    = document.getElementById('maintenance-msg');
-  if (maintToggle) maintToggle.checked = !!maint.enabled;
-  if (maintMsg)    maintMsg.value      = maint.message || '';
+  if (maintToggle) maintToggle.checked = !!settings.maintenanceEnabled;
+  if (maintMsg)    maintMsg.value      = settings.maintenanceMessage || '';
 }
 
-function savePricing() {
-  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+async function savePricing() {
   var getNum = function(id, fallback) {
     var el = document.getElementById(id);
     var n  = el ? parseFloat(el.value) : NaN;
     return isNaN(n) || n <= 0 ? fallback : n;
   };
-  settings.prices = {
+  var prices = {
     survey   : getNum('price-survey', 15),
     video    : getNum('price-video', 5),
     quiz     : getNum('price-quiz', 8),
     download : getNum('price-download', 20),
     signup   : getNum('price-signup', 25),
   };
-  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
-  alert('✅ Pricing saved. New prices apply to all users immediately.');
+
+  try {
+    await apiFetch('/settings/pricing', {
+      method: 'PATCH',
+      body: JSON.stringify(prices),
+    });
+    alert('✅ Pricing saved. New prices apply to all users immediately.');
+  } catch (err) {
+    alert(err.message || 'Could not save pricing. Please try again.');
+  }
 }
 
-function saveSplitSettings() {
-  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
+async function saveSplitSettings() {
   var adminEl  = document.getElementById('split-admin');
   var dataEl   = document.getElementById('split-data');
-  var admin    = adminEl ? parseFloat(adminEl.value) : NaN;
-  var data     = dataEl  ? parseFloat(dataEl.value)  : NaN;
-  if (isNaN(admin) || admin < 0) admin = 20;
-  if (isNaN(data)  || data  < 0) data  = 20;
-  if (admin + data > 100) {
+  var splitAdmin = adminEl ? parseFloat(adminEl.value) : NaN;
+  var splitData  = dataEl  ? parseFloat(dataEl.value)  : NaN;
+  if (isNaN(splitAdmin) || splitAdmin < 0) splitAdmin = 20;
+  if (isNaN(splitData)  || splitData  < 0) splitData  = 20;
+  if (splitAdmin + splitData > 100) {
     alert("Admin fee and data split together can't exceed 100%.");
     return;
   }
-  settings.splits = { admin: admin, data: data };
-  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
-  alert('✅ Earnings split saved. Applies to all users immediately.');
+
+  try {
+    await apiFetch('/settings/splits', {
+      method: 'PATCH',
+      body: JSON.stringify({ splitAdmin, splitData }),
+    });
+    alert('✅ Earnings split saved. Applies to all users immediately.');
+  } catch (err) {
+    alert(err.message || 'Could not save the earnings split. Please try again.');
+  }
 }
 
-function toggleMaintenance(checked) {
-  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
-  if (!settings.maintenance) settings.maintenance = {};
-  settings.maintenance.enabled = checked;
-  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
+async function toggleMaintenance(checked) {
+  try {
+    await apiFetch('/settings/maintenance', {
+      method: 'PATCH',
+      body: JSON.stringify({ enabled: checked }),
+    });
+  } catch (err) {
+    alert(err.message || 'Could not update maintenance mode. Please try again.');
+  }
 }
 
-function saveMaintenanceSettings() {
-  var settings = JSON.parse(localStorage.getItem('kwanda_app_settings') || '{}');
-  if (!settings.maintenance) settings.maintenance = {};
+async function saveMaintenanceSettings() {
   var msgEl = document.getElementById('maintenance-msg');
-  settings.maintenance.message = msgEl ? msgEl.value.trim() : '';
-  localStorage.setItem('kwanda_app_settings', JSON.stringify(settings));
-  alert('✅ Maintenance settings saved.');
+  var message = msgEl ? msgEl.value.trim() : '';
+
+  try {
+    await apiFetch('/settings/maintenance', {
+      method: 'PATCH',
+      body: JSON.stringify({ message }),
+    });
+    alert('✅ Maintenance settings saved.');
+  } catch (err) {
+    alert(err.message || 'Could not save maintenance settings. Please try again.');
+  }
 }
 
 window.initAdminSettings       = initAdminSettings;
