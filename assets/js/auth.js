@@ -6,11 +6,13 @@
    - Form validation
 ══════════════════════════════════════ */
 
+import { apiFetch, setToken } from './api.js';
+
 // ── Simple in-memory user store ──
 const users = [];
 
 // ── Handle Register ──
-function handleRegister() {
+async function handleRegister() {
 
   // Get all field values
   const firstName  = getVal('first-name');
@@ -116,89 +118,43 @@ function handleRegister() {
     return;
   }
 
-  // Check email not already registered
-  const stored  = localStorage.getItem('kwanda_users');
-  const allUsers = stored ? JSON.parse(stored) : [];
-  const exists  = allUsers.find(u => (u.email || '').toLowerCase() === email);
-  if (exists) {
-    showError('reg-error', 'An account with this email already exists.');
-    return;
-  }
-
-  // ── Build user object ──
-  // ── Generate unique referral code ──
-  function generateReferralCode(first, last) {
-    var prefix = (first.charAt(0) + last.charAt(0)).toUpperCase();
-    var random = Math.floor(1000 + Math.random() * 9000);
-    return "KW" + prefix + random;
-  }
-
-  const newUser = {
-    firstName,
-    lastName,
-    email,
-    phone,
-    network,
-    dob,
-    age,
-    gender,
-    race,
-    language,
-    province,
-    region,
-    employment,
-    password,
-    balance      : 0,
-    bonus        : 0,
-    dataBalance  : 0,
-    referralCode : generateReferralCode(firstName, lastName),
-    createdAt    : Date.now(),
-    activeDays   : [],
-  };
-
-  // ── Save user ──
-  allUsers.push(newUser);
-  localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
-
-  // ── Save session (without password) ──
-  const session = { ...newUser };
-  delete session.password;
-  localStorage.setItem('kwanda_current_user', JSON.stringify(session));
-
-  if (typeof window.logActivity === 'function') window.logActivity('register', null);
-
-  // ── Process referral bonus if referral code was used ──
+  // Check email not already registered, and pick up any referral code entered
   const referralInput = document.getElementById('reg-referral');
   const referralCode  = referralInput ? referralInput.value.trim() : '';
 
-  if (referralCode) {
-    const REFERRAL_BONUS = 5.00;
+  try {
+    const data = await apiFetch('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        network,
+        dob,
+        gender,
+        language,
+        province,
+        region,
+        employment,
+        usedReferralOf: referralCode || undefined,
+      }),
+    });
 
-    // Find referrer by referral code
-    const referrerIndex = allUsers.findIndex(u => u.referralCode === referralCode);
-    if (referrerIndex !== -1) {
-      // Add pending bonus to referrer - activates when new user completes first task
-      allUsers[referrerIndex].pendingBonus = (allUsers[referrerIndex].pendingBonus || 0) + REFERRAL_BONUS;
-      allUsers[referrerIndex].pendingReferral = email; // track who triggered it
+    setToken(data.token);
+    localStorage.setItem('kwanda_current_user', JSON.stringify(data.user));
 
-      // Also add pending bonus to new user
-      const newUserIndex = allUsers.findIndex(u => u.email === email);
-      if (newUserIndex !== -1) {
-        allUsers[newUserIndex].pendingBonus    = REFERRAL_BONUS;
-        allUsers[newUserIndex].usedReferralOf  = referralCode;
-      }
+    if (typeof window.logActivity === 'function') window.logActivity('register', null);
 
-      localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
-      alert('Referral code applied! R 5.00 bonus is pending for both you and your referrer. It will be released when you complete your first task.');
-    }
+    navigateTo('home');
+  } catch (err) {
+    showError('reg-error', err.message || 'Registration failed. Please try again.');
   }
-
-  // Navigate to home
-  navigateTo('home');
 }
 
 // ── Handle Login ──
-function handleLogin() {
+async function handleLogin() {
 
   const email    = getVal('login-email').toLowerCase();
   const password = getVal('login-password');
@@ -215,26 +171,21 @@ function handleLogin() {
     return;
   }
 
-  const stored   = localStorage.getItem('kwanda_users');
-  const allUsers = stored ? JSON.parse(stored) : [];
+  try {
+    const data = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
 
-  const user = allUsers.find(
-    u => (u.email || '').toLowerCase() === email && u.password === password
-  );
+    setToken(data.token);
+    localStorage.setItem('kwanda_current_user', JSON.stringify(data.user));
 
-  if (!user) {
-    showError('login-error', 'Incorrect email or password.');
-    return;
+    if (typeof window.logActivity === 'function') window.logActivity('login', null);
+
+    navigateTo('home');
+  } catch (err) {
+    showError('login-error', err.message || 'Incorrect email or password.');
   }
-
-  // Save session without password
-  const session = { ...user };
-  delete session.password;
-  localStorage.setItem('kwanda_current_user', JSON.stringify(session));
-
-  if (typeof window.logActivity === 'function') window.logActivity('login', null);
-
-  navigateTo('home');
 }
 
 // ── Handle Google Login ──
@@ -262,6 +213,7 @@ function getCurrentUser() {
 // ── Log out ──
 function logout() {
   localStorage.removeItem('kwanda_current_user');
+  setToken(null);
   navigateTo('splash');
 }
 

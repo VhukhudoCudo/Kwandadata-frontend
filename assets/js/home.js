@@ -2,6 +2,8 @@
    KwandaData — Home JS
 ══════════════════════════════════════ */
 
+import { apiFetch } from './api.js';
+
 // ── Get current user ──
 function getUser() {
   var stored = localStorage.getItem("kwanda_current_user");
@@ -35,21 +37,27 @@ function initHome() {
 
 
 // ── Load user data into home page ──
-function loadHomeUserData() {
+async function loadHomeUserData() {
   var user = getUser();
   if (!user) return;
 
   var nameEl = document.querySelector(".home-name");
   if (nameEl) nameEl.textContent = "Hello, " + user.firstName + " 👋";
 
-  var balanceEl = document.querySelector(".wallet-amount");
-  if (balanceEl) balanceEl.textContent = formatRand(user.balance || 0);
+  try {
+    var wallet = await apiFetch('/wallet/balance');
 
-  var bonusEl = document.querySelector(".bonus-amount");
-  if (bonusEl) bonusEl.textContent = formatRand(user.bonus || 0);
+    var balanceEl = document.querySelector(".wallet-amount");
+    if (balanceEl) balanceEl.textContent = formatRand(wallet.balance || 0);
 
-  var dataEl = document.querySelector(".data-balance");
-  if (dataEl) dataEl.textContent = (user.dataBalance || 0).toFixed(0) + " MB";
+    var bonusEl = document.querySelector(".bonus-amount");
+    if (bonusEl) bonusEl.textContent = formatRand(wallet.bonusBalance || 0);
+
+    var dataEl = document.querySelector(".data-balance");
+    if (dataEl) dataEl.textContent = (wallet.dataBalance || 0).toFixed(0) + " MB";
+  } catch (err) {
+    console.error('Failed to load wallet balance:', err.message);
+  }
 }
 
 // ── Set greeting based on time ──
