@@ -54,7 +54,7 @@ async function loadHomeUserData() {
     if (bonusEl) bonusEl.textContent = formatRand(wallet.bonusBalance || 0);
 
     var dataEl = document.querySelector(".data-balance");
-    if (dataEl) dataEl.textContent = (wallet.dataBalance || 0).toFixed(0) + " MB";
+    if (dataEl) dataEl.textContent = Number(wallet.dataBalance || 0).toFixed(0) + " MB";
   } catch (err) {
     console.error('Failed to load wallet balance:', err.message);
   }
