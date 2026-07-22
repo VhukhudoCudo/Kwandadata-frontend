@@ -775,23 +775,22 @@ async function downloadBillingStatement() {
 
 window.downloadBillingStatement = downloadBillingStatement;
 
-function initAdminPanel() {
+async function initAdminPanel() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
-  loadAdminPanelStats();
+  await loadAdminPanelStats();
 }
 
-function loadAdminPanelStats() {
-  var stored      = localStorage.getItem("kwanda_campaigns");
-  var campaigns   = stored ? JSON.parse(stored) : [];
-  var advStored   = localStorage.getItem("kwanda_advertisers");
-  var advertisers = advStored ? JSON.parse(advStored) : [];
-  var pending = campaigns.filter(function(c) { return c.status==="pending"; });
-  var active  = campaigns.filter(function(c) { return c.status==="active"; });
+async function loadAdminPanelStats() {
   var el = function(id) { return document.getElementById(id); };
-  if (el("admin-panel-total"))       el("admin-panel-total").textContent       = campaigns.length;
-  if (el("admin-panel-pending"))     el("admin-panel-pending").textContent     = pending.length;
-  if (el("admin-panel-active"))      el("admin-panel-active").textContent      = active.length;
-  if (el("admin-panel-advertisers")) el("admin-panel-advertisers").textContent = advertisers.length;
+  try {
+    var data = await apiFetch('/admin/analytics');
+    if (el("admin-panel-total"))       el("admin-panel-total").textContent       = data.campaigns.totalCampaigns;
+    if (el("admin-panel-pending"))     el("admin-panel-pending").textContent     = data.redemptions.pendingRedemptions;
+    if (el("admin-panel-active"))      el("admin-panel-active").textContent      = data.campaigns.activeCampaigns;
+    if (el("admin-panel-advertisers")) el("admin-panel-advertisers").textContent = data.users.totalAdvertisers;
+  } catch (err) {
+    console.error('Failed to load admin stats:', err.message);
+  }
 }
 
 // ── NEW: Admin Campaigns Management ──
@@ -941,6 +940,106 @@ function adjustUserBalance(email) {
   if (index !== -1) { users[index].balance = newBal; localStorage.setItem("kwanda_users", JSON.stringify(users)); }
   alert("Balance updated to R " + window.formatAmt(newBal));
   initAdminUsersMgmt();
+}
+
+// ── Admin Redemptions Queue ──
+let currentRedemptionFilter = 'pending';
+let cachedAdminRedemptions = [];
+
+async function initAdminRedemptions() {
+  if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
+  filterAdminRedemptions('pending');
+}
+
+function refreshAdminRedemptions() {
+  filterAdminRedemptions(currentRedemptionFilter);
+}
+
+async function filterAdminRedemptions(status) {
+  currentRedemptionFilter = status;
+  ['pending','fulfilled','rejected','all'].forEach(function(s) {
+    var btn = document.getElementById('redemption-filter-' + s);
+    if (btn) { btn.style.background = s===status?'#f97316':'#fff'; btn.style.color = s===status?'#fff':'var(--text-muted)'; btn.style.border = s===status?'none':'1px solid var(--border)'; }
+  });
+
+  var container = document.getElementById('admin-redemptions-list');
+  if (container) container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'>Loading...</div>";
+
+  try {
+    var query = status === 'all' ? '' : ('?status=' + status);
+    var data = await apiFetch('/admin/redemptions' + query);
+    cachedAdminRedemptions = data.redemptions || [];
+  } catch (err) {
+    console.error('Failed to load redemptions:', err.message);
+    cachedAdminRedemptions = [];
+  }
+  renderAdminRedemptions();
+}
+
+function renderAdminRedemptions() {
+  var container = document.getElementById('admin-redemptions-list');
+  if (!container) return;
+  var redemptions = cachedAdminRedemptions;
+  if (redemptions.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'><i class='ti ti-receipt-off' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No redemptions found</p></div>";
+    return;
+  }
+  var statusColors = { pending:{c:'#92400e',bg:'#fef3c7'}, fulfilled:{c:'#166534',bg:'#dcfce7'}, rejected:{c:'#991b1b',bg:'#fee2e2'} };
+  container.innerHTML = redemptions.map(function(r) {
+    var s = statusColors[r.status] || statusColors.pending;
+    var name = r.user ? (r.user.firstName + ' ' + r.user.lastName) : 'Unknown';
+    var email = r.user ? r.user.email : '';
+    var date = new Date(r.createdAt).toLocaleString('en-ZA');
+    var typeLabel = r.type.charAt(0).toUpperCase() + r.type.slice(1).replace('_', ' ');
+    var amountDisplay = r.type === 'data' ? Number(r.amount).toFixed(0) + ' MB' : window.formatRand(r.amount);
+    var detailsHtml = '';
+    if (r.details) {
+      if (r.details.goalName)  detailsHtml += "<p style='font-size:11px;color:var(--text-muted);margin:2px 0;'>Goal: " + r.details.goalName + "</p>";
+      if (r.details.bankName)  detailsHtml += "<p style='font-size:11px;color:var(--text-muted);margin:2px 0;'>Bank: " + r.details.bankName + " \u2022\u2022\u2022\u2022 " + (r.details.accountNumber||'').slice(-4) + "</p>";
+      if (r.details.phone)     detailsHtml += "<p style='font-size:11px;color:var(--text-muted);margin:2px 0;'>Phone: " + r.details.phone + "</p>";
+    }
+    var actionsHtml = r.status === 'pending'
+      ? "<div style='display:flex;gap:8px;margin-top:10px;'><button onclick=\"approveRedemption('" + r.id + "')\" style='flex:1;padding:10px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Approve</button><button onclick=\"rejectRedemption('" + r.id + "')\" style='flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Reject</button></div>"
+      : "";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);'>"
+      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;'>"
+      + "<div><p style='font-size:14px;font-weight:700;color:var(--text-primary);'>" + typeLabel + "</p><p style='font-size:12px;color:var(--text-muted);'>" + name + " \u00b7 " + email + "</p></div>"
+      + "<span style='font-size:11px;font-weight:600;color:" + s.c + ";background:" + s.bg + ";padding:3px 10px;border-radius:20px;'>" + (r.status.charAt(0).toUpperCase()+r.status.slice(1)) + "</span>"
+      + "</div>"
+      + "<p style='font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;'>" + amountDisplay + "</p>"
+      + detailsHtml
+      + "<p style='font-size:11px;color:var(--text-muted);margin-top:4px;'>" + date + "</p>"
+      + actionsHtml
+      + "</div>";
+  }).join('');
+}
+
+async function approveRedemption(id) {
+  if (!confirm('Approve this redemption?')) return;
+  var note = prompt('Optional fulfillment note (e.g. transaction reference):');
+
+  try {
+    await apiFetch('/admin/redemptions/' + id + '/approve', {
+      method: 'PATCH',
+      body: JSON.stringify(note ? { fulfillmentNote: note } : {}),
+    });
+    alert('Redemption approved.');
+    filterAdminRedemptions(currentRedemptionFilter);
+  } catch (err) {
+    alert(err.message || 'Could not approve this redemption. Please try again.');
+  }
+}
+
+async function rejectRedemption(id) {
+  if (!confirm('Reject this redemption? The balance will be refunded to the user.')) return;
+
+  try {
+    await apiFetch('/admin/redemptions/' + id + '/reject', { method: 'PATCH' });
+    alert('Redemption rejected and refunded.');
+    filterAdminRedemptions(currentRedemptionFilter);
+  } catch (err) {
+    alert(err.message || 'Could not reject this redemption. Please try again.');
+  }
 }
 
 function initAdminAdvertisersMgmt() {
@@ -1126,6 +1225,11 @@ window.suspendUser              = suspendUser;
 window.reinstateUser            = reinstateUser;
 window.adjustUserBalance        = adjustUserBalance;
 window.initAdminAdvertisersMgmt = initAdminAdvertisersMgmt;
+window.initAdminRedemptions     = initAdminRedemptions;
+window.filterAdminRedemptions   = filterAdminRedemptions;
+window.refreshAdminRedemptions  = refreshAdminRedemptions;
+window.approveRedemption        = approveRedemption;
+window.rejectRedemption         = rejectRedemption;
 window.searchAdminAdvertisers   = searchAdminAdvertisers;
 window.suspendAdvertiser        = suspendAdvertiser;
 window.reinstateAdvertiser      = reinstateAdvertiser;
