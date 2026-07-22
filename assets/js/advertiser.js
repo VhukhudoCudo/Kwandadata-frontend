@@ -24,18 +24,12 @@ function advertiserLogout() {
   setToken(null);
   navigateTo("splash");
 }
-let cachedAdvCampaigns = [];
-
-async function getAdvertiserCampaigns(advId) {
-  try {
-    const data = await apiFetch('/campaigns');
-    cachedAdvCampaigns = data.campaigns || [];
-  } catch (err) {
-    console.error('Failed to load campaigns:', err.message);
-    cachedAdvCampaigns = [];
-  }
-  return cachedAdvCampaigns;
-}ync function handleAdvertiserLogin() {
+function getAdvertiserCampaigns(advId) {
+  var s   = localStorage.getItem("kwanda_campaigns");
+  var all = s ? JSON.parse(s) : [];
+  return all.filter(function(c) { return c.advertiserId === advId; });
+}
+async function handleAdvertiserLogin() {
   var email    = document.getElementById("adv-login-email")    ? document.getElementById("adv-login-email").value.trim() : "";
   var password = document.getElementById("adv-login-password") ? document.getElementById("adv-login-password").value     : "";
   var errorEl  = document.getElementById("adv-login-error");
