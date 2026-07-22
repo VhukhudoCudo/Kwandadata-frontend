@@ -1,141 +1,25 @@
 /* ══════════════════════════════════════
    KwandaData — Earn JS
-   - Generic tasks (no company attached): 20% admin fee,
-     20% auto data, 60% wallet
-   - Campaign tasks (linked to a company/advertiser): 20% admin fee,
-     20% auto data, 20% Campaign Objective wallet (company-specific,
-     redeemable only with that company), 40% wallet
+   Tasks are real campaign tasks fetched from the backend.
+   The backend computes the earnings split (admin fee / data /
+   Campaign Objective wallet / main wallet) — the frontend just
+   displays what comes back.
 ══════════════════════════════════════ */
 
-let ADMIN_FEE_PERCENT          = 20;
-let DATA_SPLIT_PERCENT         = 20;
-let CAMPAIGN_OBJECTIVE_PERCENT = 20;
-const MB_PER_RAND              = 5;  // R 1.00 = 5MB
-
-const TASKS = [
-  {
-    id       : 1,
-    category : 'videos',
-    icon     : 'ti-player-play',
-    color    : 'blue',
-    title    : 'Watch a short video',
-    desc     : 'Watch and earn money',
-    duration : '~ 1 min',
-    reward   : 2.00,
-  },
-  {
-    id       : 2,
-    category : 'surveys',
-    icon     : 'ti-file-text',
-    color    : 'green',
-    title    : 'Complete a Survey',
-    desc     : 'Share your opinion',
-    duration : '~ 5 min',
-    reward   : 10.00,
-  },
-  {
-    id       : 3,
-    category : 'tasks',
-    icon     : 'ti-help-circle',
-    color    : 'purple',
-    title    : 'Daily Quiz',
-    desc     : 'Answer quiz questions',
-    duration : '~ 2 min',
-    reward   : 3.00,
-  },
-  {
-    id       : 4,
-    category : 'offers',
-    icon     : 'ti-tag',
-    color    : 'orange',
-    title    : 'Partner Offer',
-    desc     : 'Check out this offer',
-    duration : '~ varies',
-    reward   : 15.00,
-    isMax    : true,
-  },
-];
-
-// ── Calculate earnings split for GENERIC tasks (no company) ──
-function calculateSplit(grossReward) {
-  const adminFee     = grossReward * (ADMIN_FEE_PERCENT / 100);
-  const dataRands    = grossReward * (DATA_SPLIT_PERCENT / 100);
-  const dataMB       = dataRands * MB_PER_RAND;  // Convert to MB
-  const walletAmount = grossReward - adminFee - dataRands;
-  return {
-    gross    : grossReward,
-    adminFee : adminFee,
-    dataRands: dataRands,
-    dataMB   : dataMB,
-    wallet   : walletAmount,
-  };
-}
-
-// ── Calculate earnings split for CAMPAIGN tasks (linked to a company) ──
-function calculateCampaignSplit(grossReward) {
-  const adminFee          = grossReward * (ADMIN_FEE_PERCENT / 100);
-  const dataRands         = grossReward * (DATA_SPLIT_PERCENT / 100);
-  const dataMB            = dataRands * MB_PER_RAND;
-  const campaignObjective = grossReward * (CAMPAIGN_OBJECTIVE_PERCENT / 100);
-  const walletAmount      = grossReward - adminFee - dataRands - campaignObjective;
-  return {
-    gross            : grossReward,
-    adminFee         : adminFee,
-    dataRands        : dataRands,
-    dataMB           : dataMB,
-    campaignObjective: campaignObjective,
-    wallet           : walletAmount,
-  };
-}
-
-// ── Credit a user's Campaign Objective balance for a specific company ──
-function addCampaignObjectiveBalance(email, advertiserId, companyName, amount) {
-  if (!advertiserId || !amount || amount <= 0) return;
-  var key    = 'kwanda_campaign_wallet_' + email;
-  var wallet = JSON.parse(localStorage.getItem(key) || '{}');
-  if (!wallet[advertiserId]) {
-    wallet[advertiserId] = { companyName: companyName, balance: 0 };
-  }
-  wallet[advertiserId].balance     = (wallet[advertiserId].balance || 0) + amount;
-  wallet[advertiserId].companyName = companyName; // keep name fresh
-  localStorage.setItem(key, JSON.stringify(wallet));
-}
+import { apiFetch } from './api.js';
 
 let activeTab = 'all';
+let currentTasks = [];
 
-function initEarn() {
-  // Load admin-set prices and splits if available
-  var settings = JSON.parse(localStorage.getItem("kwanda_app_settings") || "{}");
-  if (settings.prices) {
-    TASKS[0].reward = settings.prices.video    || 2.00;
-    TASKS[1].reward = settings.prices.survey   || 10.00;
-    TASKS[2].reward = settings.prices.quiz     || 3.00;
-    TASKS[3].reward = settings.prices.download || 15.00;
-  }
-  if (settings.splits) {
-    ADMIN_FEE_PERCENT          = settings.splits.admin             || 20;
-    DATA_SPLIT_PERCENT         = settings.splits.data              || 20;
-    CAMPAIGN_OBJECTIVE_PERCENT = settings.splits.campaignObjective || 20;
-  }
-  bumpCampaignImpressions();
-  renderTasks('all');
-}
-
-// ── Each time a user is shown their sponsored/active campaigns, count it
-//    as an ad impression for those campaigns (real, not simulated). ──
-function bumpCampaignImpressions() {
+async function initEarn() {
   try {
-    var stored = localStorage.getItem('kwanda_campaigns');
-    var all    = stored ? JSON.parse(stored) : [];
-    var changed = false;
-    all.forEach(function(c) {
-      if (c.status === 'active') {
-        c.impressions = (c.impressions || 0) + 1;
-        changed = true;
-      }
-    });
-    if (changed) localStorage.setItem('kwanda_campaigns', JSON.stringify(all));
-  } catch (e) {}
+    const data = await apiFetch('/earn/tasks');
+    currentTasks = data.tasks || [];
+  } catch (err) {
+    console.error('Failed to load tasks:', err.message);
+    currentTasks = [];
+  }
+  renderTasks(activeTab);
 }
 
 function switchTab(tabBtn) {
@@ -148,242 +32,93 @@ function switchTab(tabBtn) {
   renderTasks(tabName);
 }
 
+const TAB_TYPE_MAP = {
+  tasks: ['quiz'],
+  surveys: ['survey'],
+  offers: ['download', 'signup'],
+  videos: ['video'],
+};
+
 function renderTasks(tab) {
   const container = document.getElementById('task-list');
   if (!container) return;
 
+  const allowedTypes = TAB_TYPE_MAP[tab];
   const filtered = tab === 'all'
-    ? TASKS
-    : TASKS.filter(task => task.category === tab);
+    ? currentTasks
+    : currentTasks.filter(task => allowedTypes && allowedTypes.includes(task.type));
 
-  // Get active advertiser campaigns
-  const storedCamps = localStorage.getItem('kwanda_campaigns');
-  const allCampaigns = storedCamps ? JSON.parse(storedCamps) : [];
-  const activeCamps  = allCampaigns.filter(c => c.status === 'active');
-
-  if (filtered.length === 0 && activeCamps.length === 0) {
-    container.innerHTML = `<div class="tx-empty"><i class="ti ti-inbox"></i>No tasks available.</div>`;
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="tx-empty"><i class="ti ti-inbox"></i>No tasks available right now — check back soon.</div>`;
     return;
   }
 
-  // Build campaign task cards from already loaded campaigns
-  const campCards = activeCamps.map(camp => {
+  container.innerHTML = filtered.map(task => {
+    const sponsored = task.campaign
+      ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.firstName} ${task.campaign.advertiser.lastName}</span>`
+      : `<span class="task-duration">${task.type}</span>`;
+
+    const buttonHtml = task.completed
+      ? `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`
+      : `<button class="btn-small" onclick="startTask('${task.id}')">Start</button>`;
+
     return `
-      <div class="task-item" id="camp-${camp.id}" style="border-left:3px solid #f97316;">
-        <div class="task-icon orange">
-          <i class="ti ti-speakerphone"></i>
+      <div class="task-item" id="task-${task.id}" ${task.campaign ? 'style="border-left:3px solid #f97316;"' : ''}>
+        <div class="task-icon ${task.campaign ? 'orange' : 'blue'}">
+          <i class="ti ${task.campaign ? 'ti-speakerphone' : 'ti-file-text'}"></i>
         </div>
         <div class="task-info">
-          <h4>${camp.name}</h4>
-          <p>${camp.desc}</p>
-          <span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${camp.companyName}</span>
+          <h4>${task.title}</h4>
+          <p>${task.description}</p>
+          ${sponsored}
         </div>
         <div class="task-right">
-          <span class="task-reward">R ${window.formatAmt(camp.price)}</span>
-          <button class="btn-small" style="background:#f97316;" onclick="startCampaignTask('${camp.id}')">Start</button>
+          <span class="task-reward">R ${window.formatAmt(task.reward)}</span>
+          ${buttonHtml}
         </div>
       </div>
     `;
   }).join('');
-
-  // Always show sponsored tasks on all tabs
-  const sponsoredSection = activeCamps.length > 0
-    ? `<div style="padding:8px 0 4px;margin-top:8px;"><p style="font-size:12px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:0.5px;padding:0 4px;">🏢 Sponsored Tasks</p></div>` + campCards
-    : '';
-
-  container.innerHTML = filtered.map(task => {
-    return `
-      <div class="task-item" id="task-${task.id}">
-        <div class="task-icon ${task.color}">
-          <i class="ti ${task.icon}"></i>
-        </div>
-        <div class="task-info">
-          <h4>${task.title}</h4>
-          <p>${task.desc}</p>
-          <span class="task-duration">${task.duration}</span>
-        </div>
-        <div class="task-right">
-          <span class="task-reward">
-            ${task.isMax ? 'Up to ' : ''}R ${window.formatAmt(task.reward)}
-          </span>
-          <button class="btn-small" onclick="startTask(${task.id})">Start</button>
-        </div>
-      </div>
-    `;
-  }).join('') + sponsoredSection;
 }
 
-// ── Sync a balance/data change back to the master users list so it
-//    survives logout/login (kwanda_current_user is just the session copy) ──
-function syncUserToUsersList(user) {
-  var allStored = localStorage.getItem('kwanda_users');
-  var allUsers  = allStored ? JSON.parse(allStored) : [];
-  var idx       = allUsers.findIndex(function(u) { return u.email === user.email; });
-  if (idx !== -1) {
-    allUsers[idx].balance     = user.balance;
-    allUsers[idx].dataBalance = user.dataBalance;
-    localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
-  }
-}
-
-function startTask(taskId) {
-  const task = TASKS.find(t => t.id === taskId);
-  if (!task) return;
-
-  const stored = localStorage.getItem('kwanda_current_user');
-  const user   = stored ? JSON.parse(stored) : null;
-  if (!user) { navigateTo('sign-in'); return; }
-
-  const split = calculateSplit(task.reward);
-
-  // Update wallet balance (Rands)
-  user.balance     = (user.balance   || 0) + split.wallet;
-  // Update data balance (MB)
-  user.dataBalance = (user.dataBalance || 0) + split.dataMB;
-  localStorage.setItem('kwanda_current_user', JSON.stringify(user));
-  syncUserToUsersList(user);
-
-  // Track privately (not shown in user-facing admin)
-  try {
-    var adminStats  = JSON.parse(localStorage.getItem('_k_fees') || '{"t":0,"count":0}');
-    adminStats.t     = (adminStats.t     || 0) + split.adminFee;
-    adminStats.count = (adminStats.count || 0) + 1;
-    localStorage.setItem('_k_fees', JSON.stringify(adminStats));
-  } catch(e) {}
-
-  if (typeof window.logActivity === 'function') window.logActivity('task', null, { taskCategory: task.category });
-  if (typeof window.addTransaction === 'function') window.addTransaction('earned', task.icon, task.title, split.wallet);
-
-  // Disable start button (silent visual confirmation instead of a popup)
+async function startTask(taskId) {
   const btn = document.querySelector(`#task-${taskId} .btn-small`);
   if (btn) {
-    btn.textContent      = 'Done';
-    btn.disabled         = true;
-    btn.style.background = '#22c55e';
+    btn.disabled = true;
+    btn.textContent = '...';
   }
 
-  // Update home balance if visible
-  const balEl  = document.querySelector('.wallet-amount');
-  const dataEl = document.querySelector('.data-balance');
-  if (balEl)  balEl.textContent  = window.formatRand(user.balance);
-  if (dataEl) dataEl.textContent = window.formatRand(user.dataBalance);
-}
-
-
-function startCampaignTask(campId) {
-  const stored    = localStorage.getItem('kwanda_campaigns');
-  const campaigns = stored ? JSON.parse(stored) : [];
-  const camp      = campaigns.find(c => c.id === campId);
-  if (!camp) return;
-
-  const user = localStorage.getItem('kwanda_current_user');
-  const currentUser = user ? JSON.parse(user) : null;
-  if (!currentUser) { navigateTo('sign-in'); return; }
-
-  const split = calculateCampaignSplit(camp.price);
-
-  // Credit user's main wallet + data balance
-  currentUser.balance     = (currentUser.balance     || 0) + split.wallet;
-  currentUser.dataBalance = (currentUser.dataBalance || 0) + split.dataMB;
-  localStorage.setItem('kwanda_current_user', JSON.stringify(currentUser));
-  syncUserToUsersList(currentUser);
-
-  // Credit the Campaign Objective wallet for this specific company
-  addCampaignObjectiveBalance(currentUser.email, camp.advertiserId, camp.companyName, split.campaignObjective);
-
-  // Update campaign stats
-  const index = campaigns.findIndex(c => c.id === campId);
-  if (index !== -1) {
-    campaigns[index].completions = (campaigns[index].completions || 0) + 1;
-    campaigns[index].spent       = (campaigns[index].spent       || 0) + camp.price;
-    // Check if budget exhausted
-    if (campaigns[index].spent >= campaigns[index].budget) {
-      campaigns[index].status = 'completed';
-    }
-    localStorage.setItem('kwanda_campaigns', JSON.stringify(campaigns));
-  }
-
-  // Track admin fee privately
   try {
-    var adminStats  = JSON.parse(localStorage.getItem('_k_fees') || '{"t":0,"count":0}');
-    adminStats.t     = (adminStats.t     || 0) + split.adminFee;
-    adminStats.count = (adminStats.count || 0) + 1;
-    localStorage.setItem('_k_fees', JSON.stringify(adminStats));
-  } catch(e) {}
+    const result = await apiFetch(`/earn/tasks/${taskId}/complete`, { method: 'POST' });
 
-  if (typeof window.logActivity === 'function') window.logActivity('campaign', campId);
-  if (typeof window.addTransaction === 'function') window.addTransaction('earned', 'ti-speakerphone', camp.name, split.wallet);
+    if (typeof window.logActivity === 'function') window.logActivity('task', null);
 
-  // Disable button (silent visual confirmation instead of a popup)
-  const btn = document.querySelector(`#camp-${campId} .btn-small`);
-  if (btn) {
-    btn.textContent      = 'Done';
-    btn.disabled         = true;
-    btn.style.background = '#22c55e';
-  }
-
-  // Refresh campaign wallet display if the redeem page is currently visible
-  if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
-}
-
-
-function releasePendingBonus(user) {
-  if (!user.pendingBonus || user.pendingBonus <= 0) return;
-  if (user.tasksCompleted > 0) return; // already released on a previous task
-
-  const REFERRAL_BONUS = user.pendingBonus;
-  const adminFee       = REFERRAL_BONUS * 0.15;
-  const afterFee       = REFERRAL_BONUS - adminFee;
-  const dataMB         = afterFee * 0.30 * MB_PER_RAND;
-  const walletAmt      = afterFee * 0.55;
-
-  // Credit new user
-  user.balance     = (user.balance     || 0) + walletAmt;
-  user.dataBalance = (user.dataBalance || 0) + dataMB;
-  user.pendingBonus = 0;
-  localStorage.setItem('kwanda_current_user', JSON.stringify(user));
-
-  // Update in allUsers
-  var allStored = localStorage.getItem('kwanda_users');
-  var allUsers  = allStored ? JSON.parse(allStored) : [];
-  var idx       = allUsers.findIndex(function(u) { return u.email === user.email; });
-  if (idx !== -1) {
-    allUsers[idx].balance     = user.balance;
-    allUsers[idx].dataBalance = user.dataBalance;
-    allUsers[idx].pendingBonus = 0;
-
-    // Also release referrer's pending bonus
-    if (user.usedReferralOf) {
-      var referrerIdx = allUsers.findIndex(function(u) { return u.referralCode === user.usedReferralOf; });
-      if (referrerIdx !== -1 && allUsers[referrerIdx].pendingBonus > 0) {
-        var rBonus     = allUsers[referrerIdx].pendingBonus;
-        var rAdminFee  = rBonus * 0.15;
-        var rAfterFee  = rBonus - rAdminFee;
-        var rDataMB    = rAfterFee * 0.30 * MB_PER_RAND;
-        var rWallet    = rAfterFee * 0.55;
-        allUsers[referrerIdx].balance     = (allUsers[referrerIdx].balance     || 0) + rWallet;
-        allUsers[referrerIdx].dataBalance = (allUsers[referrerIdx].dataBalance || 0) + rDataMB;
-        allUsers[referrerIdx].pendingBonus = 0;
-
-        // Track admin fees
-        try {
-          var af = JSON.parse(localStorage.getItem('_k_fees') || '{"t":0,"count":0}');
-          af.t = (af.t||0) + rAdminFee + adminFee;
-          localStorage.setItem('_k_fees', JSON.stringify(af));
-        } catch(e) {}
-      }
+    if (btn) {
+      btn.textContent = 'Done';
+      btn.style.background = '#22c55e';
     }
 
-    localStorage.setItem('kwanda_users', JSON.stringify(allUsers));
-  }
+    // Mark it completed locally so switching tabs doesn't re-show "Start"
+    const task = currentTasks.find(t => t.id === taskId);
+    if (task) task.completed = true;
 
-  alert('🎉 Referral bonus released!\n\nYou completed your first task!\n📶 Data bonus: ' + dataMB.toFixed(0) + 'MB\n💰 Wallet bonus: R ' + window.formatAmt(walletAmt) + '\n\nYour referrer also received their bonus!');
+    // Refresh the home balance display if that function is available
+    if (typeof window.initHome === 'function') window.initHome();
+
+    if (typeof window.addTransaction === 'function') {
+      const taskTitle = task ? task.title : 'Task';
+      window.addTransaction('earned', task && task.campaign ? 'ti-speakerphone' : 'ti-file-text', taskTitle, result.walletShare);
+    }
+  } catch (err) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Start';
+    }
+    alert(err.message || 'Could not complete this task. Please try again.');
+  }
 }
 
 export { initEarn, switchTab, startTask };
-window.initEarn                  = initEarn;
-window.switchTab                 = switchTab;
-window.startTask                 = startTask;
-window.startCampaignTask         = startCampaignTask;
-window.releasePendingBonus       = releasePendingBonus;
-window.addCampaignObjectiveBalance = addCampaignObjectiveBalance;
+window.initEarn   = initEarn;
+window.switchTab  = switchTab;
+window.startTask  = startTask;
