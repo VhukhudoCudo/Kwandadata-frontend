@@ -1,6 +1,10 @@
 // api.js - shared helper for talking to the KwandaData backend
 
-const API_BASE = 'http://localhost:4000/api';
+// api.js - shared helper for talking to the KwandaData backend
+
+const API_BASE = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+  ? 'http://localhost:4000/api'
+  : 'https://kwandadata-backend.onrender.com/api';
 
 function getToken() {
   return localStorage.getItem('kwanda_token');
