@@ -68,8 +68,7 @@ async function handleAdvertiserLogin() {
     if (errorEl) errorEl.textContent = err.message || "Incorrect email or password.";
   }
 }
-
-function handleAdvertiserRegister() {
+async function handleAdvertiserRegister() {
   var company  = document.getElementById("adv-company")    ? document.getElementById("adv-company").value.trim()    : "";
   var industry = document.getElementById("adv-industry")   ? document.getElementById("adv-industry").value           : "";
   var contact  = document.getElementById("adv-contact")    ? document.getElementById("adv-contact").value.trim()    : "";
@@ -88,18 +87,34 @@ function handleAdvertiserRegister() {
   if (password.length < 6)  { if (errorEl) errorEl.textContent = "Password must be at least 6 characters."; return; }
   if (password !== confirm)  { if (errorEl) errorEl.textContent = "Passwords do not match.";            return; }
   if (!terms || !terms.checked) { if (errorEl) errorEl.textContent = "Please accept the Terms of Service."; return; }
-  var stored      = localStorage.getItem("kwanda_advertisers");
-  var advertisers = stored ? JSON.parse(stored) : [];
-  var exists      = advertisers.find(function(a) { return a.email === email; });
-  if (exists) { if (errorEl) errorEl.textContent = "An account with this email already exists."; return; }
-  var newAdv = { id:Date.now().toString(), company:company, industry:industry, contact:contact, phone:phone, email:email, password:password, budget:0, status:"active", createdAt:new Date().toISOString() };
-  advertisers.push(newAdv);
-  localStorage.setItem("kwanda_advertisers", JSON.stringify(advertisers));
-  var session = Object.assign({}, newAdv);
-  delete session.password;
-  localStorage.setItem("kwanda_advertiser_session", JSON.stringify(session));
-  alert("Business account created! Welcome to KwandaData, " + company + "!");
-  navigateTo("advertiser-dashboard");
+
+  var nameParts = contact.split(" ");
+  var firstName = nameParts[0];
+  var lastName  = nameParts.slice(1).join(" ") || nameParts[0];
+
+  try {
+    var data = await apiFetch('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        company,
+        industry,
+        role: 'ADVERTISER',
+      }),
+    });
+
+    setToken(data.token);
+    localStorage.setItem("kwanda_advertiser_session", JSON.stringify(data.user));
+
+    alert("Business account created! Welcome to KwandaData, " + company + "!");
+    navigateTo("advertiser-dashboard");
+  } catch (err) {
+    if (errorEl) errorEl.textContent = err.message || "Could not create this account. Please try again.";
+  }
 }
 
 async function initAdvertiserDashboard() {
