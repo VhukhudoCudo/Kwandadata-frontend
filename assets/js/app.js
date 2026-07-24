@@ -157,7 +157,7 @@ async function sendAnnouncement() {
     selectAudience('users');
 
     await loadAnnouncements();
-    alert('✅ Announcement sent to: ' + (selectedAudience === 'all' ? 'Everyone' : selectedAudience));
+   showToast('Announcement sent to: ' + (selectedAudience === 'all' ? 'Everyone' : selectedAudience), 'success');
   } catch (err) {
     if (errorEl) errorEl.textContent = err.message || 'Could not send this announcement. Please try again.';
   }

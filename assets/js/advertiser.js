@@ -9,7 +9,18 @@
 
 import { apiFetch, setToken } from './api.js';
 
-var CAMPAIGN_PRICES = { "survey":15.00, "video":5.00, "quiz":8.00, "download":20.00, "signup":25.00 };
+var cachedCampaignPrices = { "survey":15.00, "video":5.00, "quiz":8.00, "download":20.00, "signup":25.00 };
+
+async function loadCampaignPrices() {
+  try {
+    var data = await apiFetch('/settings');
+    if (data.settings && data.settings.prices) {
+      cachedCampaignPrices = data.settings.prices;
+    }
+  } catch (err) {
+    console.error('Failed to load campaign prices:', err.message);
+  }
+}
 
 function getAdvertiserSession() {
   var s = localStorage.getItem("kwanda_advertiser_session");
@@ -110,7 +121,7 @@ async function handleAdvertiserRegister() {
     setToken(data.token);
     localStorage.setItem("kwanda_advertiser_session", JSON.stringify(data.user));
 
-    alert("Business account created! Welcome to KwandaData, " + company + "!");
+showToast("Welcome to KwandaData, " + company + "!", "success");
     navigateTo("advertiser-dashboard");
   } catch (err) {
     if (errorEl) errorEl.textContent = err.message || "Could not create this account. Please try again.";
@@ -121,6 +132,7 @@ async function initAdvertiserDashboard() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
   if (adv.role === 'ADMIN') { navigateTo("admin-panel"); return; }
+  loadCampaignPrices();
   var greetingEl = document.getElementById("adv-greeting");
   var hour = new Date().getHours();
   if (greetingEl) {
@@ -164,7 +176,7 @@ function updateCampPrice() {
   var budgetEl = document.getElementById("camp-budget");
   if (!typeEl) return;
   var type   = typeEl.value;
-  var price  = CAMPAIGN_PRICES[type] || 0;
+ var price  = cachedCampaignPrices[type] || 0;
   var budget = parseFloat(budgetEl ? budgetEl.value : "0") || 0;
   var comps  = price > 0 && budget > 0 ? Math.floor(budget / price) : 0;
   var el = function(id) { return document.getElementById(id); };
@@ -194,6 +206,8 @@ async function submitCampaign() {
   if (!end)                          { if (errorEl) errorEl.textContent = "Please select an end date.";           return; }
   if (start >= end)                  { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
 
+  await loadCampaignPrices();
+
   // Calculate fees the same way the backend will (20% admin fee, 15% VAT, both on the budget alone)
   var adminFee    = budget * 0.20;
   var vat         = budget * 0.15;
@@ -210,7 +224,7 @@ async function submitCampaign() {
   );
   if (!confirmed) return;
 
-  var price = CAMPAIGN_PRICES[type] || 0;
+ var price = cachedCampaignPrices[type] || 0;
 
   try {
     var campResult = await apiFetch('/campaigns', {
@@ -293,7 +307,7 @@ function renderCampaignsList(advId, filter) {
 async function launchDraftCampaign(campId) {
   try {
     await apiFetch(`/campaigns/${campId}/launch`, { method: 'PATCH' });
-    alert("Campaign launched!");
+    	showToast("Campaign launched!", "success");
     initAdvertiserCampaigns();
   } catch (err) {
     alert(err.message || "Could not launch this campaign. Please try again.");
@@ -874,7 +888,7 @@ async function adminPauseCampaign(campId) {
   if (!confirm("Pause this campaign? It will stop being available to users immediately.")) return;
   try {
     await apiFetch('/admin/campaigns/' + campId + '/pause', { method: 'PATCH' });
-    alert("Campaign paused.");
+   	showToast("Campaign paused.", "success");
     filterAdminCampaigns("active");
   } catch (err) {
     alert(err.message || "Could not pause this campaign. Please try again.");
@@ -945,7 +959,7 @@ async function suspendUser(id) {
   if (!confirm("Suspend this user?")) return;
   try {
     await apiFetch('/admin/users/' + id + '/suspend', { method: 'PATCH' });
-    alert("User suspended.");
+    	showToast("User suspended.", "success");
     fetchAndRenderAdminUsers();
   } catch (err) {
     alert(err.message || "Could not suspend this user. Please try again.");
@@ -955,7 +969,7 @@ async function suspendUser(id) {
 async function reinstateUser(id) {
   try {
     await apiFetch('/admin/users/' + id + '/reinstate', { method: 'PATCH' });
-    alert("User reinstated.");
+  	showToast("User reinstated.", "success");
     fetchAndRenderAdminUsers();
   } catch (err) {
     alert(err.message || "Could not reinstate this user. Please try again.");
@@ -1047,7 +1061,7 @@ async function approveRedemption(id) {
       method: 'PATCH',
       body: JSON.stringify(note ? { fulfillmentNote: note } : {}),
     });
-    alert('Redemption approved.');
+  showToast("Redemption approved.", "success");
     filterAdminRedemptions(currentRedemptionFilter);
   } catch (err) {
     alert(err.message || 'Could not approve this redemption. Please try again.');
@@ -1059,7 +1073,7 @@ async function rejectRedemption(id) {
 
   try {
     await apiFetch('/admin/redemptions/' + id + '/reject', { method: 'PATCH' });
-    alert('Redemption rejected and refunded.');
+   showToast("Redemption rejected and refunded.", "success"); 
     filterAdminRedemptions(currentRedemptionFilter);
   } catch (err) {
     alert(err.message || 'Could not reject this redemption. Please try again.');
@@ -1134,7 +1148,7 @@ function suspendAdvertiser(advId) {
   var campaigns  = campStored ? JSON.parse(campStored) : [];
   campaigns = campaigns.map(function(c) { if (c.advertiserId === advId && c.status === "active") c.status = "paused"; return c; });
   localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
-  alert("Advertiser suspended.");
+	showToast("Advertiser suspended.", "success");  
   initAdminAdvertisersMgmt();
 }
 
@@ -1143,7 +1157,7 @@ function reinstateAdvertiser(advId) {
   var advs   = stored ? JSON.parse(stored) : [];
   var index  = advs.findIndex(function(a) { return a.id === advId; });
   if (index !== -1) { advs[index].status = "active"; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
-  alert("Advertiser reinstated.");
+ showToast("Advertiser reinstated.", "success");
   initAdminAdvertisersMgmt();
 }
 

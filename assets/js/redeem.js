@@ -65,7 +65,7 @@ async function redeemDataBundle() {
     await renderRedemptions();
     if (typeof window.addTransaction === 'function') window.addTransaction();
 
-    alert('Data bundle redemption submitted!\n' + amount.toFixed(0) + 'MB requested for ' + phone + '\nYour redemption is now pending approval.');
+    showToast('Data bundle redemption submitted — pending approval.', 'success');
   } catch (err) {
     alert(err.message || 'Could not submit this redemption. Please try again.');
   }
@@ -113,7 +113,7 @@ async function handleRedeem(type) {
     await renderRedemptions();
     if (typeof window.addTransaction === 'function') window.addTransaction();
 
-    alert('Redemption submitted!\n' + option.title + ': ' + window.formatAmt(amount) + '\nYour redemption is now pending approval.');
+    showToast(option.title + ' redemption submitted — pending approval.', 'success');
   } catch (err) {
     alert(err.message || 'Could not submit this redemption. Please try again.');
   }

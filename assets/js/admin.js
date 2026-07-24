@@ -295,7 +295,7 @@ async function savePricing() {
       method: 'PATCH',
       body: JSON.stringify(prices),
     });
-    alert('✅ Pricing saved. New prices apply to all users immediately.');
+    showToast('Pricing saved. New prices apply immediately.', 'success');
   } catch (err) {
     alert(err.message || 'Could not save pricing. Please try again.');
   }
@@ -318,7 +318,7 @@ async function saveSplitSettings() {
       method: 'PATCH',
       body: JSON.stringify({ splitAdmin, splitData }),
     });
-    alert('✅ Earnings split saved. Applies to all users immediately.');
+    showToast('Earnings split saved. Applies immediately.', 'success');
   } catch (err) {
     alert(err.message || 'Could not save the earnings split. Please try again.');
   }
@@ -344,7 +344,7 @@ async function saveMaintenanceSettings() {
       method: 'PATCH',
       body: JSON.stringify({ message }),
     });
-    alert('✅ Maintenance settings saved.');
+  showToast('Maintenance settings saved.', 'success');
   } catch (err) {
     alert(err.message || 'Could not save maintenance settings. Please try again.');
   }
