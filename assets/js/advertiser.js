@@ -225,7 +225,7 @@ var target  = el("camp-target")      ? el("camp-target").value              : "a
     "VAT (15%):          R " + window.formatAmt(vat) + "\n" +
     "─────────────────────────\n" +
     "Total Charged:      R " + window.formatAmt(totalCharge) + "\n\n" +
-    "Do you want to proceed? This will create and launch the campaign immediately."
+    "Do you want to proceed? This will create your campaign and submit it for KwandaData admin review."
   );
   if (!confirmed) return;
 
@@ -251,13 +251,13 @@ await apiFetch(`/campaigns/${campaignId}/tasks`, {
     await apiFetch(`/campaigns/${campaignId}/launch`, { method: 'PATCH' });
 
     alert(
-      "Campaign created and launched!\n\n" +
+  "Campaign created and submitted for review!\n\n" +
       "Campaign Budget:    R " + window.formatAmt(budget) + "\n" +
       "Admin Fee (20%):    R " + window.formatAmt(campResult.campaign.adminFee) + "\n" +
       "VAT (15%):          R " + window.formatAmt(campResult.campaign.vat) + "\n" +
       "─────────────────────────\n" +
       "Total Charged:      R " + window.formatAmt(campResult.campaign.totalCharged) + "\n\n" +
-      "Your campaign is now live."
+      "A KwandaData admin will review it before it goes live."
     );
     navigateTo("advertiser-campaigns");
   } catch (err) {
@@ -294,33 +294,44 @@ function renderCampaignsList(advId, filter) {
     container.innerHTML = "<div style='text-align:center;padding:40px 16px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No campaigns found</p></div>";
     return;
   }
-  var sc = { active:"#22c55e", draft:"#9089cc", paused:"#9089cc", completed:"#3b82f6" };
-  var sb = { active:"#dcfce7", draft:"#ede9fe", paused:"#ede9fe", completed:"#dbeafe" };
-  var statusLabel = { active:"Active", draft:"Draft", paused:"Paused", completed:"Completed" };
+  var sc = { active:"#22c55e", draft:"#9089cc", pending:"#f97316", paused:"#9089cc", completed:"#3b82f6", rejected:"#ef4444" };
+  var sb = { active:"#dcfce7", draft:"#ede9fe", pending:"#fff7ed", paused:"#ede9fe", completed:"#dbeafe", rejected:"#fee2e2" };
+  var statusLabel = { active:"Active", draft:"Draft", pending:"Pending Review", paused:"Paused", completed:"Completed", rejected:"Rejected" };
   container.innerHTML = filtered.map(function(c) {
     var color = sc[c.status]||"#9089cc"; var bg = sb[c.status]||"#ede9fe";
     var spent     = Number(c.spent||0);
     var budget    = Number(c.budget||0);
     var remaining = budget - spent;
     var firstTask = (c.tasks && c.tasks[0]) || {};
-    var statsHtml = c.status==="draft"
-      ? "<div style='background:#ede9fe;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-alert-circle' style='color:#6c63ff;margin-right:4px;'></i><span style='font-size:12px;color:#6c63ff;font-weight:600;'>Draft — this campaign hasn't launched yet.</span></div>"
+    var statsHtml;
+    if (c.status === "draft") {
+      statsHtml = "<div style='background:#ede9fe;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-alert-circle' style='color:#6c63ff;margin-right:4px;'></i><span style='font-size:12px;color:#6c63ff;font-weight:600;'>Draft — not submitted for review yet.</span></div>";
+    } else if (c.status === "pending") {
+      statsHtml = "<div style='background:#fff7ed;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-clock' style='color:#f97316;margin-right:4px;'></i><span style='font-size:12px;color:#f97316;font-weight:600;'>Awaiting KwandaData admin approval.</span></div>";
+    } else if (c.status === "rejected") {
+      statsHtml = "<div style='background:#fee2e2;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-x' style='color:#ef4444;margin-right:4px;'></i><span style='font-size:12px;color:#ef4444;font-weight:600;'>Rejected by KwandaData admin.</span></div>";
+    } else if (c.status === "paused") {
+      statsHtml = "<div style='background:#ede9fe;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-player-pause' style='color:#6c63ff;margin-right:4px;'></i><span style='font-size:12px;color:#6c63ff;font-weight:600;'>Paused.</span></div>";
+    } else {
+      statsHtml = "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + window.formatAmt(spent) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + window.formatAmt(remaining) + "</p></div></div>";
+    }
+    var launchHtml = c.status==="draft" ? "<button onclick=\"launchDraftCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6c63ff,#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Submit for Review</button>" : "";
+    var pauseResumeHtml = c.status==="active"
+      ? "<button onclick=\"pauseCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Pause Campaign</button>"
       : c.status==="paused"
-      ? "<div style='background:#ede9fe;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;'><i class='ti ti-player-pause' style='color:#6c63ff;margin-right:4px;'></i><span style='font-size:12px;color:#6c63ff;font-weight:600;'>Paused by KwandaData admin.</span></div>"
-      : "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + window.formatAmt(spent) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + window.formatAmt(remaining) + "</p></div></div>";
-    var launchHtml = c.status==="draft" ? "<button onclick=\"launchDraftCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6c63ff,#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Launch Campaign</button>" : "";
-    var unavailableHtml = (c.status==="active") ? "<p style='font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px;'>Pause / stop / add budget aren't available yet.</p>" : "";
-    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + (firstTask.type ? firstTask.type.charAt(0).toUpperCase() + firstTask.type.slice(1) + " - R " + window.formatAmt(firstTask.reward) + " per completion" : "") + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + (statusLabel[c.status] || c.status) + "</span></div>" + statsHtml + launchHtml + unavailableHtml + "</div>";
+      ? "<button onclick=\"resumeCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Resume Campaign</button>"
+      : "";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + (firstTask.type ? firstTask.type.charAt(0).toUpperCase() + firstTask.type.slice(1) + " - R " + window.formatAmt(firstTask.reward) + " per completion" : "") + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + (statusLabel[c.status] || c.status) + "</span></div>" + statsHtml + launchHtml + pauseResumeHtml + "</div>";
   }).join("");
 }
 
 async function launchDraftCampaign(campId) {
   try {
     await apiFetch(`/campaigns/${campId}/launch`, { method: 'PATCH' });
-    	showToast("Campaign launched!", "success");
+    showToast("Campaign submitted for review!", "success");
     initAdvertiserCampaigns();
   } catch (err) {
-    alert(err.message || "Could not launch this campaign. Please try again.");
+    alert(err.message || "Could not submit this campaign. Please try again.");
   }
 }
 
@@ -332,12 +343,25 @@ function addCampaignBudget(campId) {
   alert("Adding budget to a campaign isn't available yet.");
 }
 
-function pauseCampaign(campId) {
-  alert("Pausing a campaign yourself isn't available yet — contact KwandaData support if you need a campaign paused.");
+async function pauseCampaign(campId) {
+  if (!confirm("Pause this campaign? It will stop being available to users immediately.")) return;
+  try {
+    await apiFetch(`/campaigns/${campId}/pause`, { method: 'PATCH' });
+    showToast("Campaign paused.", "success");
+    initAdvertiserCampaigns();
+  } catch (err) {
+    alert(err.message || "Could not pause this campaign. Please try again.");
+  }
 }
 
-function resumeCampaign(campId) {
-  alert("Resuming a campaign isn't available yet — contact KwandaData support.");
+async function resumeCampaign(campId) {
+  try {
+    await apiFetch(`/campaigns/${campId}/resume`, { method: 'PATCH' });
+    showToast("Campaign resumed.", "success");
+    initAdvertiserCampaigns();
+  } catch (err) {
+    alert(err.message || "Could not resume this campaign. Please try again.");
+  }
 }
 
 function stopCampaign(campId) {
@@ -839,11 +863,11 @@ let cachedAdminCampaigns = [];
 async function initAdminCampaignsMgmt() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
   await loadAdminPanelStats();
-  await filterAdminCampaigns("active");
+  await filterAdminCampaigns("pending");
 }
 
 async function filterAdminCampaigns(status) {
-  ["active","paused","completed","all"].forEach(function(f) {
+  ["pending","active","paused","completed","rejected","all"].forEach(function(f) {
     var btn = document.getElementById("admin-filter-" + f);
     if (btn) { btn.style.background = f===status?"#f97316":"#fff"; btn.style.color = f===status?"#fff":"var(--text-muted)"; btn.style.border = f===status?"none":"1px solid var(--border)"; }
   });
@@ -863,7 +887,7 @@ async function filterAdminCampaigns(status) {
   var totalEl  = document.getElementById("camp-mgmt-total");
   var activeEl = document.getElementById("camp-mgmt-pending");
   if (totalEl)  totalEl.textContent  = cachedAdminCampaigns.length;
-  if (activeEl) activeEl.textContent = cachedAdminCampaigns.filter(function(c) { return c.status === "active"; }).length;
+  if (activeEl) activeEl.textContent = cachedAdminCampaigns.filter(function(c) { return c.status === "pending"; }).length;
 
   renderAdminCampaigns();
 }
@@ -876,29 +900,56 @@ function renderAdminCampaigns() {
     container.innerHTML = "<div style='text-align:center;padding:32px;color:var(--text-muted);'><i class='ti ti-speakerphone' style='font-size:40px;display:block;margin-bottom:12px;opacity:0.3;'></i><p style='font-size:14px;font-weight:600;'>No campaigns found</p></div>";
     return;
   }
-  var sc = { active:"#22c55e", draft:"#9089cc", paused:"#9089cc", completed:"#3b82f6" };
-  var sb = { active:"#dcfce7", draft:"#ede9fe", paused:"#ede9fe", completed:"#dbeafe" };
+  var sc = { active:"#22c55e", draft:"#9089cc", pending:"#f97316", paused:"#9089cc", completed:"#3b82f6", rejected:"#ef4444" };
+  var sb = { active:"#dcfce7", draft:"#ede9fe", pending:"#fff7ed", paused:"#ede9fe", completed:"#dbeafe", rejected:"#fee2e2" };
   container.innerHTML = campaigns.map(function(c) {
     var color      = sc[c.status]||"#9089cc";
     var bg         = sb[c.status]||"#ede9fe";
     var advertiser = c.advertiser ? (c.advertiser.firstName + " " + c.advertiser.lastName) : "Unknown";
     var firstTask  = (c.tasks && c.tasks[0]) || {};
-    var pauseBtn   = c.status === "active"
-      ? "<button onclick=\"adminPauseCampaign('" + c.id + "')\" style='width:100%;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Pause Campaign</button>"
-      : "";
+    var actionsHtml;
+    if (c.status === "pending") {
+      actionsHtml = "<div style='display:flex;gap:8px;'><button onclick=\"adminApproveCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Approve</button><button onclick=\"adminRejectCampaign('" + c.id + "')\" style='flex:1;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Reject</button></div>";
+    } else if (c.status === "active") {
+      actionsHtml = "<button onclick=\"adminPauseCampaign('" + c.id + "')\" style='width:100%;padding:11px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Pause Campaign</button>";
+    } else {
+      actionsHtml = "";
+    }
     return "<div style='background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);'>"
       + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>By: " + advertiser + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (firstTask.type ? firstTask.type + " - R " + window.formatAmt(firstTask.reward) + " per completion | " : "") + "Budget: R " + window.formatAmt(c.budget) + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + c.status.charAt(0).toUpperCase() + c.status.slice(1) + "</span></div>"
       + "<p style='font-size:12px;color:var(--text-muted);margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;'>" + c.description + "</p>"
-      + pauseBtn
+      + actionsHtml
       + "</div>";
   }).join("");
+}
+
+async function adminApproveCampaign(campId) {
+  if (!confirm("Approve this campaign? It will go live immediately.")) return;
+  try {
+    await apiFetch('/admin/campaigns/' + campId + '/approve', { method: 'PATCH' });
+    showToast("Campaign approved and is now live!", "success");
+    filterAdminCampaigns("pending");
+  } catch (err) {
+    alert(err.message || "Could not approve this campaign. Please try again.");
+  }
+}
+
+async function adminRejectCampaign(campId) {
+  if (!confirm("Reject this campaign?")) return;
+  try {
+    await apiFetch('/admin/campaigns/' + campId + '/reject', { method: 'PATCH' });
+    showToast("Campaign rejected.", "success");
+    filterAdminCampaigns("pending");
+  } catch (err) {
+    alert(err.message || "Could not reject this campaign. Please try again.");
+  }
 }
 
 async function adminPauseCampaign(campId) {
   if (!confirm("Pause this campaign? It will stop being available to users immediately.")) return;
   try {
     await apiFetch('/admin/campaigns/' + campId + '/pause', { method: 'PATCH' });
-   	showToast("Campaign paused.", "success");
+    showToast("Campaign paused.", "success");
     filterAdminCampaigns("active");
   } catch (err) {
     alert(err.message || "Could not pause this campaign. Please try again.");
@@ -1266,6 +1317,8 @@ window.initAdminPanel           = initAdminPanel;
 window.initAdminCampaignsMgmt   = initAdminCampaignsMgmt;
 window.filterAdminCampaigns     = filterAdminCampaigns;
 window.adminPauseCampaign       = adminPauseCampaign;
+window.adminApproveCampaign     = adminApproveCampaign;
+window.adminRejectCampaign      = adminRejectCampaign;
 window.initAdminUsersMgmt       = initAdminUsersMgmt;
 window.searchAdminUsers         = searchAdminUsers;
 window.suspendUser              = suspendUser;
