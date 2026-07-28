@@ -53,14 +53,20 @@ function renderTasks(tab) {
     return;
   }
 
-  container.innerHTML = filtered.map(task => {
+container.innerHTML = filtered.map(task => {
     const sponsored = task.campaign
       ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.firstName} ${task.campaign.advertiser.lastName}</span>`
       : `<span class="task-duration">${task.type}</span>`;
 
-    const buttonHtml = task.completed
-      ? `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`
-      : `<button class="btn-small" onclick="startTask('${task.id}')">Start</button>`;
+    const isLinkTask = task.type === 'download' || task.type === 'signup';
+    let buttonHtml;
+    if (task.completed) {
+      buttonHtml = `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`;
+    } else if (isLinkTask) {
+      buttonHtml = `<button class="btn-small" onclick="goToTaskLink('${task.id}')">Go & Earn</button>`;
+    } else {
+      buttonHtml = `<button class="btn-small" onclick="startTask('${task.id}')">Start</button>`;
+    }
 
     return `
       <div class="task-item" id="task-${task.id}" ${task.campaign ? 'style="border-left:3px solid #f97316;"' : ''}>
@@ -79,6 +85,20 @@ function renderTasks(tab) {
       </div>
     `;
   }).join('');
+}
+
+async function goToTaskLink(taskId) {
+  const task = currentTasks.find(t => t.id === taskId);
+  const link = task && task.content && task.content.link;
+  if (link) {
+    window.open(link, '_blank');
+  }
+
+  const btn = document.querySelector(`#task-${taskId} .btn-small`);
+  if (btn) {
+    btn.textContent = "I've done this";
+    btn.setAttribute('onclick', `startTask('${taskId}')`);
+  }
 }
 
 async function startTask(taskId) {
@@ -118,7 +138,8 @@ async function startTask(taskId) {
   }
 }
 
-export { initEarn, switchTab, startTask };
-window.initEarn   = initEarn;
-window.switchTab  = switchTab;
-window.startTask  = startTask;
+export { initEarn, switchTab, startTask, goToTaskLink };
+window.initEarn      = initEarn;
+window.switchTab     = switchTab;
+window.startTask     = startTask;
+window.goToTaskLink  = goToTaskLink;

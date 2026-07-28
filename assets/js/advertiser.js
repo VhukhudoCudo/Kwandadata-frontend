@@ -183,6 +183,9 @@ function updateCampPrice() {
   if (el("camp-price-display")) el("camp-price-display").textContent = price > 0 ? window.formatRand(price) : "Select activity type";
   if (el("camp-completions"))   el("camp-completions").textContent   = comps > 0 ? comps + " users" : "-";
   if (el("camp-total-cost"))    el("camp-total-cost").textContent    = budget > 0 ? window.formatRand(budget) : "-";
+
+  var linkGroup = el("camp-link-group");
+  if (linkGroup) linkGroup.style.display = (type === "download" || type === "signup") ? "block" : "none";
 }
 
 async function submitCampaign() {
@@ -195,7 +198,8 @@ async function submitCampaign() {
   var budget  = parseFloat(el("camp-budget") ? el("camp-budget").value : "0");
   var start   = el("camp-start")       ? el("camp-start").value               : "";
   var end     = el("camp-end")         ? el("camp-end").value                 : "";
-  var target  = el("camp-target")      ? el("camp-target").value              : "all";
+var target  = el("camp-target")      ? el("camp-target").value              : "all";
+  var link    = el("camp-link")        ? el("camp-link").value.trim()         : "";
   var errorEl = el("camp-error");
   if (errorEl) errorEl.textContent = "";
   if (!name)                         { if (errorEl) errorEl.textContent = "Please enter a campaign name.";        return; }
@@ -205,6 +209,10 @@ async function submitCampaign() {
   if (!start)                        { if (errorEl) errorEl.textContent = "Please select a start date.";          return; }
   if (!end)                          { if (errorEl) errorEl.textContent = "Please select an end date.";           return; }
   if (start >= end)                  { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
+  if ((type === "download" || type === "signup") && !link) {
+    if (errorEl) errorEl.textContent = "Please enter the link users should go to.";
+    return;
+  }             { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
 
   await loadCampaignPrices();
 
@@ -233,11 +241,16 @@ async function submitCampaign() {
     });
     var campaignId = campResult.campaign.id;
 
-    await apiFetch(`/campaigns/${campaignId}/tasks`, {
+await apiFetch(`/campaigns/${campaignId}/tasks`, {
       method: 'POST',
-      body: JSON.stringify({ title: name, description: desc, type, reward: price }),
+      body: JSON.stringify({
+        title: name,
+        description: desc,
+        type,
+        reward: price,
+        content: (type === "download" || type === "signup") ? { link } : undefined,
+      }),
     });
-
     await apiFetch(`/campaigns/${campaignId}/launch`, { method: 'PATCH' });
 
     alert(
