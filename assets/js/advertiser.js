@@ -185,7 +185,7 @@ function updateCampPrice() {
   if (el("camp-total-cost"))    el("camp-total-cost").textContent    = budget > 0 ? window.formatRand(budget) : "-";
 
   var linkGroup = el("camp-link-group");
-  if (linkGroup) linkGroup.style.display = (type === "download" || type === "signup") ? "block" : "none";
+  if (linkGroup) linkGroup.style.display = type ? "block" : "none";
 }
 
 async function submitCampaign() {
@@ -209,10 +209,7 @@ var target  = el("camp-target")      ? el("camp-target").value              : "a
   if (!start)                        { if (errorEl) errorEl.textContent = "Please select a start date.";          return; }
   if (!end)                          { if (errorEl) errorEl.textContent = "Please select an end date.";           return; }
   if (start >= end)                  { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
-  if ((type === "download" || type === "signup") && !link) {
-    if (errorEl) errorEl.textContent = "Please enter the link users should go to.";
-    return;
-  }             { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
+  if (!link)                         { if (errorEl) errorEl.textContent = "Please enter the link users should go to.";   return; }             { if (errorEl) errorEl.textContent = "End date must be after start date.";   return; }
 
   await loadCampaignPrices();
 
@@ -248,7 +245,7 @@ await apiFetch(`/campaigns/${campaignId}/tasks`, {
         description: desc,
         type,
         reward: price,
-        content: (type === "download" || type === "signup") ? { link } : undefined,
+        content: { link },
       }),
     });
     await apiFetch(`/campaigns/${campaignId}/launch`, { method: 'PATCH' });

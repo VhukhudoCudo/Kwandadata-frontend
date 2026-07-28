@@ -58,7 +58,7 @@ container.innerHTML = filtered.map(task => {
       ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.firstName} ${task.campaign.advertiser.lastName}</span>`
       : `<span class="task-duration">${task.type}</span>`;
 
-    const isLinkTask = task.type === 'download' || task.type === 'signup';
+    const isLinkTask = !!(task.content && task.content.link);
     let buttonHtml;
     if (task.completed) {
       buttonHtml = `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`;
