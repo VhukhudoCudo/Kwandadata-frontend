@@ -1143,26 +1143,34 @@ async function rejectRedemption(id) {
   }
 }
 
-function initAdminAdvertisersMgmt() {
+
+let cachedAdminAdvertisers = [];
+
+async function initAdminAdvertisersMgmt() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
-  var stored = localStorage.getItem("kwanda_advertisers");
-  var advs   = stored ? JSON.parse(stored) : [];
-  var active = advs.filter(function(a) { return a.status !== "suspended"; });
+  await fetchAndRenderAdminAdvertisers();
+}
+
+async function fetchAndRenderAdminAdvertisers(search) {
+  try {
+    var query = '?role=ADVERTISER' + (search ? '&search=' + encodeURIComponent(search) : '');
+    var data = await apiFetch('/admin/users' + query);
+    cachedAdminAdvertisers = data.users || [];
+  } catch (err) {
+    console.error('Failed to load advertisers:', err.message);
+    cachedAdminAdvertisers = [];
+  }
+
+  var active   = cachedAdminAdvertisers.filter(function(a) { return !a.suspended; });
   var totalEl  = document.getElementById("admin-total-advs");
   var activeEl = document.getElementById("admin-active-advs");
-  if (totalEl)  totalEl.textContent  = advs.length;
+  if (totalEl)  totalEl.textContent  = cachedAdminAdvertisers.length;
   if (activeEl) activeEl.textContent = active.length;
-  renderAdminAdvertisersList(advs);
+  renderAdminAdvertisersList(cachedAdminAdvertisers);
 }
 
 function searchAdminAdvertisers(query) {
-  var stored = localStorage.getItem("kwanda_advertisers");
-  var advs   = stored ? JSON.parse(stored) : [];
-  var q      = query.toLowerCase();
-  var filtered = q ? advs.filter(function(a) {
-    return (a.company||"").toLowerCase().includes(q) || (a.email||"").toLowerCase().includes(q);
-  }) : advs;
-  renderAdminAdvertisersList(filtered);
+  fetchAndRenderAdminAdvertisers(query.trim());
 }
 
 function renderAdminAdvertisersList(advs) {
@@ -1173,13 +1181,14 @@ function renderAdminAdvertisersList(advs) {
     return;
   }
   var colors = ["linear-gradient(135deg,#f97316,#ea580c)","linear-gradient(135deg,#3b82f6,#1d4ed8)","linear-gradient(135deg,#22c55e,#16a34a)","linear-gradient(135deg,#9089cc,#6c63ff)","linear-gradient(135deg,#ef4444,#b91c1c)"];
-  var industryMap = { "telecom":"Telecommunications","banking":"Banking & Finance","retail":"Retail","media":"Media & Entertainment","healthcare":"Healthcare","education":"Education","technology":"Technology","fmcg":"FMCG","other":"Other" };
   container.innerHTML = advs.map(function(a, i) {
-    var letter    = a.company ? a.company.charAt(0).toUpperCase() : "?";
+    var company   = a.company || "—";
+    var letter    = company.charAt(0).toUpperCase();
     var color     = colors[i % colors.length];
-    var suspended = a.status === "suspended";
-    var industry  = industryMap[a.industry] || a.industry || "—";
-    var campaigns = JSON.parse(localStorage.getItem("kwanda_campaigns")||"[]").filter(function(c) { return c.advertiserId === a.id; });
+    var suspended = a.suspended;
+    var industry  = a.industry || "—";
+    var contact   = (a.firstName||"") + " " + (a.lastName||"");
+    var date      = new Date(a.createdAt).toLocaleDateString("en-ZA");
     var statusLabel = suspended
       ? "<span style='font-size:11px;font-weight:600;color:#ef4444;background:#fee2e2;padding:3px 10px;border-radius:20px;'>Suspended</span>"
       : "<span style='font-size:11px;font-weight:600;color:#22c55e;background:#dcfce7;padding:3px 10px;border-radius:20px;'>Active</span>";
@@ -1189,55 +1198,40 @@ function renderAdminAdvertisersList(advs) {
     return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--border);'>"
       + "<div style='display:flex;align-items:center;gap:12px;margin-bottom:10px;'>"
       + "<div style='width:44px;height:44px;border-radius:12px;background:" + color + ";display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;flex-shrink:0;'>" + letter + "</div>"
-      + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + (a.company||"—") + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (a.email||"") + "</p><p style='font-size:11px;color:var(--text-muted);'>" + industry + "</p></div>"
+      + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + company + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (a.email||"") + "</p><p style='font-size:11px;color:var(--text-muted);'>" + industry + "</p></div>"
       + statusLabel + "</div>"
-      + "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;'>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Budget</p><p style='font-size:14px;font-weight:700;color:#f97316;'>R " + window.formatAmt((a.budget||0)) + "</p></div>"
-      + "<div style='background:var(--bg);border-radius:8px;padding:8px;'><p style='font-size:10px;color:var(--text-muted);'>Campaigns</p><p style='font-size:14px;font-weight:700;color:var(--primary);'>" + campaigns.length + "</p></div>"
-      + "</div>"
+      + "<p style='font-size:11px;color:var(--text-muted);margin-bottom:10px;'>Contact: " + contact + " \u00b7 " + (a.phone||"") + " \u00b7 Joined " + date + "</p>"
       + "<div style='display:flex;gap:8px;'>"
-      + "<button onclick=\"adjustAdvertiserBudget('" + a.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #f97316;color:#f97316;font-size:12px;font-weight:600;cursor:pointer;'>Adjust Budget</button>"
       + actionBtn + "</div></div>";
   }).join("");
 }
 
-function suspendAdvertiser(advId) {
+async function suspendAdvertiser(advId) {
   if (!confirm("Suspend this advertiser?")) return;
-  var stored = localStorage.getItem("kwanda_advertisers");
-  var advs   = stored ? JSON.parse(stored) : [];
-  var index  = advs.findIndex(function(a) { return a.id === advId; });
-  if (index !== -1) { advs[index].status = "suspended"; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
-  var campStored = localStorage.getItem("kwanda_campaigns");
-  var campaigns  = campStored ? JSON.parse(campStored) : [];
-  campaigns = campaigns.map(function(c) { if (c.advertiserId === advId && c.status === "active") c.status = "paused"; return c; });
-  localStorage.setItem("kwanda_campaigns", JSON.stringify(campaigns));
-	showToast("Advertiser suspended.", "success");  
-  initAdminAdvertisersMgmt();
+  try {
+    await apiFetch('/admin/users/' + advId + '/suspend', { method: 'PATCH' });
+    showToast("Advertiser suspended.", "success");
+    fetchAndRenderAdminAdvertisers();
+  } catch (err) {
+    alert(err.message || "Could not suspend this advertiser. Please try again.");
+  }
 }
 
-function reinstateAdvertiser(advId) {
-  var stored = localStorage.getItem("kwanda_advertisers");
-  var advs   = stored ? JSON.parse(stored) : [];
-  var index  = advs.findIndex(function(a) { return a.id === advId; });
-  if (index !== -1) { advs[index].status = "active"; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
- showToast("Advertiser reinstated.", "success");
-  initAdminAdvertisersMgmt();
+async function reinstateAdvertiser(advId) {
+  try {
+    await apiFetch('/admin/users/' + advId + '/reinstate', { method: 'PATCH' });
+    showToast("Advertiser reinstated.", "success");
+    fetchAndRenderAdminAdvertisers();
+  } catch (err) {
+    alert(err.message || "Could not reinstate this advertiser. Please try again.");
+  }
 }
 
 function adjustAdvertiserBudget(advId) {
-  var stored = localStorage.getItem("kwanda_advertisers");
-  var advs   = stored ? JSON.parse(stored) : [];
-  var adv    = advs.find(function(a) { return a.id === advId; });
-  if (!adv) return;
-  var input = prompt("Adjust budget for " + adv.company + "\nCurrent: R " + window.formatAmt((adv.budget||0)) + "\nEnter new budget (R):");
-  if (input === null) return;
-  var newBudget = parseFloat(input);
-  if (isNaN(newBudget) || newBudget < 0) { alert("Please enter a valid amount."); return; }
-  var index = advs.findIndex(function(a) { return a.id === advId; });
-  if (index !== -1) { advs[index].budget = newBudget; localStorage.setItem("kwanda_advertisers", JSON.stringify(advs)); }
-  alert("Budget updated to R " + window.formatAmt(newBudget));
-  initAdminAdvertisersMgmt();
+  alert("Directly adjusting an advertiser's budget isn't available yet.");
 }
+
+
 
 function changeAdvertiserPassword() {
   var currentPw = document.getElementById("adv-current-pw")  ? document.getElementById("adv-current-pw").value  : "";
