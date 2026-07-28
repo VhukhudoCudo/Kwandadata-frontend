@@ -143,13 +143,15 @@ async function initAdvertiserDashboard() {
   }
   var nameEl = document.getElementById("adv-company-name");
   if (nameEl) nameEl.textContent = (adv.firstName && adv.lastName) ? (adv.firstName + " " + adv.lastName) : "Advertiser";
-  var campaigns  = await getAdvertiserCampaigns(adv.id);
+var campaigns  = await getAdvertiserCampaigns(adv.id);
   var active     = campaigns.filter(function(c) { return c.status === "active"; });
   var totalSpent = campaigns.reduce(function(sum, c) { return sum + Number(c.spent || 0); }, 0);
+  var totalBudget = campaigns.reduce(function(sum, c) { return sum + Number(c.budget || 0); }, 0);
   var el = function(id) { return document.getElementById(id); };
   if (el("adv-total-campaigns"))   el("adv-total-campaigns").textContent  = campaigns.length;
   if (el("adv-active-campaigns"))  el("adv-active-campaigns").textContent = active.length;
   if (el("adv-total-spent"))       el("adv-total-spent").textContent      = window.formatRand(totalSpent);
+  if (el("adv-budget"))            el("adv-budget").textContent           = window.formatRand(totalBudget);
   loadRecentCampaigns(adv.id);
 }
 
