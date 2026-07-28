@@ -4,6 +4,13 @@
    The backend computes the earnings split (admin fee / data /
    Campaign Objective wallet / main wallet) — the frontend just
    displays what comes back.
+
+   Video tasks play inside the app (YouTube or a direct video file).
+   The reward is claimed automatically the instant the video actually
+   finishes — there is no "did you watch it?" confirmation step, since
+   that can't be trusted. Every task (video or otherwise) also enforces
+   a max of 2 completions on the backend, so once two users have done
+   an activity it disappears for everyone else.
 ══════════════════════════════════════ */
 
 import { apiFetch } from './api.js';
@@ -53,7 +60,7 @@ function renderTasks(tab) {
     return;
   }
 
-container.innerHTML = filtered.map(task => {
+  container.innerHTML = filtered.map(task => {
     const sponsored = task.campaign
       ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.firstName} ${task.campaign.advertiser.lastName}</span>`
       : `<span class="task-duration">${task.type}</span>`;
@@ -62,6 +69,8 @@ container.innerHTML = filtered.map(task => {
     let buttonHtml;
     if (task.completed) {
       buttonHtml = `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`;
+    } else if (task.type === 'video' && isLinkTask) {
+      buttonHtml = `<button class="btn-small" onclick="openVideoTask('${task.id}')">Watch & Earn</button>`;
     } else if (isLinkTask) {
       buttonHtml = `<button class="btn-small" onclick="goToTaskLink('${task.id}')">Go & Earn</button>`;
     } else {
@@ -129,17 +138,140 @@ async function startTask(taskId) {
       const taskTitle = task ? task.title : 'Task';
       window.addTransaction('earned', task && task.campaign ? 'ti-speakerphone' : 'ti-file-text', taskTitle, result.walletShare);
     }
+
+    return result;
   } catch (err) {
     if (btn) {
       btn.disabled = false;
       btn.textContent = 'Start';
     }
     alert(err.message || 'Could not complete this task. Please try again.');
+    return null;
   }
 }
 
-export { initEarn, switchTab, startTask, goToTaskLink };
-window.initEarn      = initEarn;
-window.switchTab     = switchTab;
-window.startTask     = startTask;
-window.goToTaskLink  = goToTaskLink;
+/* ══════════════════════════════════════
+   Video player modal — the reward claims automatically the instant
+   the video actually ends. No manual "I watched it" button exists,
+   since that step can't be trusted.
+══════════════════════════════════════ */
+
+let youtubeApiLoadingPromise = null;
+let videoRewardClaimed = false;
+
+function loadYouTubeApi() {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  if (youtubeApiLoadingPromise) return youtubeApiLoadingPromise;
+
+  youtubeApiLoadingPromise = new Promise((resolve) => {
+    const prevCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function() {
+      if (typeof prevCallback === 'function') prevCallback();
+      resolve();
+    };
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  });
+  return youtubeApiLoadingPromise;
+}
+
+function extractYouTubeId(url) {
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+function ensureVideoModalStyles() {
+  if (document.getElementById('kw-video-modal-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'kw-video-modal-styles';
+  style.textContent =
+    '#kw-video-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;}' +
+    '.kw-video-modal{background:#fff;border-radius:16px;padding:16px;width:100%;max-width:420px;}' +
+    '.kw-video-modal h3{font-size:15px;font-weight:700;color:var(--text-primary);margin:0 0 10px;}' +
+    '.kw-video-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000;margin-bottom:14px;}' +
+    '.kw-video-wrap iframe,.kw-video-wrap video{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}' +
+    '.kw-video-hint{font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:12px;}' +
+    '.kw-video-close-only{width:100%;padding:12px;border-radius:20px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#f3f4f6;color:var(--text-primary);}';
+  document.head.appendChild(style);
+}
+
+function closeVideoModal() {
+  const el = document.getElementById('kw-video-modal-overlay');
+  if (el) el.remove();
+}
+
+async function handleVideoEnded(taskId) {
+  if (videoRewardClaimed) return; // guard against duplicate end events
+  videoRewardClaimed = true;
+
+  const hint = document.getElementById('kw-video-hint');
+  if (hint) hint.textContent = 'Video complete — claiming your reward...';
+
+  const result = await startTask(taskId);
+
+  if (result) {
+    const hint2 = document.getElementById('kw-video-hint');
+    if (hint2) hint2.textContent = '✅ Reward claimed! You can close this now.';
+  }
+}
+
+function openVideoTask(taskId) {
+  const task = currentTasks.find(t => t.id === taskId);
+  const link = task && task.content && task.content.link;
+  if (!link) return;
+
+  videoRewardClaimed = false;
+  ensureVideoModalStyles();
+  closeVideoModal();
+
+  const ytId = extractYouTubeId(link);
+  const playerAreaHtml = ytId
+    ? `<div class="kw-video-wrap"><div id="kw-yt-player"></div></div>`
+    : `<div class="kw-video-wrap"><video id="kw-video-el" controls playsinline><source src="${link}"></video></div>`;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'kw-video-modal-overlay';
+  overlay.innerHTML =
+    `<div class="kw-video-modal">
+      <h3>${task.title}</h3>
+      ${playerAreaHtml}
+      <p class="kw-video-hint" id="kw-video-hint">Watch the whole video — your reward is claimed automatically once it ends.</p>
+      <button type="button" class="kw-video-close-only" id="kw-video-close-btn">Close</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('kw-video-close-btn').addEventListener('click', () => {
+    closeVideoModal();
+    renderTasks(activeTab); // refresh in case the reward was claimed while the modal was open
+  });
+
+  if (ytId) {
+    loadYouTubeApi().then(() => {
+      if (!document.getElementById('kw-yt-player')) return; // modal was closed before the API finished loading
+      new window.YT.Player('kw-yt-player', {
+        videoId: ytId,
+        playerVars: { rel: 0 },
+        events: {
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.ENDED) {
+              handleVideoEnded(taskId);
+            }
+          },
+        },
+      });
+    });
+  } else {
+    const videoEl = document.getElementById('kw-video-el');
+    if (videoEl) {
+      videoEl.addEventListener('ended', () => handleVideoEnded(taskId));
+    }
+  }
+}
+
+export { initEarn, switchTab, startTask, goToTaskLink, openVideoTask };
+window.initEarn       = initEarn;
+window.switchTab      = switchTab;
+window.startTask      = startTask;
+window.goToTaskLink   = goToTaskLink;
+window.openVideoTask  = openVideoTask;

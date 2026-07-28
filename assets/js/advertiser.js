@@ -369,8 +369,8 @@ async function resumeCampaign(campId) {
 function stopCampaign(campId) {
   alert("Stopping a campaign with a refund isn't available yet — contact KwandaData support.");
 }
-
 var advChartInstance = null;
+var lastCompletionsByDay = {};
 
 // ── Data helpers ──
 function getActivityLog() {
@@ -381,43 +381,31 @@ function getAllUsersData() {
 }
 
 // ── Advertiser self-service: download who completed their campaigns ──
-function downloadCampaignParticipants() {
+async function downloadCampaignParticipants() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo('advertiser-login'); return; }
 
-  var campaigns = getAdvertiserCampaigns(adv.id);
-  if (campaigns.length === 0) {
-    alert('You have no campaigns yet.');
+  var participants;
+  try {
+    var data = await apiFetch('/campaigns/participants');
+    participants = data.participants || [];
+  } catch (err) {
+    alert(err.message || 'Could not load client data. Please try again.');
     return;
   }
 
-  var campaignMap = {};
-  campaigns.forEach(function(c) { campaignMap[c.id] = c; });
-
-  var users = getAllUsersData();
-  var userMap = {};
-  users.forEach(function(u) { userMap[u.email] = u; });
-
-  var log = getActivityLog();
-  var rows = log.filter(function(entry) {
-    return entry.type === 'campaign' && entry.campaignId && campaignMap[entry.campaignId];
-  });
-
-  if (rows.length === 0) {
+  if (participants.length === 0) {
     alert('No participants yet for your campaigns.');
     return;
   }
 
-  var lines = ['User ID,User Name,Campaign,Amount (R),Date'];
-  rows.forEach(function(entry) {
-    var camp   = campaignMap[entry.campaignId];
-    var user   = userMap[entry.userId] || {};
-    var name   = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || 'Unknown';
-    var date   = entry.day || (entry.ts ? new Date(entry.ts).toISOString().slice(0, 10) : '');
-    var amount = camp ? Number(camp.price).toFixed(2) : '0.00';
-    var safeName = '"' + name.replace(/"/g, '""') + '"';
-    var safeCamp = '"' + (camp ? camp.name : 'Unknown').replace(/"/g, '""') + '"';
-    lines.push([entry.userId || '', safeName, safeCamp, amount, date].join(','));
+  var lines = ['Name,Province,Campaign,Task,Type,Amount (R),Date'];
+  participants.forEach(function(p) {
+    var safeName = '"' + (p.name || 'Unknown').replace(/"/g, '""') + '"';
+    var safeCamp = '"' + (p.campaignTitle || 'Unknown').replace(/"/g, '""') + '"';
+    var safeTask = '"' + (p.taskTitle || '').replace(/"/g, '""') + '"';
+    var date     = new Date(p.completedAt).toISOString().slice(0, 10);
+    lines.push([safeName, p.province || '', safeCamp, safeTask, p.taskType || '', Number(p.payout).toFixed(2), date].join(','));
   });
 
   var content = lines.join('\n');
@@ -447,33 +435,30 @@ function prettyLabel(str) {
   return String(str).replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
 }
 
-function initAdvertiserAnalytics() {
+async function initAdvertiserAnalytics() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
 
-  var campaigns  = getAdvertiserCampaigns(adv.id);
-  var campIds    = campaigns.map(function(c) { return c.id; });
-  var log        = getActivityLog();
-  var campEvents = log.filter(function(e) { return e.type === 'campaign' && campIds.indexOf(e.campaignId) !== -1; });
+  var data;
+  try {
+    data = await apiFetch('/campaigns/analytics');
+  } catch (err) {
+    console.error('Failed to load analytics:', err.message);
+    data = null;
+  }
+  if (!data) return;
 
-  var totalComp  = campaigns.reduce(function(sum, c) { return sum + (c.completions||0); }, 0);
-  var totalSpent = campaigns.reduce(function(sum, c) { return sum + (c.spent||0); }, 0);
-  var totalImpr  = campaigns.reduce(function(sum, c) { return sum + (c.impressions||0); }, 0);
-  var ctr        = totalImpr > 0 ? Math.round((totalComp / totalImpr) * 1000) / 10 : 0;
+  lastCompletionsByDay = data.completionsByDay || {};
 
   var el = function(id) { return document.getElementById(id); };
-  if (el("analytics-impressions")) el("analytics-impressions").textContent = totalImpr.toLocaleString();
-  if (el("analytics-completions")) el("analytics-completions").textContent = totalComp.toLocaleString();
-  if (el("analytics-rate"))        el("analytics-rate").textContent        = ctr + "%";
-  if (el("analytics-spent"))       el("analytics-spent").textContent       = window.formatRand(totalSpent);
+  var budgetUsedPct = data.totals.totalBudget > 0 ? Math.round((data.totals.totalSpent / data.totals.totalBudget) * 100) : 0;
+  if (el("analytics-impressions")) el("analytics-impressions").textContent = data.totals.totalCampaigns;
+  if (el("analytics-completions")) el("analytics-completions").textContent = data.totals.totalCompletions.toLocaleString();
+  if (el("analytics-rate"))        el("analytics-rate").textContent        = budgetUsedPct + "%";
+  if (el("analytics-spent"))       el("analytics-spent").textContent       = window.formatRand(data.totals.totalSpent);
 
-  renderDemographics(campEvents);
-  renderActiveUsers();
-  renderSessionMetrics();
-  renderRetention(campEvents);
-  drawAdvChart("week");
-  renderAnalyticsBreakdown(campaigns);
-  renderAttribution(campaigns, log);
+  drawAdvChart("week", data.completionsByDay);
+  renderAnalyticsBreakdown(data.campaigns);
 }
 
 // ── 1. User Demographics — age, gender, location of users who engaged with this advertiser's campaigns ──
@@ -578,35 +563,22 @@ function renderRetention(campEvents) {
 
 // ── 5. Ad Impressions & CTR — see initAdvertiserAnalytics tiles + per-campaign breakdown below ──
 
-function drawAdvChart(period) {
+function drawAdvChart(period, completionsByDay) {
   var canvas = document.getElementById("adv-chart");
   if (!canvas || typeof Chart === "undefined") return;
-  var adv = getAdvertiserSession();
-  if (!adv) return;
-  var campIds = getAdvertiserCampaigns(adv.id).map(function(c) { return c.id; });
-  var log = getActivityLog();
-  var campEvents = log.filter(function(e) { return e.type === 'campaign' && campIds.indexOf(e.campaignId) !== -1; });
+  completionsByDay = completionsByDay || {};
 
   if (advChartInstance) { advChartInstance.destroy(); advChartInstance = null; }
 
   var labels = [], data = [];
   var now = new Date();
-  if (period === "week") {
-    var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    for (var i = 6; i >= 0; i--) {
-      var d = new Date(now); d.setDate(now.getDate() - i);
-      var key = d.toISOString().slice(0, 10);
-      labels.push(dayNames[d.getDay()]);
-      data.push(campEvents.filter(function(e) { return e.day === key; }).length);
-    }
-  } else {
-    labels = ["Week 1","Week 2","Week 3","Week 4"];
-    data = [0,0,0,0];
-    campEvents.forEach(function(e) {
-      var daysAgo = Math.floor((now.getTime() - e.ts) / 86400000);
-      var w = Math.floor(daysAgo / 7);
-      if (w >= 0 && w < 4) data[3 - w]++;
-    });
+  var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var daysToShow = period === "week" ? 7 : 30;
+  for (var i = daysToShow - 1; i >= 0; i--) {
+    var d = new Date(now); d.setDate(now.getDate() - i);
+    var key = d.toISOString().slice(0, 10);
+    labels.push(period === "week" ? dayNames[d.getDay()] : d.getDate() + "/" + (d.getMonth()+1));
+    data.push(completionsByDay[key] || 0);
   }
 
   advChartInstance = new Chart(canvas.getContext("2d"), {
@@ -615,7 +587,7 @@ function drawAdvChart(period) {
   });
 }
 
-function updateAdvChart(period) { drawAdvChart(period); }
+function updateAdvChart(period) { drawAdvChart(period, lastCompletionsByDay); }
 
 function renderAnalyticsBreakdown(campaigns) {
   var container = document.getElementById("analytics-breakdown");
@@ -625,14 +597,10 @@ function renderAnalyticsBreakdown(campaigns) {
     return;
   }
   container.innerHTML = campaigns.map(function(c) {
-    var pct  = c.budget > 0 ? Math.round(((c.spent||0)/c.budget)*100) : 0;
-    var impr = c.impressions || 0;
-    var comp = c.completions || 0;
-    var ctr  = impr > 0 ? Math.round((comp/impr)*1000)/10 : 0;
-    return "<div style='background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;margin-bottom:8px;'><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + c.name + "</p><p style='font-size:13px;font-weight:700;color:#f97316;'>" + comp + " completions</p></div><div style='background:var(--bg);border-radius:6px;height:8px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div><div style='display:flex;justify-content:space-between;margin-top:6px;'><p style='font-size:11px;color:var(--text-muted);'>" + impr + " impressions · " + ctr + "% CTR</p><p style='font-size:11px;color:var(--text-muted);'>Budget used: " + pct + "%</p></div></div>";
+    var pct  = c.budget > 0 ? Math.round((c.spent/c.budget)*100) : 0;
+    return "<div style='background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;margin-bottom:8px;'><p style='font-size:13px;font-weight:600;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:13px;font-weight:700;color:#f97316;'>" + c.completions + " completions</p></div><div style='background:var(--bg);border-radius:6px;height:8px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div><div style='display:flex;justify-content:space-between;margin-top:6px;'><p style='font-size:11px;color:var(--text-muted);'>R " + window.formatAmt(c.spent) + " of R " + window.formatAmt(c.budget) + " spent</p><p style='font-size:11px;color:var(--text-muted);'>" + pct + "% used</p></div></div>";
   }).join("");
 }
-
 // ── 6. Attribution — which campaign was a user's first-ever activity on KwandaData (drove their acquisition) ──
 function renderAttribution(campaigns, log) {
   var container = document.getElementById("analytics-attribution");
