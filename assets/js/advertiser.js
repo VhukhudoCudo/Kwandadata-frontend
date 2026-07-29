@@ -147,11 +147,18 @@ var campaigns  = await getAdvertiserCampaigns(adv.id);
   var active     = campaigns.filter(function(c) { return c.status === "active"; });
   var totalSpent = campaigns.reduce(function(sum, c) { return sum + Number(c.spent || 0); }, 0);
   var totalBudget = campaigns.reduce(function(sum, c) { return sum + Number(c.budget || 0); }, 0);
+  var remainingBudget = totalBudget - totalSpent;
+  var totalCompletions = campaigns.reduce(function(sum, c) {
+    return sum + (c.tasks || []).reduce(function(taskSum, t) {
+      return taskSum + (t._count ? t._count.completions : 0);
+    }, 0);
+  }, 0);
   var el = function(id) { return document.getElementById(id); };
   if (el("adv-total-campaigns"))   el("adv-total-campaigns").textContent  = campaigns.length;
   if (el("adv-active-campaigns"))  el("adv-active-campaigns").textContent = active.length;
   if (el("adv-total-spent"))       el("adv-total-spent").textContent      = window.formatRand(totalSpent);
-  if (el("adv-budget"))            el("adv-budget").textContent           = window.formatRand(totalBudget);
+  if (el("adv-total-completions")) el("adv-total-completions").textContent = totalCompletions;
+  if (el("adv-budget"))            el("adv-budget").textContent           = window.formatRand(remainingBudget);
   loadRecentCampaigns(adv.id);
 }
 
@@ -371,6 +378,7 @@ function stopCampaign(campId) {
 }
 var advChartInstance = null;
 var lastCompletionsByDay = {};
+var lastCompletionsByDay = {};
 
 // ── Data helpers ──
 function getActivityLog() {
@@ -455,7 +463,33 @@ async function initAdvertiserAnalytics() {
   if (el("analytics-impressions")) el("analytics-impressions").textContent = data.totals.totalCampaigns;
   if (el("analytics-completions")) el("analytics-completions").textContent = data.totals.totalCompletions.toLocaleString();
   if (el("analytics-rate"))        el("analytics-rate").textContent        = budgetUsedPct + "%";
-  if (el("analytics-spent"))       el("analytics-spent").textContent       = window.formatRand(data.totals.totalSpent);
+if (el("analytics-spent"))       el("analytics-spent").textContent       = window.formatRand(data.totals.totalSpent);
+
+  var reach = data.audienceReach || {};
+  var eng   = data.engagement || {};
+  if (el("analytics-dau"))         el("analytics-dau").textContent         = reach.dailyActive || 0;
+  if (el("analytics-mau"))         el("analytics-mau").textContent         = reach.monthlyActive || 0;
+  if (el("analytics-total-users")) el("analytics-total-users").textContent = reach.totalParticipants || 0;
+
+  if (el("analytics-freq")) {
+    el("analytics-freq").textContent = reach.totalParticipants > 0 ? eng.avgCompletionsPerUser + " / user" : "—";
+  }
+  if (el("analytics-duration")) {
+    el("analytics-duration").textContent = reach.totalParticipants > 0 ? eng.repeatParticipants + " repeat" : "—";
+  }
+  if (el("analytics-retention")) {
+    el("analytics-retention").textContent = reach.totalParticipants > 0 ? eng.repeatRate + "%" : "—";
+  }
+  if (el("analytics-retention-sub")) {
+    el("analytics-retention-sub").textContent = reach.totalParticipants > 0
+      ? eng.repeatParticipants + " of " + reach.totalParticipants + " participants came back for a 2nd activity"
+      : "No activity recorded yet";
+  }
+
+  var demoEl = document.getElementById("analytics-demographics");
+  if (demoEl) demoEl.innerHTML = "<p style='font-size:12px;color:var(--text-muted);text-align:center;padding:8px;'>Demographic breakdown isn't tracked yet.</p>";
+  var attrEl = document.getElementById("analytics-attribution");
+  if (attrEl) attrEl.innerHTML = "<p style='font-size:12px;color:var(--text-muted);text-align:center;padding:8px;'>Signup attribution isn't tracked yet.</p>";
 
   drawAdvChart("week", data.completionsByDay);
   renderAnalyticsBreakdown(data.campaigns);

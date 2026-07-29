@@ -83,12 +83,12 @@ function toggleOtherNetwork(val) {
   if (wrap) wrap.style.display = val === 'other' ? 'block' : 'none';
 }
 window.toggleOtherNetwork = toggleOtherNetwork;
-PAGES['advertiser-dashboard'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting" id="adv-greeting">Good morning</p><h2 class="home-name" id="adv-company-name">Loading...</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('advertiser-notifications')"><i class="ti ti-bell"></i></button><button onclick="advertiserLogout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 12px;display:flex;align-items:center;gap:5px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:15px;"></i><span style="color:#ef4444;font-size:12px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:20px 22px;margin:16px;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;">Campaign Budget</p><p id="adv-budget" style="font-size:30px;font-weight:700;color:#fff;">R 0.00</p><p style="font-size:12px;color:rgba(255,255,255,0.7);">Total Across Campaigns</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-speakerphone"></i></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 16px 16px;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-campaigns" style="font-size:24px;font-weight:700;color:#f97316;">0</p><p style="font-size:12px;color:var(--text-muted);">Total Campaigns</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-active-campaigns" style="font-size:24px;font-weight:700;color:var(--accent-green);">0</p><p style="font-size:12px;color:var(--text-muted);">Active Campaigns</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-completions" style="font-size:24px;font-weight:700;color:var(--primary);">0</p><p style="font-size:12px;color:var(--text-muted);">Total Completions</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-spent" style="font-size:24px;font-weight:700;color:#ef4444;">R 0.00</p><p style="font-size:12px;color:var(--text-muted);">Total Spent</p></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('advertiser-create-campaign')"><div class="action-icon orange"><i class="ti ti-plus"></i></div><h3>New Campaign</h3><p>Create a new campaign</p></div><div class="action-card" onclick="navigateTo('advertiser-campaigns')"><div class="action-icon purple"><i class="ti ti-speakerphone"></i></div><h3>My Campaigns</h3><p>View all campaigns</p></div><div class="action-card" onclick="navigateTo('advertiser-analytics')"><div class="action-icon blue"><i class="ti ti-chart-bar"></i></div><h3>Analytics</h3><p>View performance</p></div><div class="action-card" onclick="navigateTo('advertiser-billing')"><div class="action-icon green"><i class="ti ti-credit-card"></i></div><h3>Top Up</h3><p>Manage your budget</p></div><div class="action-card" onclick="navigateTo('advertiser-redeem-code')"><div class="action-icon violet"><i class="ti ti-ticket"></i></div><h3>Redeem Code</h3><p>Confirm a customer's code</p></div><div class="action-card" onclick="downloadCampaignParticipants()"><div class="action-icon blue"><i class="ti ti-users"></i></div><h3>Client Data</h3><p>Download who did your campaigns</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Campaigns</p><span class="section-link" onclick="navigateTo('advertiser-campaigns')" style="color:#f97316;">View all ›</span></div><div id="adv-recent-campaigns"><div style="text-align:center;padding:24px;color:var(--text-muted);"><i class="ti ti-speakerphone" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;"></i><p style="font-size:13px;">No campaigns yet</p></div></div></div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
+PAGES['advertiser-dashboard'] = `<div class="home-screen"><div class="home-header"><div><p class="home-greeting" id="adv-greeting">Good morning</p><h2 class="home-name" id="adv-company-name">Loading...</h2></div><div style="display:flex;align-items:center;gap:8px;"><button class="notif-btn" onclick="navigateTo('advertiser-notifications')"><i class="ti ti-bell"></i></button><button onclick="advertiserLogout()" style="background:#fee2e2;border:none;border-radius:20px;padding:8px 12px;display:flex;align-items:center;gap:5px;cursor:pointer;"><i class="ti ti-logout" style="color:#ef4444;font-size:15px;"></i><span style="color:#ef4444;font-size:12px;font-weight:600;">Log Out</span></button></div></div><div class="page-scroll"><div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:20px 22px;margin:16px;display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;">Campaign Budget</p><p id="adv-budget" style="font-size:30px;font-weight:700;color:#fff;">R 0.00</p><p style="font-size:12px;color:rgba(255,255,255,0.7);">Remaining Balance</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-speakerphone"></i></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 16px 16px;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-campaigns" style="font-size:24px;font-weight:700;color:#f97316;">0</p><p style="font-size:12px;color:var(--text-muted);">Total Campaigns</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-active-campaigns" style="font-size:24px;font-weight:700;color:var(--accent-green);">0</p><p style="font-size:12px;color:var(--text-muted);">Active Campaigns</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-completions" style="font-size:24px;font-weight:700;color:var(--primary);">0</p><p style="font-size:12px;color:var(--text-muted);">Total Completions</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;"><p id="adv-total-spent" style="font-size:24px;font-weight:700;color:#ef4444;">R 0.00</p><p style="font-size:12px;color:var(--text-muted);">Total Spent</p></div></div><div class="section"><p class="section-title">Quick Actions</p><div class="quick-actions"><div class="action-card" onclick="navigateTo('advertiser-create-campaign')"><div class="action-icon orange"><i class="ti ti-plus"></i></div><h3>New Campaign</h3><p>Create a new campaign</p></div><div class="action-card" onclick="navigateTo('advertiser-campaigns')"><div class="action-icon purple"><i class="ti ti-speakerphone"></i></div><h3>My Campaigns</h3><p>View all campaigns</p></div><div class="action-card" onclick="navigateTo('advertiser-analytics')"><div class="action-icon blue"><i class="ti ti-chart-bar"></i></div><h3>Analytics</h3><p>View performance</p></div><div class="action-card" onclick="navigateTo('advertiser-billing')"><div class="action-icon green"><i class="ti ti-credit-card"></i></div><h3>Top Up</h3><p>Manage your budget</p></div><div class="action-card" onclick="navigateTo('advertiser-redeem-code')"><div class="action-icon violet"><i class="ti ti-ticket"></i></div><h3>Redeem Code</h3><p>Confirm a customer's code</p></div><div class="action-card" onclick="downloadCampaignParticipants()"><div class="action-icon blue"><i class="ti ti-users"></i></div><h3>Client Data</h3><p>Download who did your campaigns</p></div></div></div><div class="section"><div class="section-header"><p class="section-title">Recent Campaigns</p><span class="section-link" onclick="navigateTo('advertiser-campaigns')" style="color:#f97316;">View all ›</span></div><div id="adv-recent-campaigns"><div style="text-align:center;padding:24px;color:var(--text-muted);"><i class="ti ti-speakerphone" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;"></i><p style="font-size:13px;">No campaigns yet</p></div></div></div></div><nav class="bottom-nav"><button class="nav-item active" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
 PAGES['advertiser-create-campaign'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h1>Create Campaign</h1><p>Set up your new campaign</p></div><div class="auth-body"><div class="form-group"><label for="camp-name">Campaign Name</label><div class="input-wrap has-icon-left"><i class="ti ti-speakerphone"></i><input type="text" id="camp-name" placeholder="Enter your campaign name"/></div></div><div class="form-group"><label for="camp-type">Activity Type</label><select id="camp-type" class="form-select" onchange="updateCampPrice()"><option value="">Select activity type</option><option value="survey">Survey — R 15.00 per completion</option><option value="video">Watch Video — R 5.00 per completion</option><option value="quiz">Quiz — R 8.00 per completion</option><option value="download">Download App — R 20.00 per completion</option><option value="signup">Sign Up / Register — R 25.00 per completion</option></select></div><div class="form-group" id="camp-link-group" style="display:none;"><label for="camp-link">Link (video, quiz, app store page, sign-up page, etc.)</label><div class="input-wrap has-icon-left"><i class="ti ti-link"></i><input type="url" id="camp-link" placeholder="https://..."/></div></div><div class="form-group"><label for="camp-description">Campaign Description</label><textarea id="camp-description" placeholder="Describe what users need to do..." style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;outline:none;box-sizing:border-box;resize:none;height:80px;font-family:sans-serif;"></textarea></div><div class="form-group"><label for="camp-budget">Total Budget (R)</label><div class="input-wrap has-icon-left"><i class="ti ti-currency-rand"></i><input type="number" id="camp-budget" placeholder="Minimum R 5,000" min="5000" oninput="updateCampPrice()"/></div></div><div style="background:#fff7ed;border-radius:12px;padding:14px;border:1.5px solid #fed7aa;margin-bottom:4px;"><p style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Pricing Summary</p><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><p style="font-size:13px;color:var(--text-muted);">Price per completion</p><p id="camp-price-display" style="font-size:13px;font-weight:700;color:var(--primary);">Select activity type</p></div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><p style="font-size:13px;color:var(--text-muted);">Estimated completions</p><p id="camp-completions" style="font-size:13px;font-weight:700;color:var(--primary);">—</p></div><div style="border-top:1px solid #fed7aa;padding-top:8px;display:flex;justify-content:space-between;"><p style="font-size:13px;font-weight:700;color:var(--text-primary);">Total Cost</p><p id="camp-total-cost" style="font-size:13px;font-weight:700;color:#f97316;">—</p></div></div><div class="name-row"><div class="form-group"><label for="camp-start">Start Date</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="camp-start"/></div></div><div class="form-group"><label for="camp-end">End Date</label><div class="input-wrap has-icon-left"><i class="ti ti-calendar"></i><input type="date" id="camp-end"/></div></div></div><div class="form-group"><label for="camp-target">Target Users</label><select id="camp-target" class="form-select"><option value="all">National</option><option value="gauteng">Gauteng</option><option value="western-cape">Western Cape</option><option value="kwazulu-natal">KwaZulu-Natal</option><option value="eastern-cape">Eastern Cape</option><option value="limpopo">Limpopo</option><option value="mpumalanga">Mpumalanga</option><option value="north-west">North West</option><option value="northern-cape">Northern Cape</option><option value="free-state">Free State</option></select></div><p class="auth-error" id="camp-error"></p><button onclick="submitCampaign()" style="width:100%;padding:15px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;">Submit for Approval</button><p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;">Your campaign will be reviewed before going live</p></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item active"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 PAGES['advertiser-campaigns'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>My Campaigns</h2></div><button class="icon-btn" onclick="initAdvertiserCampaigns()"><i class="ti ti-refresh"></i></button></div><div style="display:flex;gap:8px;padding:12px 16px;background:#fff;overflow-x:auto;border-bottom:1px solid var(--border);"><button onclick="filterCampaigns('all')" id="filter-all" style="padding:7px 16px;border-radius:20px;background:#f97316;color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All</button><button onclick="filterCampaigns('unpaid')" id="filter-unpaid" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Draft</button><button onclick="filterCampaigns('pending')" id="filter-pending" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Pending</button><button onclick="filterCampaigns('active')" id="filter-active" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Active</button><button onclick="filterCampaigns('paused')" id="filter-paused" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Paused</button><button onclick="filterCampaigns('completed')" id="filter-completed" style="padding:7px 16px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Completed</button></div><div class="page-scroll"><div id="campaigns-list" style="padding:16px;display:flex;flex-direction:column;gap:12px;"></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item active"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
-PAGES['advertiser-analytics'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>Analytics</h2></div><button class="icon-btn" onclick="initAdvertiserAnalytics()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#f97316;margin-bottom:8px;"><i class="ti ti-eye"></i></div><p style="font-size:11px;color:var(--text-muted);">Total Campaigns</p><p id="analytics-impressions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;margin-bottom:8px;"><i class="ti ti-check"></i></div><p style="font-size:11px;color:var(--text-muted);">Completions</p><p id="analytics-completions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);margin-bottom:8px;"><i class="ti ti-click"></i></div><p style="font-size:11px;color:var(--text-muted);">Budget Used</p><p id="analytics-rate" style="font-size:22px;font-weight:700;color:var(--text-primary);">0%</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ef4444;margin-bottom:8px;"><i class="ti ti-currency-rand"></i></div><p style="font-size:11px;color:var(--text-muted);">Budget Spent</p><p id="analytics-spent" style="font-size:22px;font-weight:700;color:var(--text-primary);">R 0.00</p></div></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Audience Reach</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Who your campaigns are reaching across the platform</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;"><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-dau" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Daily Active</p></div><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-mau" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Monthly Active</p></div><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-total-users" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Total Users</p></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">User Demographics</p><div id="analytics-demographics"></div></div></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Engagement</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">How often and how long users engage</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:9px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:16px;color:#3b82f6;margin-bottom:8px;"><i class="ti ti-repeat"></i></div><p style="font-size:11px;color:var(--text-muted);">Session Frequency</p><p id="analytics-freq" style="font-size:15px;font-weight:700;color:var(--text-primary);">—</p></div><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:9px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:16px;color:#f97316;margin-bottom:8px;"><i class="ti ti-clock"></i></div><p style="font-size:11px;color:var(--text-muted);">Avg. Session Length</p><p id="analytics-duration" style="font-size:15px;font-weight:700;color:var(--text-primary);">—</p></div></div><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:11px;color:var(--text-muted);">Retention Rate</p><p id="analytics-retention" style="font-size:20px;font-weight:700;color:var(--text-primary);">—</p></div><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;"><i class="ti ti-user-check"></i></div></div><p id="analytics-retention-sub" style="font-size:11px;color:var(--text-muted);margin-top:6px;">No activity recorded yet</p></div></div><div style="background:#fff;border-radius:14px;margin:20px 16px 0;padding:16px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);">Performance Overview</p><select onchange="updateAdvChart(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:12px;color:var(--text-muted);background:#fff;outline:none;"><option value="week">This Week</option><option value="month">This Month</option></select></div><canvas id="adv-chart" height="120"></canvas></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Campaign Breakdown</p><div id="analytics-breakdown"></div></div><div style="padding:20px 16px 16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Attribution</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Which campaigns drove new users to KwandaData</p><div id="analytics-attribution"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item active"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
+PAGES['advertiser-analytics'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-arrow-left"></i></button><h2>Analytics</h2></div><button class="icon-btn" onclick="initAdvertiserAnalytics()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0;"><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#f97316;margin-bottom:8px;"><i class="ti ti-eye"></i></div><p style="font-size:11px;color:var(--text-muted);">Total Campaigns</p><p id="analytics-impressions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;margin-bottom:8px;"><i class="ti ti-check"></i></div><p style="font-size:11px;color:var(--text-muted);">Completions</p><p id="analytics-completions" style="font-size:22px;font-weight:700;color:var(--text-primary);">0</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);margin-bottom:8px;"><i class="ti ti-click"></i></div><p style="font-size:11px;color:var(--text-muted);">Budget Used</p><p id="analytics-rate" style="font-size:22px;font-weight:700;color:var(--text-primary);">0%</p></div><div style="background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);"><div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ef4444;margin-bottom:8px;"><i class="ti ti-currency-rand"></i></div><p style="font-size:11px;color:var(--text-muted);">Budget Spent</p><p id="analytics-spent" style="font-size:22px;font-weight:700;color:var(--text-primary);">R 0.00</p></div></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Audience Reach</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Who your campaigns are reaching across the platform</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;"><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-dau" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Daily Active</p></div><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-mau" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Monthly Active</p></div><div style="background:#fff;border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;"><p id="analytics-total-users" style="font-size:18px;font-weight:700;color:var(--text-primary);">0</p><p style="font-size:10px;color:var(--text-muted);">Total Users</p></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">User Demographics</p><div id="analytics-demographics"></div></div></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Engagement</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">How many participants come back to do more</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:9px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:16px;color:#3b82f6;margin-bottom:8px;"><i class="ti ti-repeat"></i></div><p style="font-size:11px;color:var(--text-muted);">Avg. Activities / User</p><p id="analytics-freq" style="font-size:15px;font-weight:700;color:var(--text-primary);">—</p></div><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:9px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:16px;color:#f97316;margin-bottom:8px;"><i class="ti ti-clock"></i></div><p style="font-size:11px;color:var(--text-muted);">Repeat Participants</p><p id="analytics-duration" style="font-size:15px;font-weight:700;color:var(--text-primary);">—</p></div></div><div style="background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><p style="font-size:11px;color:var(--text-muted);">Retention Rate</p><p id="analytics-retention" style="font-size:20px;font-weight:700;color:var(--text-primary);">—</p></div><div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:18px;color:#22c55e;"><i class="ti ti-user-check"></i></div></div><p id="analytics-retention-sub" style="font-size:11px;color:var(--text-muted);margin-top:6px;">No activity recorded yet</p></div></div><div style="background:#fff;border-radius:14px;margin:20px 16px 0;padding:16px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><p style="font-size:14px;font-weight:700;color:var(--text-primary);">Performance Overview</p><select onchange="updateAdvChart(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:12px;color:var(--text-muted);background:#fff;outline:none;"><option value="week">This Week</option><option value="month">This Month</option></select></div><canvas id="adv-chart" height="120"></canvas></div><div style="padding:20px 16px 0;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Campaign Breakdown</p><div id="analytics-breakdown"></div></div><div style="padding:20px 16px 16px;"><p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Attribution</p><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Which campaigns drove new users to KwandaData</p><div id="analytics-attribution"></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item active"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
 PAGES['advertiser-billing'] = `<div class="auth-screen"><div class="auth-header" style="background:linear-gradient(160deg,#7c2d12 0%,#ea580c 100%);"><div class="auth-header-bubble auth-header-bubble-1"></div><div class="auth-header-bubble auth-header-bubble-2"></div><button class="auth-back-btn" onclick="navigateTo('advertiser-profile')"><i class="ti ti-arrow-left"></i></button><h1>Top Up</h1><p>Manage your campaign budget</p></div><div class="auth-body"><div id="launch-campaign-card"></div><div style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><p style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:4px;">Available Budget</p><p id="billing-balance" style="font-size:30px;font-weight:700;color:#fff;">R 0.00</p><p style="font-size:11px;color:rgba(255,255,255,0.7);">Ready for campaigns</p></div><div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;"><i class="ti ti-credit-card"></i></div></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Top Up Budget</p><p style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Quick Select</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;"><button onclick="setTopUpAmount(5000)" style="padding:10px;border-radius:10px;background:#fff7ed;border:1.5px solid #f97316;color:#f97316;font-size:13px;font-weight:700;cursor:pointer;">R 5,000</button><button onclick="setTopUpAmount(10000)" style="padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;">R 10,000</button><button onclick="setTopUpAmount(25000)" style="padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--border);color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;">R 25,000</button></div><div class="form-group"><label for="topup-amount">Custom Amount (R)</label><div class="input-wrap has-icon-left"><i class="ti ti-currency-rand"></i><input type="number" id="topup-amount" placeholder="Enter amount" min="5000"/></div></div><p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Minimum top-up: R 5,000.00</p><button onclick="handleTopUp()" style="width:100%;padding:14px;border-radius:30px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">Top Up Now</button></div><div style="background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Top Up History</p><div id="billing-history"><div style="text-align:center;padding:16px;color:var(--text-muted);"><i class="ti ti-receipt" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;"></i><p style="font-size:13px;">No top-up history yet</p></div></div></div></div><nav class="bottom-nav"><button class="nav-item" onclick="navigateTo('advertiser-dashboard')"><i class="ti ti-home"></i><span>Home</span></button><button class="nav-item" onclick="navigateTo('advertiser-campaigns')"><i class="ti ti-speakerphone"></i><span>Campaigns</span></button><button class="nav-item" onclick="navigateTo('advertiser-create-campaign')"><i class="ti ti-plus"></i><span>Create</span></button><button class="nav-item" onclick="navigateTo('advertiser-analytics')"><i class="ti ti-chart-bar"></i><span>Analytics</span></button><button class="nav-item" onclick="navigateTo('advertiser-profile')"><i class="ti ti-user"></i><span>Profile</span></button></nav></div>`;
 
@@ -202,51 +202,56 @@ PAGES['maintenance'] = `<div class="splash-screen"><div class="splash-bubble spl
 PAGES['admin-analytics'] = `<div class="home-screen"><div class="subpage-header"><div class="subpage-left"><button class="icon-btn" onclick="navigateTo('admin-panel')"><i class="ti ti-arrow-left"></i></button><h2>Platform Analytics</h2></div><button class="icon-btn" onclick="initAdminAnalytics()"><i class="ti ti-refresh"></i></button></div><div class="page-scroll"><div style="display:flex;gap:8px;padding:12px 16px;overflow-x:auto;"><button onclick="filterAnalytics('today')" id="analytics-today" style="padding:6px 14px;border-radius:20px;background:var(--primary);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Today</button><button onclick="filterAnalytics('week')" id="analytics-week" style="padding:6px 14px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;">This Week</button><button onclick="filterAnalytics('month')" id="analytics-month" style="padding:6px 14px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;">This Month</button><button onclick="filterAnalytics('all')" id="analytics-all" style="padding:6px 14px;border-radius:20px;background:#fff;color:var(--text-muted);border:1px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;">All Time</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:14px;"><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-users" style="font-size:16px;color:#3b82f6;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Total Users</p><p id="pa-users" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-list-check" style="font-size:16px;color:#22c55e;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Tasks Completed</p><p id="pa-tasks" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-wallet" style="font-size:16px;color:#f97316;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Total User Wallets</p><p id="pa-wallets" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-building-store" style="font-size:16px;color:#ef4444;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Advertiser Budgets</p><p id="pa-adv-budgets" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">R 0.00</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#ede9fe;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-building-store" style="font-size:16px;color:#6c63ff;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Total Advertisers</p><p id="pa-advertisers" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div><div style="background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);"><div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><i class="ti ti-speakerphone" style="font-size:16px;color:#22c55e;"></i></div><p style="font-size:11px;color:var(--text-muted);margin:0 0 2px;">Active Campaigns</p><p id="pa-campaigns" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0;">0</p></div></div><div style="background:#fff;border-radius:14px;margin:0 16px 16px;padding:16px;border:1px solid var(--border);"><p style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">User Registrations</p><canvas id="pa-chart" height="120"></canvas></div></div></div>`;
 
 
-function initAdminFinancial() {
-  var allUsers      = JSON.parse(localStorage.getItem('kwanda_users')       || '[]');
-  var allAdvs       = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
-  var allCampaigns  = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
-  var adminFees     = JSON.parse(localStorage.getItem('_k_fees')            || '{"t":0,"count":0}');
+let cachedFinAnalytics = null;
+let cachedFinStatements = [];
+let cachedFinCampaigns = [];
+let cachedFinUsers = [];
+
+async function initAdminFinancial() {
+  try {
+    const [analytics, statementsData, campaignsData, usersData] = await Promise.all([
+      apiFetch('/admin/analytics'),
+      apiFetch('/admin/advertisers/financial'),
+      apiFetch('/admin/campaigns'),
+      apiFetch('/admin/users?role=USER'),
+    ]);
+    cachedFinAnalytics = analytics;
+    cachedFinStatements = statementsData.statements || [];
+    cachedFinCampaigns = campaignsData.campaigns || [];
+    cachedFinUsers = usersData.users || [];
+  } catch (err) {
+    console.error('Failed to load financial data:', err.message);
+    return;
+  }
 
   var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-  set('fin-total-fees',    window.formatRand((adminFees.t || 0)));
+  var totalAdminFees = cachedFinStatements.reduce(function(sum, a) { return sum + a.totalAdminFee; }, 0);
+  set('fin-total-fees',    window.formatRand(totalAdminFees));
+  set('fin-user-wallets',  window.formatRand(cachedFinAnalytics.wallets.totalCashHeld));
+  set('fin-data-balances', Number(cachedFinAnalytics.wallets.totalDataHeld).toFixed(0) + ' MB');
+  set('fin-adv-spend',     window.formatRand(cachedFinAnalytics.campaigns.totalSpentOnUsers));
 
-  var totalUserWallets = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
-  var totalDataBal     = allUsers.reduce(function(sum, u) { return sum + (u.dataBalance || 0); }, 0);
-  set('fin-paid-users',    window.formatRand(totalUserWallets));
-  set('fin-user-wallets',  window.formatRand(totalUserWallets));
-  set('fin-data-balances', totalDataBal.toFixed(0) + ' MB');
-
-  var totalAdvSpend = allCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
-  set('fin-adv-spend', window.formatRand(totalAdvSpend));
-
-  // Advertiser statements
   var container = document.getElementById('fin-transactions');
   if (container) {
-    if (allAdvs.length === 0) {
+    if (cachedFinStatements.length === 0) {
       container.innerHTML = "<div style='text-align:center;padding:16px;color:var(--text-muted);font-size:13px;'>No advertisers yet</div>";
     } else {
-      container.innerHTML = allAdvs.map(function(adv) {
-        var advCampaigns = allCampaigns.filter(function(c) { return c.advertiserId === adv.id; });
-        var totalSpent   = advCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
-        var totalAdmin   = advCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
-        var totalVAT     = advCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
+      container.innerHTML = cachedFinStatements.map(function(a) {
         return "<div style='background:#f9fafb;border-radius:12px;padding:14px;border:1px solid var(--border);margin-bottom:10px;'>" +
           "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>" +
-          "<div><p style='font-size:14px;font-weight:700;color:var(--text-primary);margin:0;'>" + (adv.company || adv.email) + "</p>" +
-          "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + adv.email + "</p></div>" +
-          "<span style='font-size:12px;font-weight:700;color:#ef4444;'>R " + window.formatAmt(totalSpent) + "</span></div>" +
+          "<div><p style='font-size:14px;font-weight:700;color:var(--text-primary);margin:0;'>" + (a.company || a.name) + "</p>" +
+          "<p style='font-size:11px;color:var(--text-muted);margin:0;'>" + a.email + "</p></div>" +
+          "<span style='font-size:12px;font-weight:700;color:#ef4444;'>R " + window.formatAmt(a.totalCharged) + "</span></div>" +
           "<div style='display:flex;gap:8px;font-size:11px;color:var(--text-muted);margin-bottom:10px;'>" +
-          "<span>Campaigns: " + advCampaigns.length + "</span><span>|</span>" +
-          "<span>Admin Fee: R " + window.formatAmt(totalAdmin) + "</span><span>|</span>" +
-          "<span>VAT: R " + window.formatAmt(totalVAT) + "</span></div>" +
-          "<button onclick=\"downloadAdvStatement('" + adv.id + "')\" style='width:100%;padding:9px;border-radius:20px;background:linear-gradient(135deg,#2d1b8e,#534AB7);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;'>" +
-          "<i class=\"ti ti-download\" style=\"margin-right:5px;\"></i>Download Monthly Statement</button></div>";
+          "<span>Campaigns: " + a.campaignCount + "</span><span>|</span>" +
+          "<span>Admin Fee: R " + window.formatAmt(a.totalAdminFee) + "</span><span>|</span>" +
+          "<span>VAT: R " + window.formatAmt(a.totalVat) + "</span></div>" +
+          "<button onclick=\"downloadAdvStatement('" + a.id + "')\" style='width:100%;padding:9px;border-radius:20px;background:linear-gradient(135deg,#2d1b8e,#534AB7);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;'>" +
+          "<i class=\"ti ti-download\" style=\"margin-right:5px;\"></i>Download Statement</button></div>";
       }).join('');
     }
   }
 
-  // Users by region (with full wallet detail — see renderUsersByRegion)
   renderUsersByRegion();
 }
 
@@ -324,7 +329,7 @@ function renderUsersByRegion() {
   var regionContainer = document.getElementById('fin-users-region');
   if (!regionContainer) return;
 
-  var allUsers = JSON.parse(localStorage.getItem('kwanda_users') || '[]');
+  var allUsers = cachedFinUsers;
   var provinces = {
     'gauteng':'Gauteng','western-cape':'Western Cape','kwazulu-natal':'KwaZulu-Natal',
     'eastern-cape':'Eastern Cape','limpopo':'Limpopo','mpumalanga':'Mpumalanga',
@@ -344,10 +349,9 @@ function renderUsersByRegion() {
   var filtered = allUsers.filter(function(u) {
     if (provFilter && (u.province || '') !== provFilter) return false;
     if (searchFilter) {
-      var region = (u.region || '').toLowerCase();
       var name   = ((u.firstName || '') + ' ' + (u.lastName || '')).toLowerCase();
       var email  = (u.email || '').toLowerCase();
-      if (region.indexOf(searchFilter) === -1 && name.indexOf(searchFilter) === -1 && email.indexOf(searchFilter) === -1) return false;
+      if (name.indexOf(searchFilter) === -1 && email.indexOf(searchFilter) === -1) return false;
     }
     return true;
   });
@@ -376,18 +380,15 @@ function renderUsersByRegion() {
     html += "<span style='font-size:12px;font-weight:600;color:var(--primary);background:#ede9fe;padding:2px 10px;border-radius:10px;'>" + users.length + " users</span></div>";
 
     users.forEach(function(u) {
-      var detail = getUserWalletDetail(u);
-      html += '<details style="border-bottom:1px solid var(--border);">';
-      html += '<summary style="cursor:pointer;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">';
+      var balance     = u.wallet ? Number(u.wallet.balance) : 0;
+      var dataBalance = u.wallet ? Number(u.wallet.dataBalance) : 0;
+      html += '<div style="border-bottom:1px solid var(--border);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">';
       html += '<div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0;">' + (u.firstName || '') + ' ' + (u.lastName || '') + '</p>';
-      html += '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + (u.region || 'N/A') + ' · ' + (u.email || '') + '</p></div>';
+      html += '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + (u.email || '') + '</p></div>';
       html += '<div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;flex-shrink:0;">';
-      html += '<span style="font-size:11px;font-weight:700;color:#22c55e;">Hello: R ' + window.formatAmt(detail.helloBalance) + '</span>';
-      html += '<span style="font-size:11px;font-weight:700;color:#f97316;">Campaign: R ' + window.formatAmt(detail.campaign.total) + '</span>';
-      html += '<span style="font-size:11px;font-weight:700;color:#3b82f6;">Goals: R ' + window.formatAmt(detail.goals.total) + '</span>';
-      html += '</div></summary>';
-      html += '<div style="padding:0 12px 12px;background:#fafafa;">' + buildUserRegionDetailHTML(detail) + '</div>';
-      html += '</details>';
+      html += '<span style="font-size:11px;font-weight:700;color:#22c55e;">R ' + window.formatAmt(balance) + '</span>';
+      html += '<span style="font-size:11px;color:var(--text-muted);">' + dataBalance.toFixed(0) + ' MB</span>';
+      html += '</div></div>';
     });
 
     html += "</div>";
@@ -886,12 +887,9 @@ document.addEventListener('DOMContentLoaded', function() {
  
 
 function exportFinancialSummary() {
-
-  var allAdvs      = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
-  var allCampaigns = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
-  var allUsers     = JSON.parse(localStorage.getItem('kwanda_users')       || '[]');
-  var adminFees    = JSON.parse(localStorage.getItem('_k_fees')            || '{"t":0,"count":0}');
-  var now          = new Date();
+  if (!cachedFinAnalytics) { alert('Please open Financial Control first so data can load.'); return; }
+  var now = new Date();
+  var d   = cachedFinAnalytics;
 
   var lines = [];
   lines.push("========================================");
@@ -903,53 +901,43 @@ function exportFinancialSummary() {
   lines.push("");
   lines.push("PLATFORM OVERVIEW");
   lines.push("----------------------------------------");
-  lines.push("Total Users:          " + allUsers.length);
-  lines.push("Total Advertisers:    " + allAdvs.length);
-  lines.push("Total Campaigns:      " + allCampaigns.length);
-  lines.push("Active Campaigns:     " + allCampaigns.filter(function(c) { return c.status === 'active'; }).length);
-  lines.push("Total Admin Fees:     R " + window.formatAmt((adminFees.t || 0)));
+  lines.push("Total Users:          " + d.users.totalUsers);
+  lines.push("Total Advertisers:    " + d.users.totalAdvertisers);
+  lines.push("Total Campaigns:      " + d.campaigns.totalCampaigns);
+  lines.push("Active Campaigns:     " + d.campaigns.activeCampaigns);
   lines.push("");
 
-  // User wallets
-  var totalWallets  = allUsers.reduce(function(sum, u) { return sum + (u.balance || 0); }, 0);
-  var totalData     = allUsers.reduce(function(sum, u) { return sum + (u.dataBalance || 0); }, 0);
-  lines.push("Total User Wallets:   R " + window.formatAmt(totalWallets));
-  lines.push("Total Data Balances:  " + totalData.toFixed(0) + " MB");
+  lines.push("Total User Wallets:   R " + window.formatAmt(d.wallets.totalCashHeld));
+  lines.push("Total Data Balances:  " + Number(d.wallets.totalDataHeld).toFixed(0) + " MB");
   lines.push("");
 
-  // Per advertiser breakdown
   lines.push("========================================");
   lines.push("ADVERTISER BREAKDOWN");
   lines.push("========================================");
 
-  if (allAdvs.length === 0) {
+  var grandAdmin = 0, grandVat = 0, grandCharged = 0, grandBudget = 0;
+
+  if (cachedFinStatements.length === 0) {
     lines.push("No advertisers yet.");
   } else {
-    allAdvs.forEach(function(adv, i) {
-      var advCampaigns  = allCampaigns.filter(function(c) { return c.advertiserId === adv.id; });
-      var totalBudget   = advCampaigns.reduce(function(sum, c) { return sum + (c.budget || 0); }, 0);
-      var totalAdmin    = advCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
-      var totalVAT      = advCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
-      var totalCharged  = advCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+    cachedFinStatements.forEach(function(a, i) {
+      grandAdmin   += a.totalAdminFee;
+      grandVat     += a.totalVat;
+      grandCharged += a.totalCharged;
 
       lines.push("");
-      lines.push((i + 1) + ". " + (adv.company || adv.email));
-      lines.push("   Email:            " + adv.email);
-      lines.push("   Campaigns:        " + advCampaigns.length);
-      lines.push("   Campaign Budgets: R " + window.formatAmt(totalBudget));
-      lines.push("   Admin Fees (15%): R " + window.formatAmt(totalAdmin));
-      lines.push("   VAT (15%):        R " + window.formatAmt(totalVAT));
-      lines.push("   Total Charged:    R " + window.formatAmt(totalCharged));
-      lines.push("   Current Balance:  R " + window.formatAmt((adv.budget || 0)));
+      lines.push((i + 1) + ". " + (a.company || a.name));
+      lines.push("   Email:            " + a.email);
+      lines.push("   Campaigns:        " + a.campaignCount);
+      lines.push("   Admin Fees (20%): R " + window.formatAmt(a.totalAdminFee));
+      lines.push("   VAT (15%):        R " + window.formatAmt(a.totalVat));
+      lines.push("   Total Charged:    R " + window.formatAmt(a.totalCharged));
+      lines.push("   Total Spent:      R " + window.formatAmt(a.totalSpent));
       lines.push("   ----------------------------------------");
     });
   }
 
-  // Totals
-  var grandBudget  = allCampaigns.reduce(function(sum, c) { return sum + (c.budget || 0); }, 0);
-  var grandAdmin   = allCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
-  var grandVAT     = allCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
-  var grandCharged = allCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
+  cachedFinCampaigns.forEach(function(c) { grandBudget += Number(c.budget); });
 
   lines.push("");
   lines.push("========================================");
@@ -957,7 +945,7 @@ function exportFinancialSummary() {
   lines.push("========================================");
   lines.push("Total Campaign Budgets: R " + window.formatAmt(grandBudget));
   lines.push("Total Admin Fees:       R " + window.formatAmt(grandAdmin));
-  lines.push("Total VAT Collected:    R " + window.formatAmt(grandVAT));
+  lines.push("Total VAT Collected:    R " + window.formatAmt(grandVat));
   lines.push("Total Charged:          R " + window.formatAmt(grandCharged));
   lines.push("========================================");
   lines.push("KwandaData™ - Turning Participation into Opportunity");
@@ -979,10 +967,9 @@ function exportFinancialSummary() {
 window.exportFinancialSummary = exportFinancialSummary;
 
 function exportUsersByRegion() {
-  var allUsers = JSON.parse(localStorage.getItem('kwanda_users') || '[]');
+  var allUsers = cachedFinUsers;
   var now      = new Date();
 
-  // Group users by province
   var provinces = {
     'gauteng':       'Gauteng',
     'western-cape':  'Western Cape',
@@ -1022,56 +1009,16 @@ function exportUsersByRegion() {
     lines.push("----------------------------------------");
 
     users.forEach(function(u, i) {
-      var detail = getUserWalletDetail(u);
+      var balance     = u.wallet ? Number(u.wallet.balance) : 0;
+      var dataBalance = u.wallet ? Number(u.wallet.dataBalance) : 0;
 
       lines.push((i + 1) + ". " + (u.firstName || '') + " " + (u.lastName || ''));
       lines.push("   Email:       " + (u.email || 'N/A'));
       lines.push("   Contact:     " + (u.phone || 'N/A'));
-      lines.push("   Network:     " + (u.network || 'N/A'));
-      lines.push("   Age:         " + (u.age || 'N/A'));
-      lines.push("   Region/City: " + (u.region || 'N/A'));
-      lines.push("   Province:    " + (provName));
-      lines.push("   Gender:      " + (u.gender || 'N/A'));
-      lines.push("   Employment:  " + (u.employment || 'N/A'));
-      lines.push("   Data:        " + (u.dataBalance || 0).toFixed(0) + " MB");
-      lines.push("");
-      lines.push("   -- Hello Wallet --");
-      lines.push("   Balance: R " + window.formatAmt(detail.helloBalance));
-      lines.push("");
-      lines.push("   -- Campaign Objective Wallet -- (Total: R " + window.formatAmt(detail.campaign.total) + ")");
-      if (detail.campaign.companies.length === 0) {
-        lines.push("   No company balances.");
-      } else {
-        detail.campaign.companies.forEach(function(c) {
-          lines.push("   • " + c.companyName + ": R " + window.formatAmt(c.balance));
-        });
-      }
-      if (detail.campaign.redemptions.length > 0) {
-        lines.push("   Redemption history:");
-        detail.campaign.redemptions.forEach(function(r) {
-          lines.push("     - " + r.companyName + " | R " + window.formatAmt(r.amount) + " | " + r.code + " | " + r.status + " | " + r.date);
-        });
-      }
-      lines.push("");
-      lines.push("   -- Personal Goals Wallet -- (Total saved: R " + window.formatAmt(detail.goals.total) + ")");
-      if (detail.goals.list.length === 0) {
-        lines.push("   No goals created.");
-      } else {
-        detail.goals.list.forEach(function(g) {
-          lines.push("   • " + g.name + ": R " + window.formatAmt(g.saved) + " of R " + window.formatAmt(g.target));
-        });
-      }
-      if (detail.goals.redemptions.length > 0) {
-        lines.push("   Redemption history:");
-        detail.goals.redemptions.forEach(function(r) {
-          var line = r.method === 'bank_payout'
-            ? (r.bankDetails.bankName + ' ****' + r.bankDetails.accountNumber.slice(-4) + ' | Ref: ' + r.reference)
-            : r.code;
-          lines.push("     - " + r.goalName + " | R " + window.formatAmt(r.amount) + " | " + line + " | " + r.status + " | " + r.date);
-        });
-      }
-      lines.push("");
-      lines.push("   ----------------------------------------");
+      lines.push("   Province:    " + provName);
+      lines.push("   Wallet:      R " + window.formatAmt(balance));
+      lines.push("   Data:        " + dataBalance.toFixed(0) + " MB");
+      lines.push("   Joined:      " + new Date(u.createdAt).toLocaleDateString("en-ZA"));
       lines.push("");
     });
   });
@@ -1104,61 +1051,51 @@ function exportUsersByRegion() {
 window.exportUsersByRegion = exportUsersByRegion;
 
 function downloadAdvStatement(advId) {
-  var allAdvs      = JSON.parse(localStorage.getItem('kwanda_advertisers') || '[]');
-  var allCampaigns = JSON.parse(localStorage.getItem('kwanda_campaigns')   || '[]');
-  var adv          = allAdvs.find(function(a) { return a.id === advId; });
-  if (!adv) { alert('Advertiser not found.'); return; }
+  var statement = cachedFinStatements.find(function(a) { return a.id === advId; });
+  if (!statement) { alert('Advertiser not found.'); return; }
 
-  var industryMap = { "telecom":"Telecommunications","banking":"Banking & Finance","retail":"Retail","media":"Media & Entertainment","healthcare":"Healthcare","education":"Education","technology":"Technology","fmcg":"FMCG","other":"Other" };
-  var industryLabel = industryMap[adv.industry] || adv.industry || 'N/A';
-
-  var advCampaigns = allCampaigns.filter(function(c) { return c.advertiserId === advId; });
-  var now          = new Date();
+  var advCampaigns = cachedFinCampaigns.filter(function(c) { return c.advertiser && c.advertiser.id === advId; });
+  var now = new Date();
 
   var lines = [];
   lines.push("========================================");
-  lines.push("   KWANDADATA MONTHLY BILLING STATEMENT ");
+  lines.push("   KWANDADATA ADVERTISER STATEMENT      ");
   lines.push("========================================");
-  lines.push("Advertiser:   " + (adv.company || adv.email));
-  lines.push("Industry:     " + industryLabel);
-  lines.push("Email:        " + adv.email);
+  lines.push("Advertiser:   " + (statement.company || statement.name));
+  lines.push("Email:        " + statement.email);
   lines.push("Generated:    " + now.toLocaleString("en-ZA"));
-  lines.push("Period:       " + now.toLocaleString("en-ZA", { month: "long", year: "numeric" }));
   lines.push("========================================");
   lines.push("");
 
-  var runningCampaigns = advCampaigns.filter(function(c) { return c.status === "active"; }).map(function(c) { return c.name || "Campaign"; });
+  var runningCampaigns = advCampaigns.filter(function(c) { return c.status === "active"; }).map(function(c) { return c.title; });
   lines.push("Currently Running Campaigns: " + (runningCampaigns.length > 0 ? runningCampaigns.join(", ") : "None"));
   lines.push("");
 
   if (advCampaigns.length === 0) {
-    lines.push("No campaigns this period.");
+    lines.push("No campaigns yet.");
   } else {
     advCampaigns.forEach(function(c, i) {
-      lines.push((i + 1) + ". " + (c.name || 'Campaign'));
-      lines.push("   Type:          " + (c.type || 'N/A'));
-      lines.push("   Status:        " + (c.status || 'N/A'));
-      lines.push("   Budget:        R " + window.formatAmt((c.budget || 0)));
-      lines.push("   Admin Fee:     R " + window.formatAmt((c.adminFee || 0)));
-      lines.push("   VAT (15%):     R " + window.formatAmt((c.vat || 0)));
-      lines.push("   Total Charged: R " + window.formatAmt((c.totalCharged || c.budget || 0)));
+      var firstTask = (c.tasks && c.tasks[0]) || {};
+      lines.push((i + 1) + ". " + c.title);
+      lines.push("   Type:          " + (firstTask.type || 'N/A'));
+      lines.push("   Status:        " + c.status);
+      lines.push("   Budget:        R " + window.formatAmt(c.budget));
+      lines.push("   Admin Fee:     R " + window.formatAmt(c.adminFee));
+      lines.push("   VAT (15%):     R " + window.formatAmt(c.vat));
+      lines.push("   Total Charged: R " + window.formatAmt(c.totalCharged));
+      lines.push("   Spent:         R " + window.formatAmt(c.spent));
       lines.push("");
     });
   }
 
-  var totalBudget  = advCampaigns.reduce(function(sum, c) { return sum + (c.budget || 0); }, 0);
-  var totalAdmin   = advCampaigns.reduce(function(sum, c) { return sum + (c.adminFee || 0); }, 0);
-  var totalVAT     = advCampaigns.reduce(function(sum, c) { return sum + (c.vat || 0); }, 0);
-  var totalCharged = advCampaigns.reduce(function(sum, c) { return sum + (c.totalCharged || c.budget || 0); }, 0);
-
   lines.push("========================================");
   lines.push("TOTALS");
   lines.push("========================================");
-  lines.push("Campaign Budgets: R " + window.formatAmt(totalBudget));
-  lines.push("Admin Fees:       R " + window.formatAmt(totalAdmin));
-  lines.push("VAT Collected:    R " + window.formatAmt(totalVAT));
-  lines.push("Total Charged:    R " + window.formatAmt(totalCharged));
-  lines.push("Current Balance:  R " + window.formatAmt((adv.budget || 0)));
+  lines.push("Campaigns:        " + statement.campaignCount);
+  lines.push("Admin Fees:       R " + window.formatAmt(statement.totalAdminFee));
+  lines.push("VAT Collected:    R " + window.formatAmt(statement.totalVat));
+  lines.push("Total Charged:    R " + window.formatAmt(statement.totalCharged));
+  lines.push("Total Spent:      R " + window.formatAmt(statement.totalSpent));
   lines.push("========================================");
   lines.push("KwandaData™ - Turning Participation into Opportunity");
   lines.push("support@kwandadata.co.za");
@@ -1169,7 +1106,7 @@ function downloadAdvStatement(advId) {
   var url     = URL.createObjectURL(blob);
   var a       = document.createElement("a");
   a.href      = url;
-  a.download  = "Statement_" + (adv.company || advId) + "_" + now.toISOString().slice(0, 7) + ".txt";
+  a.download  = "Statement_" + (statement.company || advId) + "_" + now.toISOString().slice(0, 7) + ".txt";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
