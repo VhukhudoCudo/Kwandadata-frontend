@@ -878,10 +878,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (msgEl) msgEl.textContent = maintenance.message || "We are currently performing scheduled maintenance.";
     return;
   }
-  var hash = window.location.hash.replace('#', '');
+var hash = window.location.hash.replace('#', '');
+  if (hash.indexOf('verify-email') === 0) {
+    var qIndex = hash.indexOf('?');
+    window.pendingVerifyToken = qIndex !== -1 ? new URLSearchParams(hash.slice(qIndex)).get('token') : null;
+    navigateTo('verify-email');
+    return;
+  }
   navigateTo(PAGES[hash] ? hash : 'splash');
 });
-
 
 
  

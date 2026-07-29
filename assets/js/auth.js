@@ -217,6 +217,40 @@ function logout() {
   navigateTo('splash');
 }
 
+// ── Verify email (called when the page loads with a token from the email link) ──
+async function initVerifyEmail() {
+  var iconEl = document.getElementById('verify-email-icon');
+  var msgEl  = document.getElementById('verify-email-message');
+  var btnEl  = document.getElementById('verify-email-continue-btn');
+  var token  = window.pendingVerifyToken;
+
+  if (!token) {
+    if (iconEl) iconEl.innerHTML = '<i class="ti ti-alert-triangle" style="color:#ef4444;"></i>';
+    if (msgEl)  msgEl.textContent = 'No verification token found. Please use the link from your email.';
+    if (btnEl)  btnEl.style.display = 'inline-block';
+    return;
+  }
+
+  try {
+    await apiFetch('/auth/verify-email?token=' + encodeURIComponent(token));
+    if (iconEl) iconEl.innerHTML = '<i class="ti ti-circle-check" style="color:#22c55e;"></i>';
+    if (msgEl)  msgEl.textContent = 'Your email has been verified! You can now redeem your earnings.';
+
+    var stored = localStorage.getItem('kwanda_current_user');
+    if (stored) {
+      var user = JSON.parse(stored);
+      user.emailVerified = true;
+      localStorage.setItem('kwanda_current_user', JSON.stringify(user));
+    }
+  } catch (err) {
+    if (iconEl) iconEl.innerHTML = '<i class="ti ti-alert-triangle" style="color:#ef4444;"></i>';
+    if (msgEl)  msgEl.textContent = err.message || 'This verification link is invalid or has expired.';
+  }
+
+  if (btnEl) btnEl.style.display = 'inline-block';
+  window.pendingVerifyToken = null;
+}
+
 // ── Expose to window ──
 window.handleRegister      = handleRegister;
 window.handleLogin         = handleLogin;
@@ -224,3 +258,4 @@ window.handleGoogleLogin   = handleGoogleLogin;
 window.handleFacebookLogin = handleFacebookLogin;
 window.getCurrentUser      = getCurrentUser;
 window.logout              = logout;
+window.initVerifyEmail     = initVerifyEmail;
