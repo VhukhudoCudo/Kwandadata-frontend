@@ -71,6 +71,8 @@ function renderTasks(tab) {
       buttonHtml = `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`;
     } else if (task.type === 'video' && isLinkTask) {
       buttonHtml = `<button class="btn-small" onclick="openVideoTask('${task.id}')">Watch & Earn</button>`;
+    } else if (task.type === 'quiz' && isLinkTask) {
+      buttonHtml = `<button class="btn-small" onclick="openQuizTask('${task.id}')">Start Quiz</button>`;
     } else if (isLinkTask) {
       buttonHtml = `<button class="btn-small" onclick="goToTaskLink('${task.id}')">Go & Earn</button>`;
     } else {
@@ -108,6 +110,89 @@ async function goToTaskLink(taskId) {
     btn.textContent = "I've done this";
     btn.setAttribute('onclick', `startTask('${taskId}')`);
   }
+}
+
+/* ══════════════════════════════════════
+   Quiz flow — opens the link in a new tab, then requires a minimum
+   amount of time to pass in-app before the reward can be claimed.
+   No real question/answer tracking — this is a time-gate, not scoring.
+══════════════════════════════════════ */
+
+const QUIZ_MIN_SECONDS = 30;
+let quizCountdownInterval = null;
+
+function ensureQuizModalStyles() {
+  if (document.getElementById('kw-quiz-modal-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'kw-quiz-modal-styles';
+  style.textContent =
+    '#kw-quiz-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;}' +
+    '.kw-quiz-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:360px;text-align:center;}' +
+    '.kw-quiz-modal h3{font-size:15px;font-weight:700;color:var(--text-primary);margin:0 0 8px;}' +
+    '.kw-quiz-timer{font-size:36px;font-weight:700;color:var(--primary);margin:14px 0;}' +
+    '.kw-quiz-hint{font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;}' +
+    '.kw-quiz-actions{display:flex;flex-direction:column;gap:10px;}' +
+    '.kw-quiz-actions button{padding:12px;border-radius:20px;border:none;font-size:14px;font-weight:700;cursor:pointer;}' +
+    '.kw-quiz-close{background:#f3f4f6;color:var(--text-primary);}' +
+    '.kw-quiz-claim{background:#9ca3af;color:#fff;}' +
+    '.kw-quiz-claim.kw-quiz-claim-ready{background:linear-gradient(135deg,#22c55e,#16a34a);}';
+  document.head.appendChild(style);
+}
+
+function closeQuizModal() {
+  if (quizCountdownInterval) { clearInterval(quizCountdownInterval); quizCountdownInterval = null; }
+  const el = document.getElementById('kw-quiz-modal-overlay');
+  if (el) el.remove();
+}
+
+function openQuizTask(taskId) {
+  const task = currentTasks.find(t => t.id === taskId);
+  const link = task && task.content && task.content.link;
+  if (!link) return;
+
+  window.open(link, '_blank');
+
+  ensureQuizModalStyles();
+  closeQuizModal();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'kw-quiz-modal-overlay';
+  overlay.innerHTML =
+    `<div class="kw-quiz-modal">
+      <h3>${task.title}</h3>
+      <p class="kw-quiz-hint">The quiz opened in a new tab. Complete it there, then come back here to claim your reward.</p>
+      <div class="kw-quiz-timer" id="kw-quiz-timer">${QUIZ_MIN_SECONDS}s</div>
+      <div class="kw-quiz-actions">
+        <button type="button" class="kw-quiz-claim" id="kw-quiz-claim-btn" disabled>Please wait...</button>
+        <button type="button" class="kw-quiz-close" id="kw-quiz-close-btn">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('kw-quiz-close-btn').addEventListener('click', closeQuizModal);
+  document.getElementById('kw-quiz-claim-btn').addEventListener('click', () => {
+    closeQuizModal();
+    startTask(taskId);
+  });
+
+  let remaining = QUIZ_MIN_SECONDS;
+  quizCountdownInterval = setInterval(() => {
+    remaining -= 1;
+    const timerEl = document.getElementById('kw-quiz-timer');
+    if (timerEl) timerEl.textContent = remaining + 's';
+
+    if (remaining <= 0) {
+      clearInterval(quizCountdownInterval);
+      quizCountdownInterval = null;
+      const claimBtn = document.getElementById('kw-quiz-claim-btn');
+      if (claimBtn) {
+        claimBtn.disabled = false;
+        claimBtn.textContent = 'Claim Reward';
+        claimBtn.className = 'kw-quiz-claim kw-quiz-claim-ready';
+      }
+      if (timerEl) timerEl.textContent = 'Ready!';
+    }
+  }, 1000);
 }
 
 async function startTask(taskId) {
@@ -269,9 +354,10 @@ function openVideoTask(taskId) {
   }
 }
 
-export { initEarn, switchTab, startTask, goToTaskLink, openVideoTask };
+export { initEarn, switchTab, startTask, goToTaskLink, openVideoTask, openQuizTask };
 window.initEarn       = initEarn;
 window.switchTab      = switchTab;
 window.startTask      = startTask;
 window.goToTaskLink   = goToTaskLink;
 window.openVideoTask  = openVideoTask;
+window.openQuizTask   = openQuizTask;
