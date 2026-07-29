@@ -265,10 +265,13 @@ async function initAdminSettings() {
     if (el) el.value = priceFields[id];
   });
 
-  var splitAdmin = document.getElementById('split-admin');
+ var splitAdmin = document.getElementById('split-admin');
   var splitData  = document.getElementById('split-data');
   if (splitAdmin) splitAdmin.value = settings.splitAdmin;
   if (splitData)  splitData.value  = settings.splitData;
+
+  var referralBonusEl = document.getElementById('referral-bonus');
+  if (referralBonusEl) referralBonusEl.value = settings.referralBonus;
 
   var maintToggle = document.getElementById('maintenance-toggle');
   var maintMsg    = document.getElementById('maintenance-msg');
@@ -313,7 +316,7 @@ async function saveSplitSettings() {
     return;
   }
 
-  try {
+ try {
     await apiFetch('/settings/splits', {
       method: 'PATCH',
       body: JSON.stringify({ splitAdmin, splitData }),
@@ -324,6 +327,24 @@ async function saveSplitSettings() {
   }
 }
 
+async function saveReferralBonus() {
+  var el = document.getElementById('referral-bonus');
+  var referralBonus = el ? parseFloat(el.value) : NaN;
+  if (isNaN(referralBonus) || referralBonus < 0) {
+    alert('Please enter a valid referral bonus amount.');
+    return;
+  }
+
+  try {
+    await apiFetch('/settings/referral-bonus', {
+      method: 'PATCH',
+      body: JSON.stringify({ referralBonus }),
+    });
+    showToast('Referral bonus saved.', 'success');
+  } catch (err) {
+    alert(err.message || 'Could not save the referral bonus. Please try again.');
+  }
+}
 async function toggleMaintenance(checked) {
   try {
     await apiFetch('/settings/maintenance', {
@@ -353,5 +374,6 @@ async function saveMaintenanceSettings() {
 window.initAdminSettings       = initAdminSettings;
 window.savePricing             = savePricing;
 window.saveSplitSettings       = saveSplitSettings;
+window.saveReferralBonus       = saveReferralBonus;
 window.toggleMaintenance       = toggleMaintenance;
 window.saveMaintenanceSettings = saveMaintenanceSettings;
