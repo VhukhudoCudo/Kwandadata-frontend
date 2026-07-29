@@ -324,13 +324,16 @@ function renderCampaignsList(advId, filter) {
     } else {
       statsHtml = "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;'><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Spent</p><p style='font-size:16px;font-weight:700;color:#ef4444;'>R " + window.formatAmt(spent) + "</p></div><div style='background:var(--bg);border-radius:8px;padding:8px;text-align:center;'><p style='font-size:10px;color:var(--text-muted);'>Remaining</p><p style='font-size:16px;font-weight:700;color:#22c55e;'>R " + window.formatAmt(remaining) + "</p></div></div>";
     }
-    var launchHtml = c.status==="draft" ? "<button onclick=\"launchDraftCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6c63ff,#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Submit for Review</button>" : "";
+var launchHtml = c.status==="draft" ? "<button onclick=\"launchDraftCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6c63ff,#2d1b8e);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Submit for Review</button>" : "";
     var pauseResumeHtml = c.status==="active"
       ? "<button onclick=\"pauseCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;'>Pause Campaign</button>"
       : c.status==="paused"
       ? "<button onclick=\"resumeCampaign('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;'>Resume Campaign</button>"
       : "";
-    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + (firstTask.type ? firstTask.type.charAt(0).toUpperCase() + firstTask.type.slice(1) + " - R " + window.formatAmt(firstTask.reward) + " per completion" : "") + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + (statusLabel[c.status] || c.status) + "</span></div>" + statsHtml + launchHtml + pauseResumeHtml + "</div>";
+    var topUpHtml = ["active","paused","completed"].indexOf(c.status) !== -1
+      ? "<button onclick=\"addCampaignBudget('"+c.id+"')\" style='width:100%;padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--primary);color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;'>Top Up Budget</button>"
+      : "";
+    return "<div style='background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);'><div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div style='flex:1;'><p style='font-size:15px;font-weight:700;color:var(--text-primary);'>" + c.title + "</p><p style='font-size:12px;color:var(--text-muted);margin-top:2px;'>" + (firstTask.type ? firstTask.type.charAt(0).toUpperCase() + firstTask.type.slice(1) + " - R " + window.formatAmt(firstTask.reward) + " per completion" : "") + "</p></div><span style='font-size:11px;font-weight:600;color:" + color + ";background:" + bg + ";padding:4px 12px;border-radius:20px;flex-shrink:0;'>" + (statusLabel[c.status] || c.status) + "</span></div>" + statsHtml + launchHtml + pauseResumeHtml + topUpHtml + "</div>";
   }).join("");
 }
 
@@ -344,12 +347,41 @@ async function launchDraftCampaign(campId) {
   }
 }
 
-function goToTopUpForCampaign(campId) {
-  alert("Adding budget to a campaign isn't available yet.");
-}
+async function addCampaignBudget(campId) {
+  var input = prompt("How much would you like to add to this campaign's budget? (minimum R100)");
+  if (input === null) return;
 
-function addCampaignBudget(campId) {
-  alert("Adding budget to a campaign isn't available yet.");
+  var amount = parseFloat(input);
+  if (isNaN(amount) || amount < 100) {
+    alert("Please enter a valid amount of at least R100.");
+    return;
+  }
+
+  var adminFee = amount * 0.20;
+  var vat = amount * 0.15;
+  var totalCharge = amount + adminFee + vat;
+
+  var confirmed = confirm(
+    "Confirm top-up:\n\n" +
+    "Amount added to budget:  R " + window.formatAmt(amount) + "\n" +
+    "Admin Fee (20%):         R " + window.formatAmt(adminFee) + "\n" +
+    "VAT (15%):               R " + window.formatAmt(vat) + "\n" +
+    "─────────────────────────\n" +
+    "Total Charged:           R " + window.formatAmt(totalCharge) + "\n\n" +
+    "Proceed?"
+  );
+  if (!confirmed) return;
+
+  try {
+    var result = await apiFetch(`/campaigns/${campId}/add-budget`, {
+      method: 'PATCH',
+      body: JSON.stringify({ amount }),
+    });
+    showToast(result.message || "Budget added.", "success");
+    initAdvertiserCampaigns();
+  } catch (err) {
+    alert(err.message || "Could not add budget to this campaign. Please try again.");
+  }
 }
 
 async function pauseCampaign(campId) {
@@ -1321,7 +1353,6 @@ window.initAdvertiserProfile    = initAdvertiserProfile;
 window.initAdvertiserBilling    = initAdvertiserBilling;
 window.setTopUpAmount           = setTopUpAmount;
 window.handleTopUp              = handleTopUp;
-window.goToTopUpForCampaign     = goToTopUpForCampaign;
 window.launchDraftCampaign      = launchDraftCampaign;
 window.initAdminPanel           = initAdminPanel;
 window.initAdminCampaignsMgmt   = initAdminCampaignsMgmt;
