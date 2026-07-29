@@ -406,14 +406,26 @@ async function downloadCampaignParticipants() {
     alert('No participants yet for your campaigns.');
     return;
   }
+var provinceMap = {
+    'gauteng':'Gauteng','western-cape':'Western Cape','kwazulu-natal':'KwaZulu-Natal',
+    'eastern-cape':'Eastern Cape','limpopo':'Limpopo','mpumalanga':'Mpumalanga',
+    'north-west':'North West','northern-cape':'Northern Cape','free-state':'Free State'
+  };
+  var employmentMap = {
+    'employed-full-time':'Employed Full-time','employed-part-time':'Employed Part-time',
+    'self-employed':'Self-employed','unemployed':'Unemployed','student':'Student',
+    'retired':'Retired','prefer-not-to-say':'Prefer not to say'
+  };
 
-  var lines = ['Name,Province,Campaign,Task,Type,Amount (R),Date'];
+  var lines = ['Name,Age,Province,Region,Employment Status,Campaign,Task,Type,Amount (R),Date'];
   participants.forEach(function(p) {
     var safeName = '"' + (p.name || 'Unknown').replace(/"/g, '""') + '"';
     var safeCamp = '"' + (p.campaignTitle || 'Unknown').replace(/"/g, '""') + '"';
     var safeTask = '"' + (p.taskTitle || '').replace(/"/g, '""') + '"';
+    var province = provinceMap[p.province] || p.province || '';
+    var employment = employmentMap[p.employment] || p.employment || '';
     var date     = new Date(p.completedAt).toISOString().slice(0, 10);
-    lines.push([safeName, p.province || '', safeCamp, safeTask, p.taskType || '', Number(p.payout).toFixed(2), date].join(','));
+    lines.push([safeName, p.age != null ? p.age : '', province, p.region || '', employment, safeCamp, safeTask, p.taskType || '', Number(p.payout).toFixed(2), date].join(','));
   });
 
   var content = lines.join('\n');
