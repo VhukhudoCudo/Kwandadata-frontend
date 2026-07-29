@@ -217,38 +217,63 @@ function logout() {
   navigateTo('splash');
 }
 
-// ── Verify email (called when the page loads with a token from the email link) ──
-async function initVerifyEmail() {
-  var iconEl = document.getElementById('verify-email-icon');
-  var msgEl  = document.getElementById('verify-email-message');
-  var btnEl  = document.getElementById('verify-email-continue-btn');
-  var token  = window.pendingVerifyToken;
+// ── Forgot / Reset Password ──
+async function handleForgotPassword() {
+  var email = getVal('reset-email').toLowerCase();
+  var errorEl   = document.getElementById('reset-error');
+  var successEl = document.getElementById('reset-success');
+  if (errorEl)   errorEl.textContent = '';
+  if (successEl) successEl.textContent = '';
 
-  if (!token) {
-    if (iconEl) iconEl.innerHTML = '<i class="ti ti-alert-triangle" style="color:#ef4444;"></i>';
-    if (msgEl)  msgEl.textContent = 'No verification token found. Please use the link from your email.';
-    if (btnEl)  btnEl.style.display = 'inline-block';
+  if (!isValidEmail(email)) {
+    showError('reset-error', 'Please enter a valid email address.');
     return;
   }
 
   try {
-    await apiFetch('/auth/verify-email?token=' + encodeURIComponent(token));
-    if (iconEl) iconEl.innerHTML = '<i class="ti ti-circle-check" style="color:#22c55e;"></i>';
-    if (msgEl)  msgEl.textContent = 'Your email has been verified! You can now redeem your earnings.';
-
-    var stored = localStorage.getItem('kwanda_current_user');
-    if (stored) {
-      var user = JSON.parse(stored);
-      user.emailVerified = true;
-      localStorage.setItem('kwanda_current_user', JSON.stringify(user));
-    }
+    await apiFetch('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    if (successEl) successEl.textContent = "If that email is registered, we've sent a reset link — check your inbox.";
   } catch (err) {
-    if (iconEl) iconEl.innerHTML = '<i class="ti ti-alert-triangle" style="color:#ef4444;"></i>';
-    if (msgEl)  msgEl.textContent = err.message || 'This verification link is invalid or has expired.';
+    showError('reset-error', err.message || 'Could not send reset link. Please try again.');
+  }
+}
+
+async function handleResetPassword() {
+  var newPw     = getVal('new-reset-password');
+  var confirmPw = getVal('confirm-reset-password');
+  var errorEl   = document.getElementById('reset-password-error');
+  var successEl = document.getElementById('reset-password-success');
+  if (errorEl)   errorEl.textContent = '';
+  if (successEl) successEl.textContent = '';
+
+  var token = window.pendingResetToken;
+  if (!token) {
+    showError('reset-password-error', 'No reset token found. Please use the link from your email.');
+    return;
+  }
+  if (newPw.length < 6) {
+    showError('reset-password-error', 'Password must be at least 6 characters.');
+    return;
+  }
+  if (newPw !== confirmPw) {
+    showError('reset-password-error', 'Passwords do not match.');
+    return;
   }
 
-  if (btnEl) btnEl.style.display = 'inline-block';
-  window.pendingVerifyToken = null;
+  try {
+    await apiFetch('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword: newPw }),
+    });
+    if (successEl) successEl.textContent = 'Password reset successfully! You can now sign in.';
+    window.pendingResetToken = null;
+    setTimeout(function() { navigateTo('sign-in'); }, 1800);
+  } catch (err) {
+    showError('reset-password-error', err.message || 'Could not reset your password. The link may have expired.');
+  }
 }
 
 // ── Expose to window ──
@@ -258,4 +283,5 @@ window.handleGoogleLogin   = handleGoogleLogin;
 window.handleFacebookLogin = handleFacebookLogin;
 window.getCurrentUser      = getCurrentUser;
 window.logout              = logout;
-window.initVerifyEmail     = initVerifyEmail;
+window.handleForgotPassword = handleForgotPassword;
+window.handleResetPassword  = handleResetPassword;

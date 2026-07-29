@@ -31,52 +31,9 @@ window.formatAmt = formatAmt;
 function initHome() {
   loadHomeUserData();
   setHomeGreeting();
-  renderVerificationBanner();
   if (typeof window.renderCampaignWallets === 'function') window.renderCampaignWallets();
   if (typeof window.renderPersonalGoals === 'function') window.renderPersonalGoals();
 }
-
-function renderVerificationBanner() {
-  var existing = document.getElementById('kw-verify-banner');
-  if (existing) existing.remove();
-
-  var user = getUser();
-  if (!user || user.emailVerified) return;
-
-  var anchor = document.querySelector('.home-greeting') || document.querySelector('.wallet-card') || document.querySelector('.page-scroll');
-  if (!anchor) return;
-
-  var banner = document.createElement('div');
-  banner.id = 'kw-verify-banner';
-  banner.style.cssText = 'background:#fff7ed;border:1px solid #f97316;border-radius:12px;padding:12px 14px;margin:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;';
-  banner.innerHTML =
-    '<div style="flex:1;min-width:180px;"><p style="font-size:13px;font-weight:700;color:#9a3412;margin:0 0 2px;">Please verify your email</p>' +
-    '<p style="font-size:12px;color:#9a3412;margin:0;">Check your inbox for a verification link. You\'ll need this before you can redeem.</p></div>' +
-    '<button id="kw-resend-verify-btn" style="padding:8px 14px;border-radius:20px;background:#f97316;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">Resend Email</button>';
-
-  anchor.insertAdjacentElement('afterend', banner);
-
-  document.getElementById('kw-resend-verify-btn').addEventListener('click', resendVerificationEmail);
-}
-
-async function resendVerificationEmail() {
-  var btn = document.getElementById('kw-resend-verify-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
-
-  try {
-    await apiFetch('/auth/resend-verification', { method: 'POST' });
-    if (typeof window.showToast === 'function') {
-      window.showToast('Verification email sent — check your inbox.', 'success');
-    } else {
-      alert('Verification email sent — check your inbox.');
-    }
-  } catch (err) {
-    alert(err.message || 'Could not resend verification email. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Resend Email'; }
-  }
-}
-
 
 // ── Load user data into home page ──
 async function loadHomeUserData() {
@@ -337,8 +294,6 @@ function updateHomeBalance(newBalance) {
 }
 
 window.initHome              = initHome;
-window.renderVerificationBanner = renderVerificationBanner;
-window.resendVerificationEmail  = resendVerificationEmail;
 window.initProfile           = initProfile;
 window.initEditProfile       = initEditProfile;
 window.saveProfile           = saveProfile;
