@@ -699,11 +699,11 @@ function calcAge(dob) {
   var age       = today.getFullYear() - birthDate.getFullYear();
   var month     = today.getMonth() - birthDate.getMonth();
   if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) age--;
-  var ageInput = document.getElementById("reg-age");
+var ageInput = document.getElementById("reg-age");
   if (ageInput) ageInput.value = age;
 }
 
-
+function initAdminUsers() {
   var stored    = localStorage.getItem("kwanda_users");
   var allUsers  = stored ? JSON.parse(stored) : [];
   var container = document.getElementById("users-list");
