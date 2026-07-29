@@ -703,24 +703,6 @@ function calcAge(dob) {
   if (ageInput) ageInput.value = age;
 }
 
-function handleForgotPassword() {
-  var email     = document.getElementById("reset-email") ? document.getElementById("reset-email").value.trim().toLowerCase() : "";
-  var errorEl   = document.getElementById("reset-error");
-  var successEl = document.getElementById("reset-success");
-  if (errorEl)   errorEl.textContent   = "";
-  if (successEl) successEl.textContent = "";
-  if (!email) { if (errorEl) errorEl.textContent = "Please enter your email address."; return; }
-  var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!regex.test(email)) { if (errorEl) errorEl.textContent = "Please enter a valid email address."; return; }
-  var stored   = localStorage.getItem("kwanda_users");
-  var allUsers = stored ? JSON.parse(stored) : [];
-  var exists   = allUsers.find(function(u) { return (u.email || "").toLowerCase() === email; });
-  if (!exists) { if (errorEl) errorEl.textContent = "No account found with this email address."; return; }
-  if (successEl) successEl.textContent = "✅ Password reset link sent to " + email + ". Please check your inbox.";
-  var btn = document.querySelector(".btn-purple");
-  if (btn) { btn.textContent = "Link Sent!"; btn.disabled = true; btn.style.background = "#22c55e"; }
-}
-
 function initAdminUsers() {
   var stored    = localStorage.getItem("kwanda_users");
   var allUsers  = stored ? JSON.parse(stored) : [];
@@ -848,7 +830,6 @@ window.getUserReferralCode  = getUserReferralCode;
 window.initRefer            = initRefer;
 window.nextOnboardingSlide  = nextOnboardingSlide;
 window.skipOnboarding       = skipOnboarding;
-window.handleForgotPassword = handleForgotPassword;
 window.initAdminUsers       = initAdminUsers;
 window.searchUsers          = searchUsers;
 window.initAdminWallets     = initAdminWallets;
