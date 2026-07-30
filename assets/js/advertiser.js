@@ -715,12 +715,9 @@ async function initAdvertiserBilling() {
   var adv = getAdvertiserSession();
   if (!adv) { navigateTo("advertiser-login"); return; }
 
-  try {
+try {
     const data = await apiFetch('/campaigns/billing/summary');
     cachedBillingCampaigns = data.campaigns || [];
-
-    var balEl = document.getElementById("billing-balance");
-    if (balEl) balEl.textContent = window.formatRand(data.totals.totalSpent || 0);
   } catch (err) {
     console.error('Failed to load billing summary:', err.message);
     cachedBillingCampaigns = [];
@@ -730,15 +727,6 @@ async function initAdvertiserBilling() {
 
   var launchCard = document.getElementById("launch-campaign-card");
   if (launchCard) launchCard.innerHTML = "";
-}
-
-function setTopUpAmount(amount) {
-  var input = document.getElementById("topup-amount");
-  if (input) input.value = amount;
-}
-
-function handleTopUp() {
-  alert("Topping up a prepaid budget isn't available yet — campaigns are charged directly when created.");
 }
 
 function loadBillingHistory(advId) {
@@ -1360,8 +1348,6 @@ window.initAdvertiserAnalytics  = initAdvertiserAnalytics;
 window.updateAdvChart           = updateAdvChart;
 window.initAdvertiserProfile    = initAdvertiserProfile;
 window.initAdvertiserBilling    = initAdvertiserBilling;
-window.setTopUpAmount           = setTopUpAmount;
-window.handleTopUp              = handleTopUp;
 window.launchDraftCampaign      = launchDraftCampaign;
 window.initAdminPanel           = initAdminPanel;
 window.initAdminCampaignsMgmt   = initAdminCampaignsMgmt;
