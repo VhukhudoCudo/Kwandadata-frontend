@@ -1050,16 +1050,19 @@ function renderAdminUsersList(users) {
     var statusLabel = suspended
       ? "<span style='font-size:11px;font-weight:600;color:#ef4444;background:#fee2e2;padding:3px 10px;border-radius:20px;'>Suspended</span>"
       : "<span style='font-size:11px;font-weight:600;color:#22c55e;background:#dcfce7;padding:3px 10px;border-radius:20px;'>Active</span>";
-    var actionBtn = suspended
+var actionBtn = suspended
       ? "<button onclick=\"reinstateUser('" + u.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #22c55e;color:#22c55e;font-size:12px;font-weight:600;cursor:pointer;'>Reinstate</button>"
       : "<button onclick=\"suspendUser('" + u.id + "')\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid #ef4444;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;'>Suspend</button>";
+    var balance = u.wallet ? Number(u.wallet.balance) : 0;
     return "<div style='background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--border);'>"
       + "<div style='display:flex;align-items:center;gap:12px;margin-bottom:10px;'>"
       + "<div style='width:40px;height:40px;border-radius:50%;background:" + color + ";display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;flex-shrink:0;'>" + letter + "</div>"
       + "<div style='flex:1;'><p style='font-size:14px;font-weight:600;color:var(--text-primary);'>" + name + "</p><p style='font-size:12px;color:var(--text-muted);'>" + (u.email||"") + "</p></div>"
       + statusLabel + "</div>"
-      + "<p style='font-size:11px;color:var(--text-muted);margin-bottom:10px;'>Joined " + date + " \u00b7 " + (u.phone||"") + "</p>"
+      + "<p style='font-size:11px;color:var(--text-muted);margin-bottom:6px;'>Joined " + date + " \u00b7 " + (u.phone||"") + "</p>"
+      + "<p style='font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;'>Wallet Balance: R " + window.formatAmt(balance) + "</p>"
       + "<div style='display:flex;gap:8px;'>"
+      + "<button onclick=\"adjustUserBalance('" + u.id + "', '" + name.replace(/'/g, "") + "', " + balance + ")\" style='flex:1;padding:9px;border-radius:10px;background:#fff;border:1.5px solid var(--primary);color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;'>Adjust Balance</button>"
       + actionBtn + "</div></div>";
   }).join("");
 }
@@ -1085,8 +1088,26 @@ async function reinstateUser(id) {
   }
 }
 
-function adjustUserBalance(id) {
-  alert("Directly adjusting a user's wallet balance isn't available yet.");
+async function adjustUserBalance(id, name, currentBalance) {
+  var input = prompt("Adjust wallet balance for " + name + "\nCurrent balance: R " + window.formatAmt(currentBalance) + "\n\nEnter the new balance (R):");
+  if (input === null) return;
+
+  var newBalance = parseFloat(input);
+  if (isNaN(newBalance) || newBalance < 0) {
+    alert("Please enter a valid amount.");
+    return;
+  }
+
+  try {
+    await apiFetch('/admin/users/' + id + '/adjust-balance', {
+      method: 'PATCH',
+      body: JSON.stringify({ balance: newBalance }),
+    });
+    showToast("Balance updated to R " + window.formatAmt(newBalance), "success");
+    fetchAndRenderAdminUsers();
+  } catch (err) {
+    alert(err.message || "Could not update this user's balance. Please try again.");
+  }
 }
 
 // ── Admin Redemptions Queue ──
