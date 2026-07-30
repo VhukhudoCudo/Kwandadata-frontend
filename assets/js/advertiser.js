@@ -529,9 +529,7 @@ if (el("analytics-spent"))       el("analytics-spent").textContent       = windo
       ? eng.repeatParticipants + " of " + reach.totalParticipants + " participants came back for a 2nd activity"
       : "No activity recorded yet";
   }
-
-  var demoEl = document.getElementById("analytics-demographics");
-  if (demoEl) demoEl.innerHTML = "<p style='font-size:12px;color:var(--text-muted);text-align:center;padding:8px;'>Demographic breakdown isn't tracked yet.</p>";
+renderDemographics(data.demographics);
   var attrEl = document.getElementById("analytics-attribution");
   if (attrEl) attrEl.innerHTML = "<p style='font-size:12px;color:var(--text-muted);text-align:center;padding:8px;'>Signup attribution isn't tracked yet.</p>";
 
@@ -539,30 +537,21 @@ if (el("analytics-spent"))       el("analytics-spent").textContent       = windo
   renderAnalyticsBreakdown(data.campaigns);
 }
 
-// ── 1. User Demographics — age, gender, location of users who engaged with this advertiser's campaigns ──
-function renderDemographics(campEvents) {
+// ── User Demographics — real province/gender breakdown of users who completed this advertiser's campaigns ──
+function renderDemographics(demographics) {
   var container = document.getElementById("analytics-demographics");
   if (!container) return;
 
-  var seen = {}, uniqueUsers = [];
-  campEvents.forEach(function(e) {
-    if (e.userId && !seen[e.userId]) { seen[e.userId] = true; uniqueUsers.push(e); }
-  });
+  var byProvince = (demographics && demographics.byProvince) || {};
+  var byGender = (demographics && demographics.byGender) || {};
+  var total = Object.values(byProvince).reduce(function(sum, n) { return sum + n; }, 0);
 
-  if (uniqueUsers.length === 0) {
+  if (total === 0) {
     container.innerHTML = "<div style='text-align:center;padding:20px;color:var(--text-muted);'><i class='ti ti-users' style='font-size:28px;display:block;margin-bottom:6px;opacity:0.4;'></i><p style='font-size:12px;'>Demographic data appears once users complete your campaigns.</p></div>";
     return;
   }
 
-  var ageCounts = {}, genderCounts = {}, provinceCounts = {};
-  uniqueUsers.forEach(function(u) {
-    var a = ageBucket(u.age);      ageCounts[a] = (ageCounts[a]||0) + 1;
-    var g = u.gender || 'unknown'; genderCounts[g] = (genderCounts[g]||0) + 1;
-    var p = u.province || 'unknown'; provinceCounts[p] = (provinceCounts[p]||0) + 1;
-  });
-
   function bars(counts) {
-    var total = uniqueUsers.length;
     return Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; }).map(function(k) {
       var pct = total > 0 ? Math.round((counts[k] / total) * 100) : 0;
       return "<div style='margin-bottom:9px;'><div style='display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;'><span style='color:var(--text-primary);font-weight:600;'>" + prettyLabel(k) + "</span><span style='color:var(--text-muted);'>" + counts[k] + " (" + pct + "%)</span></div><div style='background:var(--bg);border-radius:6px;height:6px;overflow:hidden;'><div style='background:#f97316;height:100%;width:" + pct + "%;border-radius:6px;'></div></div></div>";
@@ -570,10 +559,9 @@ function renderDemographics(campEvents) {
   }
 
   container.innerHTML =
-    "<p style='font-size:11px;color:var(--text-muted);margin-bottom:12px;'>Based on " + uniqueUsers.length + " unique user" + (uniqueUsers.length===1?"":"s") + " reached</p>" +
-    "<div style='margin-bottom:16px;'><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Age</p>" + bars(ageCounts) + "</div>" +
-    "<div style='margin-bottom:16px;'><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Gender</p>" + bars(genderCounts) + "</div>" +
-    "<div><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Location (Province)</p>" + bars(provinceCounts) + "</div>";
+    "<p style='font-size:11px;color:var(--text-muted);margin-bottom:12px;'>Based on " + total + " unique user" + (total===1?"":"s") + " reached</p>" +
+    "<div style='margin-bottom:16px;'><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Location (Province)</p>" + bars(byProvince) + "</div>" +
+    "<div><p style='font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;'>Gender</p>" + bars(byGender) + "</div>";
 }
 
 // ── 2. Active Users — platform-wide DAU / MAU, to gauge overall app engagement ──
