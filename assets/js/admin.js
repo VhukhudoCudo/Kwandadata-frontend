@@ -265,11 +265,13 @@ async function initAdminSettings() {
     if (el) el.value = priceFields[id];
   });
 
- var splitAdmin = document.getElementById('split-admin');
+var splitAdmin = document.getElementById('split-admin');
   var splitData  = document.getElementById('split-data');
+  var splitCampaignEl = document.getElementById('split-campaign-objective');
   var vatRateEl  = document.getElementById('vat-rate');
   if (splitAdmin) splitAdmin.value = settings.splitAdmin;
   if (splitData)  splitData.value  = settings.splitData;
+  if (splitCampaignEl) splitCampaignEl.value = settings.splitCampaignObjective;
   if (vatRateEl)  vatRateEl.value  = settings.vatRate;
 
   var referralBonusEl = document.getElementById('referral-bonus');
@@ -317,22 +319,25 @@ async function savePricing() {
 async function saveSplitSettings() {
   var adminEl  = document.getElementById('split-admin');
   var dataEl   = document.getElementById('split-data');
+  var campaignEl = document.getElementById('split-campaign-objective');
   var vatEl    = document.getElementById('vat-rate');
   var splitAdmin = adminEl ? parseFloat(adminEl.value) : NaN;
   var splitData  = dataEl  ? parseFloat(dataEl.value)  : NaN;
+  var splitCampaignObjective = campaignEl ? parseFloat(campaignEl.value) : NaN;
   var vatRate    = vatEl   ? parseFloat(vatEl.value)   : NaN;
   if (isNaN(splitAdmin) || splitAdmin < 0) splitAdmin = 20;
   if (isNaN(splitData)  || splitData  < 0) splitData  = 20;
+  if (isNaN(splitCampaignObjective) || splitCampaignObjective < 0) splitCampaignObjective = 20;
   if (isNaN(vatRate)    || vatRate    < 0) vatRate    = 15;
-  if (splitAdmin + splitData > 100) {
-    alert("Admin fee and data split together can't exceed 100%.");
+  if (splitAdmin + splitData + splitCampaignObjective > 100) {
+    alert("Admin fee, data split, and campaign objective together can't exceed 100%.");
     return;
   }
 
  try {
     await apiFetch('/settings/splits', {
       method: 'PATCH',
-      body: JSON.stringify({ splitAdmin, splitData, vatRate }),
+      body: JSON.stringify({ splitAdmin, splitData, splitCampaignObjective, vatRate }),
     });
     showToast('Earnings split saved. Applies immediately.', 'success');
   } catch (err) {
