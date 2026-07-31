@@ -267,8 +267,10 @@ async function initAdminSettings() {
 
  var splitAdmin = document.getElementById('split-admin');
   var splitData  = document.getElementById('split-data');
+  var vatRateEl  = document.getElementById('vat-rate');
   if (splitAdmin) splitAdmin.value = settings.splitAdmin;
   if (splitData)  splitData.value  = settings.splitData;
+  if (vatRateEl)  vatRateEl.value  = settings.vatRate;
 
   var referralBonusEl = document.getElementById('referral-bonus');
   if (referralBonusEl) referralBonusEl.value = settings.referralBonus;
@@ -293,10 +295,18 @@ async function savePricing() {
     signup   : getNum('price-signup', 25),
   };
 
+  var referralEl = document.getElementById('referral-bonus');
+  var referralBonus = referralEl ? parseFloat(referralEl.value) : NaN;
+  if (isNaN(referralBonus) || referralBonus < 0) referralBonus = 5;
+
   try {
     await apiFetch('/settings/pricing', {
       method: 'PATCH',
       body: JSON.stringify(prices),
+    });
+    await apiFetch('/settings/referral-bonus', {
+      method: 'PATCH',
+      body: JSON.stringify({ referralBonus }),
     });
     showToast('Pricing saved. New prices apply immediately.', 'success');
   } catch (err) {
@@ -307,10 +317,13 @@ async function savePricing() {
 async function saveSplitSettings() {
   var adminEl  = document.getElementById('split-admin');
   var dataEl   = document.getElementById('split-data');
+  var vatEl    = document.getElementById('vat-rate');
   var splitAdmin = adminEl ? parseFloat(adminEl.value) : NaN;
   var splitData  = dataEl  ? parseFloat(dataEl.value)  : NaN;
+  var vatRate    = vatEl   ? parseFloat(vatEl.value)   : NaN;
   if (isNaN(splitAdmin) || splitAdmin < 0) splitAdmin = 20;
   if (isNaN(splitData)  || splitData  < 0) splitData  = 20;
+  if (isNaN(vatRate)    || vatRate    < 0) vatRate    = 15;
   if (splitAdmin + splitData > 100) {
     alert("Admin fee and data split together can't exceed 100%.");
     return;
@@ -319,7 +332,7 @@ async function saveSplitSettings() {
  try {
     await apiFetch('/settings/splits', {
       method: 'PATCH',
-      body: JSON.stringify({ splitAdmin, splitData }),
+      body: JSON.stringify({ splitAdmin, splitData, vatRate }),
     });
     showToast('Earnings split saved. Applies immediately.', 'success');
   } catch (err) {
@@ -327,24 +340,6 @@ async function saveSplitSettings() {
   }
 }
 
-async function saveReferralBonus() {
-  var el = document.getElementById('referral-bonus');
-  var referralBonus = el ? parseFloat(el.value) : NaN;
-  if (isNaN(referralBonus) || referralBonus < 0) {
-    alert('Please enter a valid referral bonus amount.');
-    return;
-  }
-
-  try {
-    await apiFetch('/settings/referral-bonus', {
-      method: 'PATCH',
-      body: JSON.stringify({ referralBonus }),
-    });
-    showToast('Referral bonus saved.', 'success');
-  } catch (err) {
-    alert(err.message || 'Could not save the referral bonus. Please try again.');
-  }
-}
 async function toggleMaintenance(checked) {
   try {
     await apiFetch('/settings/maintenance', {
@@ -374,6 +369,5 @@ async function saveMaintenanceSettings() {
 window.initAdminSettings       = initAdminSettings;
 window.savePricing             = savePricing;
 window.saveSplitSettings       = saveSplitSettings;
-window.saveReferralBonus       = saveReferralBonus;
 window.toggleMaintenance       = toggleMaintenance;
 window.saveMaintenanceSettings = saveMaintenanceSettings;
