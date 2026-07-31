@@ -65,12 +65,14 @@ function renderTasks(tab) {
       ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.firstName} ${task.campaign.advertiser.lastName}</span>`
       : `<span class="task-duration">${task.type}</span>`;
 
-    const isLinkTask = !!(task.content && task.content.link);
+const isLinkTask = !!(task.content && task.content.link);
     let buttonHtml;
-    if (task.completed) {
+    if (task.type === 'video' && isLinkTask) {
+      buttonHtml = task.completed
+        ? `<button class="btn-small" onclick="openVideoTask('${task.id}')">Watch Again</button>`
+        : `<button class="btn-small" onclick="openVideoTask('${task.id}')">Watch & Earn</button>`;
+    } else if (task.completed) {
       buttonHtml = `<button class="btn-small" style="background:#22c55e;" disabled>Done</button>`;
-    } else if (task.type === 'video' && isLinkTask) {
-      buttonHtml = `<button class="btn-small" onclick="openVideoTask('${task.id}')">Watch & Earn</button>`;
     } else if (task.type === 'quiz' && isLinkTask) {
       buttonHtml = `<button class="btn-small" onclick="openQuizTask('${task.id}')">Start Quiz</button>`;
     } else if (isLinkTask) {
@@ -194,7 +196,6 @@ function openQuizTask(taskId) {
     }
   }, 1000);
 }
-
 async function startTask(taskId) {
   const btn = document.querySelector(`#task-${taskId} .btn-small`);
   if (btn) {
@@ -207,14 +208,17 @@ async function startTask(taskId) {
 
     if (typeof window.logActivity === 'function') window.logActivity('task', null);
 
-    if (btn) {
-      btn.textContent = 'Done';
-      btn.style.background = '#22c55e';
-    }
-
     // Mark it completed locally so switching tabs doesn't re-show "Start"
     const task = currentTasks.find(t => t.id === taskId);
     if (task) task.completed = true;
+
+    if (task && task.type === 'video') {
+      // Video stays re-watchable, so just re-render this row instead of locking the button
+      renderTasks(activeTab);
+    } else if (btn) {
+      btn.textContent = 'Done';
+      btn.style.background = '#22c55e';
+    }
 
     // Refresh the home balance display if that function is available
     if (typeof window.initHome === 'function') window.initHome();

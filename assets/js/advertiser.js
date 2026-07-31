@@ -193,8 +193,11 @@ function updateCampPrice() {
   if (el("camp-completions"))   el("camp-completions").textContent   = comps > 0 ? comps + " users" : "-";
   if (el("camp-total-cost"))    el("camp-total-cost").textContent    = budget > 0 ? window.formatRand(budget) : "-";
 
-  var linkGroup = el("camp-link-group");
+var linkGroup = el("camp-link-group");
   if (linkGroup) linkGroup.style.display = type ? "block" : "none";
+
+  var videoRepeatGroup = el("camp-video-repeat-group");
+  if (videoRepeatGroup) videoRepeatGroup.style.display = type === "video" ? "block" : "none";
 }
 
 async function submitCampaign() {
@@ -246,7 +249,6 @@ var target  = el("camp-target")      ? el("camp-target").value              : "a
       body: JSON.stringify({ title: name, description: desc, targeting: target, budget }),
     });
     var campaignId = campResult.campaign.id;
-
 await apiFetch(`/campaigns/${campaignId}/tasks`, {
       method: 'POST',
       body: JSON.stringify({
@@ -255,8 +257,11 @@ await apiFetch(`/campaigns/${campaignId}/tasks`, {
         type,
         reward: price,
         content: { link },
+        maxPerWindow: type === "video" ? parseInt(el("camp-video-per-day") ? el("camp-video-per-day").value : "1", 10) : undefined,
+        maxTotal: type === "video" ? parseInt(el("camp-video-max-total") ? el("camp-video-max-total").value : "5", 10) : undefined,
       }),
     });
+
     await apiFetch(`/campaigns/${campaignId}/launch`, { method: 'PATCH' });
 
     alert(
