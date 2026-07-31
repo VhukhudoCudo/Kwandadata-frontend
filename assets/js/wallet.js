@@ -29,7 +29,7 @@ async function loadWalletBalance() {
     if (bonusEl) bonusEl.textContent = window.formatRand(wallet.bonusBalance || 0);
 
     const dataEl = document.querySelector('.data-balance');
-    if (dataEl) dataEl.textContent = (wallet.dataBalance || 0).toFixed(0) + ' MB';
+    if (dataEl) dataEl.textContent = Number(wallet.dataBalance || 0).toFixed(0) + ' MB';
   } catch (err) {
     console.error('Failed to load wallet balance:', err.message);
   }
