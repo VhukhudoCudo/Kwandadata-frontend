@@ -62,7 +62,7 @@ function renderTasks(tab) {
 
   container.innerHTML = filtered.map(task => {
     const sponsored = task.campaign
-      ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.firstName} ${task.campaign.advertiser.lastName}</span>`
+     ? `<span class="task-duration" style="color:#f97316;font-weight:600;">Sponsored by ${task.campaign.advertiser.company || (task.campaign.advertiser.firstName + ' ' + task.campaign.advertiser.lastName)}</span>`
       : `<span class="task-duration">${task.type}</span>`;
 
 const isLinkTask = !!(task.content && task.content.link);

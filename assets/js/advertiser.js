@@ -164,8 +164,8 @@ async function initAdvertiserDashboard() {
     else if (hour >= 17 && hour < 21) greetingEl.textContent = "Good evening";
     else                               greetingEl.textContent = "Good night";
   }
-  var nameEl = document.getElementById("adv-company-name");
-  if (nameEl) nameEl.textContent = (adv.firstName && adv.lastName) ? (adv.firstName + " " + adv.lastName) : "Advertiser";
+var nameEl = document.getElementById("adv-company-name");
+  if (nameEl) nameEl.textContent = adv.company || ((adv.firstName && adv.lastName) ? (adv.firstName + " " + adv.lastName) : "Advertiser");
 var campaigns  = await getAdvertiserCampaigns(adv.id);
   var active     = campaigns.filter(function(c) { return c.status === "active"; });
   var totalSpent = campaigns.reduce(function(sum, c) { return sum + Number(c.spent || 0); }, 0);
