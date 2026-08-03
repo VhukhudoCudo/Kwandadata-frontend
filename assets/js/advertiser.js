@@ -10,7 +10,6 @@
 import { apiFetch, setToken } from './api.js';
 
 var cachedCampaignPrices = { "survey":15.00, "video":5.00, "quiz":8.00, "download":20.00, "signup":25.00 };
-
 async function loadCampaignPrices() {
   try {
     var data = await apiFetch('/settings');
@@ -22,6 +21,30 @@ async function loadCampaignPrices() {
   }
 }
 
+// Fills in each Activity Type option's label with the real, current admin-set price,
+// so the dropdown never shows stale/hardcoded numbers that don't match App Settings.
+function refreshCampaignPriceOptions() {
+  var typeEl = document.getElementById("camp-type");
+  if (!typeEl) return;
+  var labels = {
+    survey: "Survey", video: "Watch Video", quiz: "Quiz",
+    download: "Download App", signup: "Sign Up / Register",
+  };
+  Array.prototype.forEach.call(typeEl.options, function(opt) {
+    if (!opt.value || !labels[opt.value]) return;
+    var price = cachedCampaignPrices[opt.value];
+    opt.textContent = labels[opt.value] + (price != null ? " — R " + window.formatAmt(price) + " per completion" : "");
+  });
+}
+
+async function initAdvertiserCreateCampaign() {
+  var adv = getAdvertiserSession();
+  if (!adv) { navigateTo("advertiser-login"); return; }
+  await loadCampaignPrices();
+  refreshCampaignPriceOptions();
+  updateCampPrice();
+}
+window.initAdvertiserCreateCampaign = initAdvertiserCreateCampaign;
 function getAdvertiserSession() {
   var s = localStorage.getItem("kwanda_advertiser_session");
   return s ? JSON.parse(s) : null;
