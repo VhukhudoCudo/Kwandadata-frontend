@@ -187,7 +187,7 @@ async function renderCampaignWallets() {
   }
 
   listEl.innerHTML = wallets.map(function(w) {
-    var companyName = w.advertiser.firstName + ' ' + w.advertiser.lastName;
+   var companyName = w.advertiser.company || (w.advertiser.firstName + ' ' + w.advertiser.lastName);
     return '<div class="redeem-option" onclick="redeemCampaignBalance(\'' + w.advertiserId + '\')">'
       + '<div class="redeem-icon orange"><i class="ti ti-building-store"></i></div>'
       + '<div class="redeem-info"><h4>' + companyName + '</h4><p>Available: R ' + window.formatAmt(w.balance) + '</p></div>'
@@ -212,7 +212,7 @@ async function redeemCampaignBalance(advertiserId) {
     return;
   }
 
-  const companyName = entry.advertiser.firstName + ' ' + entry.advertiser.lastName;
+  const companyName = entry.advertiser.company || (entry.advertiser.firstName + ' ' + entry.advertiser.lastName);
   const balance = Number(entry.balance);
 
   if (balance < 20) {
