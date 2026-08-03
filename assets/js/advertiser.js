@@ -1010,11 +1010,41 @@ async function adminPauseCampaign(campId) {
 
 let cachedAdminUsers = [];
 
+async function initAdminActivities() {
+  if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
+  var totalEl   = document.getElementById("act-total");
+  var todayEl   = document.getElementById("act-today");
+  var listEl    = document.getElementById("activities-list");
+  try {
+    var data = await apiFetch('/admin/activities');
+    if (totalEl) totalEl.textContent = data.totalActivities;
+    if (todayEl) todayEl.textContent = data.activitiesLast24h;
+    if (!listEl) return;
+    if (!data.activities || data.activities.length === 0) {
+      listEl.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);font-size:13px;'>No activities yet</div>";
+      return;
+    }
+    var actionLabels = { task_completed: "Completed a task" };
+    listEl.innerHTML = data.activities.map(function(a) {
+      var name = a.user ? ((a.user.firstName || "") + " " + (a.user.lastName || "")).trim() : "A user";
+      var label = actionLabels[a.action] || a.action;
+      var meta = a.meta && a.meta.taskTitle ? " — " + a.meta.taskTitle : "";
+      var date = new Date(a.createdAt).toLocaleString('en-ZA');
+      return "<div style='padding:12px 0;border-bottom:1px solid var(--border);'>"
+        + "<p style='font-size:13px;font-weight:600;color:var(--text-primary);margin:0;'>" + name + " — " + label + meta + "</p>"
+        + "<p style='font-size:11px;color:var(--text-muted);margin:2px 0 0;'>" + date + "</p></div>";
+    }).join('');
+  } catch (err) {
+    console.error('Failed to load activities:', err.message);
+    if (listEl) listEl.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);font-size:13px;'>Could not load activities right now.</div>";
+  }
+}
+window.initAdminActivities = initAdminActivities;
+
 async function initAdminUsersMgmt() {
   if (!isAdminSession()) { navigateTo("advertiser-login"); return; }
   await fetchAndRenderAdminUsers();
 }
-
 async function fetchAndRenderAdminUsers(search) {
   try {
     var query = '?role=USER' + (search ? '&search=' + encodeURIComponent(search) : '');
