@@ -4,13 +4,21 @@
   <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>KwandaData</title>
-  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+ <link rel="icon" type="image/png" href="assets/img/logo.png" />
+
+  <!-- PWA: makes the app properly installable via "Add to Home Screen" -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#14b8a6" />
+  <link rel="apple-touch-icon" href="/assets/img/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="KwandaData" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
   />
-
   <link rel="stylesheet" href="assets/css/main.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
   <link rel="stylesheet" href="assets/css/splash.css" />
@@ -25,7 +33,16 @@
 
   <div id="app"></div>
 
-  <script type="module" src="assets/js/app.js"></script>
+<script type="module" src="assets/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(err) {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
 
 </body>
 </html>
