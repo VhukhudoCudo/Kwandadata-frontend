@@ -95,7 +95,15 @@ async function handleRedeem(type) {
     return;
   }
 
-v
+    const input = prompt('Redeem: ' + option.title + ' | Balance: ' + (option.backendType === 'data' ? balance.toFixed(0) + 'MB' : 'R ' + window.formatAmt(balance)) + ' | Enter amount:');
+  if (input === null) return;
+
+  var phone = null;
+  if (option.backendType === 'airtime') {
+    phone = prompt('Which phone number is this airtime for? (e.g. 0821234567)');
+    if (!phone) return;
+  }
+
   const amount = parseFloat(input);
   if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
   if (amount < option.minAmt) { alert('Minimum for ' + option.title + ' is ' + option.minAmt + '.'); return; }
