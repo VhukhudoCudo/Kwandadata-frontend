@@ -135,19 +135,16 @@ async function handleRedeem(type) {
 // Shows the real voucher PIN(s) just issued, with the universal dial code to redeem them.
 function showVoucherDetails(redemption) {
   var vouchers = redemption && redemption.details && redemption.details.vouchers;
-  var phone = redemption && redemption.details && redemption.details.phone;
+  var phone = (redemption && redemption.details && redemption.details.phone) || 'your number';
   if (!vouchers || vouchers.length === 0) {
     alert('Airtime voucher issued! Check your redemption history for the PIN.');
     return;
   }
-  var lines = vouchers.map(function(v) {
-    return 'PIN: ' + v.pin + ' (R' + v.value + ')';
-  }).join('\n');
-  alert(
-    'Airtime voucher issued!' + (phone ? ' For: ' + phone : '') + '\n\n' + lines +
-    '\n\nTo redeem, dial this on the phone you want topped up:\n*130*410*01*your_pin#\n\n' +
-    'Works on any network — just replace "your_pin" with the PIN above.'
-  );
+  var blocks = vouchers.map(function(v) {
+    return 'R' + v.value + ' Universal Airtime Voucher sent to ' + phone +
+      '\n\nTo redeem dial *130*410*01*' + v.pin + '# on any device.';
+  }).join('\n\n');
+  alert(blocks);
 }
 
 // ── Render the user's own redemption history from the backend ──
