@@ -102,9 +102,13 @@ async function handleRedeem(type) {
   if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
   if (amount < option.minAmt) { alert('Minimum for ' + option.title + ' is ' + option.minAmt + '.'); return; }
   if (amount > balance) { alert('Not enough balance.'); return; }
+  if (option.backendType === 'airtime' && (!Number.isInteger(amount) || amount > 999)) {
+    alert('Airtime amounts must be a whole number between R2 and R999.');
+    return;
+  }
 
   try {
-    await apiFetch('/redeem', {
+    const result = await apiFetch('/redeem', {
       method: 'POST',
       body: JSON.stringify({ type: option.backendType, amount }),
     });
@@ -113,10 +117,31 @@ async function handleRedeem(type) {
     await renderRedemptions();
     if (typeof window.addTransaction === 'function') window.addTransaction();
 
-    showToast(option.title + ' redemption submitted — pending approval.', 'success');
+    if (option.backendType === 'airtime') {
+      showVoucherDetails(result.redemption);
+    } else {
+      showToast(option.title + ' redemption submitted — pending approval.', 'success');
+    }
   } catch (err) {
     alert(err.message || 'Could not submit this redemption. Please try again.');
   }
+}
+
+// Shows the real voucher PIN(s) just issued, with the universal dial code to redeem them.
+function showVoucherDetails(redemption) {
+  var vouchers = redemption && redemption.details && redemption.details.vouchers;
+  if (!vouchers || vouchers.length === 0) {
+    alert('Airtime voucher issued! Check your redemption history for the PIN.');
+    return;
+  }
+  var lines = vouchers.map(function(v) {
+    return 'PIN: ' + v.pin + ' (R' + v.value + ')';
+  }).join('\n');
+  alert(
+    'Airtime voucher issued!\n\n' + lines +
+    '\n\nTo redeem, dial this on the phone you want topped up:\n*130*410*01*your_pin#\n\n' +
+    'Works on any network — just replace "your_pin" with the PIN above.'
+  );
 }
 
 // ── Render the user's own redemption history from the backend ──
@@ -147,14 +172,19 @@ async function renderRedemptions() {
     var style = STATUS_STYLE[r.status] || STATUS_STYLE.pending;
     var date = new Date(r.createdAt).toLocaleString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     var title = r.type.charAt(0).toUpperCase() + r.type.slice(1);
-    return '<div class="redemption-item" style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">'
-      + '<div class="redemption-info"><h4 style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 2px;">' + title + '</h4>'
+    var canViewVoucher = r.type === 'airtime' && r.status === 'fulfilled' && r.details && r.details.vouchers;
+    var clickAttr = canViewVoucher ? ' onclick="showVoucherDetails(window.__redemptionsCache[\'' + r.id + '\'])" style="cursor:pointer;"' : '';
+    return '<div class="redemption-item"' + clickAttr + ' style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);' + (canViewVoucher ? 'cursor:pointer;' : '') + '">'
+      + '<div class="redemption-info"><h4 style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 2px;">' + title + (canViewVoucher ? ' <span style="font-size:10px;color:var(--primary);font-weight:600;">(tap for PIN)</span>' : '') + '</h4>'
       + '<p style="font-size:11px;color:var(--text-muted);margin:0;">' + date + '</p></div>'
       + '<div class="redemption-right" style="text-align:right;">'
       + '<p class="amount" style="font-size:14px;font-weight:700;color:#ef4444;margin:0 0 2px;">' + (r.type === 'data' ? Number(r.amount).toFixed(0) + 'MB' : window.formatRand(r.amount)) + '</p>'
       + '<span style="font-size:11px;font-weight:600;color:' + style.color + ';background:' + style.bg + ';padding:2px 8px;border-radius:10px;">' + (r.status.charAt(0).toUpperCase() + r.status.slice(1)) + '</span>'
       + '</div></div>';
   }).join('');
+
+  window.__redemptionsCache = {};
+  redemptions.forEach(function(r) { window.__redemptionsCache[r.id] = r; });
 }
 
 /* ══════════════════════════════════════
@@ -299,3 +329,4 @@ window.renderCampaignWallets   = renderCampaignWallets;
 window.redeemCampaignBalance   = redeemCampaignBalance;
 window.renderCampaignCodes     = renderCampaignCodes;
 window.initCampaignWallet      = initCampaignWallet;
+window.showVoucherDetails      = showVoucherDetails;
