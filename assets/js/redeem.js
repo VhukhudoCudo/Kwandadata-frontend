@@ -6,7 +6,6 @@ import { apiFetch } from './api.js';
 
 const REDEEM_OPTIONS = {
   'airtime'      : { title:'Airtime',      minAmt: 2,  backendType: 'airtime' },
-  'data-bundle'  : { title:'Data Bundle',  minAmt: 5,  backendType: 'data'    },
   'partner-apps' : { title:'Partner Apps', minAmt: 2,  backendType: null      }, // no backend support yet
   'cash-out'     : { title:'Cash Out',     minAmt: 20, backendType: 'cash'    },
 };
@@ -24,13 +23,13 @@ async function loadRedeemBalance() {
     const balanceEl = document.querySelector('.wallet-amount');
     if (balanceEl) balanceEl.textContent = window.formatRand(wallet.balance || 0);
     const dataEl = document.querySelector('.data-balance-redeem');
-    if (dataEl) dataEl.textContent = Number(wallet.dataBalance || 0).toFixed(0) + ' MB';
+    if (dataEl) dataEl.textContent = window.formatRand(wallet.dataBalance || 0);
   } catch (err) {
     console.error('Failed to load balance:', err.message);
   }
 }
 
-async function redeemDataBundle() {
+async function redeemAirtimeFromWallet() {
   let wallet;
   try {
     wallet = await apiFetch('/wallet/balance');
@@ -39,33 +38,41 @@ async function redeemDataBundle() {
     return;
   }
 
-  const dataMB = Number(wallet.dataBalance) || 0;
-  if (dataMB < 50) {
-    alert('Minimum data redemption is 50MB. Your balance: ' + dataMB.toFixed(0) + 'MB');
+  var currentUser = JSON.parse(localStorage.getItem('kwanda_current_user') || 'null');
+  var phone = currentUser && currentUser.phone;
+  if (!phone) {
+    alert('We could not find a registered phone number on your account. Please update your profile with a phone number first.');
     return;
   }
 
-  const phone = prompt('Redeem Data Bundle - Your data balance: ' + dataMB.toFixed(0) + 'MB - Enter phone number to receive data bundle:');
-  if (!phone) return;
+  const balance = Number(wallet.dataBalance) || 0;
+  if (balance < 10) {
+    alert('Not enough balance. Airtime requires at least R10. Your Ready-to-Use Airtime balance: R ' + window.formatAmt(balance));
+    return;
+  }
 
-  const input = prompt('How many MB to redeem? Min 50MB. Available: ' + dataMB.toFixed(0) + 'MB');
-  if (!input) return;
+  const input = prompt('Redeem Airtime to ' + phone + ' | Ready-to-Use Airtime Balance: R ' + window.formatAmt(balance) + ' | Enter amount:');
+  if (input === null) return;
 
   const amount = parseFloat(input);
-  if (isNaN(amount) || amount < 50) { alert('Minimum redemption is 50MB.'); return; }
-  if (amount > dataMB) { alert('Not enough data balance. Available: ' + dataMB.toFixed(0) + 'MB'); return; }
+  if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
+  if (!Number.isInteger(amount) || amount < 10 || amount > 999) {
+    alert('Airtime amounts must be a whole number between R10 and R999.');
+    return;
+  }
+  if (amount > balance) { alert('Not enough balance.'); return; }
 
   try {
-    await apiFetch('/redeem', {
+    const result = await apiFetch('/redeem', {
       method: 'POST',
-      body: JSON.stringify({ type: 'data', amount, details: { phone } }),
+      body: JSON.stringify({ type: 'airtime', amount, source: 'airtimeWallet', details: { phone } }),
     });
 
     await loadRedeemBalance();
     await renderRedemptions();
     if (typeof window.addTransaction === 'function') window.addTransaction();
 
-    showToast('Data bundle redemption submitted — pending approval.', 'success');
+    showVoucherDetails(result.redemption);
   } catch (err) {
     alert(err.message || 'Could not submit this redemption. Please try again.');
   }
@@ -325,7 +332,7 @@ async function initCampaignWallet() {
 
 export { initRedeem, handleRedeem };
 window.initRedeem              = initRedeem;
-window.redeemDataBundle        = redeemDataBundle;
+window.redeemAirtimeFromWallet = redeemAirtimeFromWallet;
 window.handleRedeem            = handleRedeem;
 window.renderRedemptions       = renderRedemptions;
 window.renderCampaignWallets   = renderCampaignWallets;
