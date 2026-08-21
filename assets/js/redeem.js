@@ -95,9 +95,7 @@ async function handleRedeem(type) {
     return;
   }
 
-  const input = prompt('Redeem: ' + option.title + ' | Balance: ' + (option.backendType === 'data' ? balance.toFixed(0) + 'MB' : 'R ' + window.formatAmt(balance)) + ' | Enter amount:');
-  if (input === null) return;
-
+v
   const amount = parseFloat(input);
   if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
   if (amount < option.minAmt) { alert('Minimum for ' + option.title + ' is ' + option.minAmt + '.'); return; }
@@ -110,7 +108,7 @@ async function handleRedeem(type) {
   try {
     const result = await apiFetch('/redeem', {
       method: 'POST',
-      body: JSON.stringify({ type: option.backendType, amount }),
+      body: JSON.stringify({ type: option.backendType, amount, details: phone ? { phone } : undefined }),
     });
 
     await loadRedeemBalance();
@@ -126,10 +124,10 @@ async function handleRedeem(type) {
     alert(err.message || 'Could not submit this redemption. Please try again.');
   }
 }
-
 // Shows the real voucher PIN(s) just issued, with the universal dial code to redeem them.
 function showVoucherDetails(redemption) {
   var vouchers = redemption && redemption.details && redemption.details.vouchers;
+  var phone = redemption && redemption.details && redemption.details.phone;
   if (!vouchers || vouchers.length === 0) {
     alert('Airtime voucher issued! Check your redemption history for the PIN.');
     return;
@@ -138,7 +136,7 @@ function showVoucherDetails(redemption) {
     return 'PIN: ' + v.pin + ' (R' + v.value + ')';
   }).join('\n');
   alert(
-    'Airtime voucher issued!\n\n' + lines +
+    'Airtime voucher issued!' + (phone ? ' For: ' + phone : '') + '\n\n' + lines +
     '\n\nTo redeem, dial this on the phone you want topped up:\n*130*410*01*your_pin#\n\n' +
     'Works on any network — just replace "your_pin" with the PIN above.'
   );
